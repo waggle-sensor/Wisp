@@ -7,7 +7,7 @@ Lists **public** Edge Code Repository (ECR) apps already registered and availabl
 
 ---
 
-## List public apps (camp default)
+## List public apps (Wisp default)
 
 | | |
 |--|--|

@@ -1,6 +1,6 @@
-# GPU passthrough with Podman/CDI on camp Thor nodes
+# GPU passthrough with Podman/CDI on event Thor nodes
 
-**Applicability:** running a container directly (not via `pluginctl`) on a camp Thor
+**Applicability:** running a container directly (not via `pluginctl`) on an event Thor
 blade where `docker` is Podman.
 
 ## Claim

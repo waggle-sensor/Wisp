@@ -2,7 +2,7 @@
 
 [Graphify](https://github.com/Graphify-Labs/graphify) is **required** on this Hermes profile. The profile ships ~250 skills and ~1.8K markdown files; the agent must discover the right skill/ref via the knowledge graph, not by grepping the tree.
 
-There is **no** camp setup shell script. Use the bundled skill **`graphify`**.
+There is **no** setup shell script. Use the bundled skill **`graphify`**.
 
 **Live graph location:** always `~/.hermes/profiles/sage/` (the installed Hermes profile). That is where Hermes loads skills for `sage`. **Do not** build or update day-to-day graphs under the git clone (`…/Wisp`) — the clone is only for install/`hermes profile update` and for instructors shipping `graphify-baseline.tar.gz`.
 
@@ -11,7 +11,7 @@ There is **no** camp setup shell script. Use the bundled skill **`graphify`**.
 | **Upstream** | <https://github.com/Graphify-Labs/graphify> |
 | **Bundled skill** | `skills/graphify/` — `/graphify ~/.hermes/profiles/sage` |
 | **Always-on rules** | profile `AGENTS.md` |
-| **Camp baseline** | `graphify-baseline.tar.gz` (optional fast init for `graphify-out/`) |
+| **Shipped baseline** | `graphify-baseline.tar.gz` (optional fast init for `graphify-out/`) |
 | **Corpus** | `skills/` + `docs/` (see `.graphifyignore`) |
 | **PyPI** | `graphifyy` (CLI: `graphify`) |
 | **Venv (required)** | **`.venv-graphify/`** under `~/.hermes/profiles/sage` — create if missing |
@@ -101,7 +101,7 @@ These matter when building/updating **without** (or beyond) the baseline tarball
 | `OLLAMA_API_KEY=ollama` | Any non-empty string; Ollama ignores auth but the OpenAI client sends a Bearer |
 | `GRAPHIFY_OLLAMA_KEEP_ALIVE=0` | Avoid pinning the model in VRAM between chunks / after extract |
 | Leave `GRAPHIFY_OLLAMA_NUM_CTX` **unset** | Auto-size from chunk. Forcing `8192` truncates ~57k markdown chunks → hollow graph |
-| `--token-budget 25000` | Camp-sized chunks; pair with low VRAM only if you also lower `NUM_CTX` |
+| `--token-budget 25000` | Large markdown chunks; pair with low VRAM only if you also lower `NUM_CTX` |
 | `--max-concurrency 1 --api-timeout 1800` | Thor-friendly when calling `graphify extract` directly |
 | Probe before long runs | `/api/tags`, `/v1/models`, tiny `/v1/chat/completions` must return HTTP 200 |
 

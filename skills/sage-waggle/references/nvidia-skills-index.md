@@ -4,7 +4,7 @@ Catalog of agent skills copied from [NVIDIA/skills](https://github.com/NVIDIA/sk
 
 Invoke with `/skill <name>` or `hermes -s <name>`. Browse/install upstream with `npx skills add nvidia/skills --list`.
 
-## Camp-priority (Thor / Jetson)
+## Thor-priority (Jetson)
 
 | Skill area | Examples | When |
 |------------|----------|------|

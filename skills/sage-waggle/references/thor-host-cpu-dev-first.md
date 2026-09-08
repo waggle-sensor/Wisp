@@ -28,7 +28,7 @@ Then install/run as usual (`pip install torch torchvision …` in the project ve
 ## What NOT to do
 
 - Do not wait on `torch.cuda.is_available()` from the host venv — it may never return.
-- Do not assume `docker run --gpus all` / `--runtime=nvidia` without daemon config is the camp path. Camp default is `sudo pluginctl build` → `sudo pluginctl run --selector resource.gpu=true` (see `pluginctl-camp-guide.md`).
+- Do not assume `docker run --gpus all` / `--runtime=nvidia` without daemon config is the Wisp path. Wisp default is `sudo pluginctl build` → `sudo pluginctl run --selector resource.gpu=true` (see `pluginctl-camp-guide.md`).
 - Do not pass `--device /dev/nvidia0` and expect host-style CUDA libs to appear.
 
 ## Contrast: `/dev/nvmap` permission (already in sage-waggle)

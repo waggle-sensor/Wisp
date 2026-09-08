@@ -9,8 +9,8 @@ Scraped **2026-07-15** from:
 
 1. Skim summaries (or search this file) to find the right page.
 2. **Fetch the live URL** for full procedures, commands, and tables — do not invent flashing/BSP steps from the summary alone.
-3. Camp Thors are Jetson Thor / AGX Thor class devices on JetPack / Jetson Linux **r39.x** — prefer Thor-tagged pages when both Thor and Orin variants exist.
-4. Related camp notes live in skill refs (`docker-build-deploy.md`, Thor CUDA/`/dev/nvmap`, pluginctl GPU tips).
+3. Event Thors are Jetson Thor / AGX Thor class devices on JetPack / Jetson Linux **r39.x** — prefer Thor-tagged pages when both Thor and Orin variants exist.
+4. Related notes live in skill refs (`docker-build-deploy.md`, Thor CUDA/`/dev/nvmap`, pluginctl GPU tips).
 
 **Pages indexed:** 192
 

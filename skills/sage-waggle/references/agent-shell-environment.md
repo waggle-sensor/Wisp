@@ -1,6 +1,6 @@
-# Agent shell environment on camp Thor nodes (HOME, `~`, and caches)
+# Agent shell environment on event Thor nodes (HOME, `~`, and caches)
 
-**Applicability:** any Hermes agent running on a camp Thor blade whose terminal tool
+**Applicability:** any Hermes agent running on an event Thor blade whose terminal tool
 issues shell commands on the participant's account.
 
 ## Claim

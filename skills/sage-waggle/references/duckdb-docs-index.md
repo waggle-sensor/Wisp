@@ -7,7 +7,7 @@ Scraped **2026-07-15** from [duckdb.org/docs](https://duckdb.org/docs/) → [cur
 1. Skim or search this file for the topic (Python client, CSV/Parquet, COPY, window functions, …).
 2. **Fetch the live URL** for full SQL/examples — do not invent DuckDB syntax from the summary alone.
 3. Prefer **`/docs/current/`** pages. Entry: <https://duckdb.org/docs/current/>.
-4. Camp default: local/in-process DuckDB (Python `duckdb` or CLI) — no remote server unless asked.
+4. Profile default: local/in-process DuckDB (Python `duckdb` or CLI) — no remote server unless asked.
 
 **Pages indexed:** 409
 

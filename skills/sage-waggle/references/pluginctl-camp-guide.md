@@ -1,6 +1,6 @@
-# pluginctl — camp guide for Thor plugin development
+# pluginctl — Thor guide for plugin development
 
-**Camp default on Thor nodes:** build and test Sage plugins with `pluginctl` on the node — not raw `podman build` for your first iteration, and not `python3 app.py` directly on the host.
+**Wisp default on Thor nodes:** build and test Sage plugins with `pluginctl` on the node — not raw `podman build` for your first iteration, and not `python3 app.py` directly on the host.
 
 Official docs:
 - [Sage pluginctl reference](https://sagecontinuum.org/docs/reference-guides/pluginctl)
@@ -9,7 +9,7 @@ Official docs:
 - [Edge apps tutorial series](https://sagecontinuum.org/docs/category/edge-apps) — intro → create → test → publish to ECR
 - **When ready to schedule fleet jobs (`sesctl`):** [Sage sesctl reference](https://sagecontinuum.org/docs/reference-guides/sesctl) · [edge-scheduler sesctl tutorials](https://github.com/waggle-sensor/edge-scheduler/tree/main/docs/sesctl)
 
-Camp setup guide: [setup.md — pluginctl workflow](../../../setup.md#first-plugin-build-on-thor--use-pluginctl)
+Setup guide: [setup.md — pluginctl workflow](../../../setup.md#first-plugin-build-on-thor--use-pluginctl)
 
 ---
 
@@ -48,7 +48,7 @@ sudo pluginctl ps          # confirms k3s/WES is reachable
 
 ---
 
-## Camp workflow (hello world)
+## Thor workflow (hello world)
 
 From inside your plugin directory (must contain a `Dockerfile`):
 
@@ -135,10 +135,10 @@ overview.md
 
 | Tool | What it does |
 | --- | --- |
-| **`sudo pluginctl build`** | **Camp default** — builds plugin image and registers for k3s |
+| **`sudo pluginctl build`** | **Wisp default** — builds plugin image and registers for k3s |
 | **`sudo pluginctl run`** | Runs plugin in WES pod with upload plumbing |
 | **`podman build`** | Lower-level; image not visible to k3s until `podman save \| sudo k3s ctr images import -` — use only for [ECR-bypass side-load](pluginctl-sideload-and-node-build.md) when portal builds fail |
-| **Hermes `terminal.backend: docker`** | Hermes's own **tool sandbox** for shell commands — separate from plugin builds; camp profile uses `local` on Thor because Podman `--init` needs `catatonit` (exit 125) |
+| **Hermes `terminal.backend: docker`** | Hermes's own **tool sandbox** for shell commands — separate from plugin builds; sage profile uses `local` on Thor because Podman `--init` needs `catatonit` (exit 125) |
 
 Do not confuse Hermes terminal sandbox issues with plugin development — plugins go through `pluginctl`.
 

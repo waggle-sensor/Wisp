@@ -6,7 +6,7 @@ Prefer **`hf-cli`** as the bootstrap skill for Hub operations — discover via *
 
 Invoke with `/skill <name>` or `hermes -s <name>` (exact names below).
 
-## Camp-priority skills
+## Event-priority skills
 
 | Skill | When to use |
 |-------|-------------|
@@ -54,7 +54,7 @@ Sage/Waggle edge work still uses **`sage-waggle`** — do not replace it with HF
 | `hf-cloud-sagemaker-production-defaults` | SageMaker endpoints with production defaults |
 | `hf-cloud-serving-image-selection` | Pick SageMaker serving container image URI |
 
-AWS / SageMaker `hf-cloud-*` skills are included for completeness; camp default remains Thor + Ollama / local HF workflows, not AWS.
+AWS / SageMaker `hf-cloud-*` skills are included for completeness; Wisp default remains Thor + Ollama / local HF workflows, not AWS.
 
 ## Re-sync from upstream
 

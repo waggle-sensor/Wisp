@@ -16,7 +16,7 @@ failures).
 
 ## 1. Tool selection and inventory fitness
 
-Hermes agents at camp had a large tool surface (terminal, file edits, skill /
+Hermes agents at Sage events had a large tool surface (terminal, file edits, skill /
 reference loaders, Graphify query, deploy helpers, etc.). More tools mean more
 capability, but also more description tokens and harder selection. Questions to
 answer from this corpus:

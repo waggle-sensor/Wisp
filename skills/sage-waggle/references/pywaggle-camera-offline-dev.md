@@ -1,9 +1,9 @@
 # Developing a camera plugin with no camera attached
 
-**Applicability:** camp Thor blades (which ship **without** a camera) and any dev box
+**Applicability:** event Thor blades (which often ship **without** a camera) and any dev box
 where `/dev/video*` does not exist.
 
-## The camp blades have no camera
+## Some event blades have no camera
 
 Confirmed independently on three nodes: no `/dev/video*`, empty
 `v4l2-ctl --list-devices`, no `/run/waggle/data-config.json`, `"sensors": []` in the

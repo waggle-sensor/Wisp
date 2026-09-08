@@ -6,7 +6,7 @@ Scraped from [sagecontinuum.org/docs](https://sagecontinuum.org/docs/getting-sta
 
 1. Skim the summaries below to find the page that answers the question.
 2. **Fetch the live page** at the listed URL when you need full content (steps, commands, screenshots). Do not invent details from the summary alone.
-3. Prefer camp skill refs (`pluginctl-camp-guide.md`, `sesctl-ecr-validation.md`, etc.) for Thor-specific CLI quirks — they may be newer than the website.
+3. Prefer Wisp skill refs (`pluginctl-camp-guide.md`, `sesctl-ecr-validation.md`, etc.) for Thor-specific CLI quirks — they may be newer than the website.
 4. Optional helpers: Sage MCP `search_sage_docs` / `ask_sage_docs`, or `curl -sL '<url>'`.
 
 **Pages indexed:** 27

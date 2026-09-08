@@ -6,7 +6,7 @@ Hosted by **[waggle-auth-app](https://github.com/waggle-sensor/waggle-auth-app)*
 
 ---
 
-## Primary endpoints (camp default)
+## Primary endpoints (Wisp default)
 
 | Method | URL | Auth | What it returns |
 |--------|-----|------|-----------------|
@@ -69,7 +69,7 @@ Verified sample (Thor blade `H00F`): manifest returns PTZ sensor with LAN snapsh
 
 ## Auth-required / sensitive (know they exist)
 
-Do **not** treat these as anonymous camp APIs. Source: [waggle-auth-app](https://github.com/waggle-sensor/waggle-auth-app).
+Do **not** treat these as anonymous event APIs. Source: [waggle-auth-app](https://github.com/waggle-sensor/waggle-auth-app).
 
 | URL pattern | Notes |
 |-------------|-------|

@@ -69,7 +69,7 @@ After adding, start a **new** Hermes session. Tools show up as `mcp_huggingface_
 }
 ```
 
-Optional env names used in camp docs: `HF_TOKEN` or `HUGGINGFACE_HUB_TOKEN` — copy into the Bearer header; do not ship real tokens in git.
+Optional env names used in Wisp docs: `HF_TOKEN` or `HUGGINGFACE_HUB_TOKEN` — copy into the Bearer header; do not ship real tokens in git.
 
 Some clients also support `https://huggingface.co/mcp?login` for OAuth-style login; Hermes on Thor should prefer Bearer token.
 
@@ -79,11 +79,11 @@ Some clients also support `https://huggingface.co/mcp?login` for OAuth-style log
 
 This profile also vendors workflow skills from [huggingface/skills](https://github.com/huggingface/skills) (`hf-cli`, `huggingface-*`, …). Catalog: **`huggingface-skills-index.md`**. Use MCP for live Hub tool calls; use skills for CLI/training/Gradio procedures.
 
-## Camp usage tips
+## Event usage tips
 
 1. Prefer Hugging Face MCP for **models / datasets / Spaces / papers / HF docs / Jobs**. Sage MCP stays for nodes/data/jobs; GitHub MCP for source control; Milvus helper for vector-client code.
-2. Toggle tools on the [settings](https://huggingface.co/settings/mcp) page so the agent only sees what students need (fewer tools = clearer routing).
-3. Enable **Documentation Semantic Search** when students ask “how do I … with transformers/PEFT?”
+2. Toggle tools on the [settings](https://huggingface.co/settings/mcp) page so the agent only sees what participants need (fewer tools = clearer routing).
+3. Enable **Documentation Semantic Search** when participants ask “how do I … with transformers/PEFT?”
 4. Re-auth / new session after changing MCP config (same quirk as Sage MCP).
 
 ## Security

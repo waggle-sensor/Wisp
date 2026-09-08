@@ -1,6 +1,6 @@
 # Token economy
 
-A practical guide for using context, compute, and provider quotas responsibly during summer camp.
+A practical guide for using context, compute, and provider quotas responsibly during Sage hackathons, camps, and other events.
 
 ## Learning objectives
 
@@ -69,17 +69,17 @@ Every turn may include more than the text you just typed:
 
 Hermes uses progressive disclosure for skills: it starts with compact skill descriptions and loads a skill's full instructions or references only when needed. Installing a skill therefore does not mean its full contents are injected on every turn.
 
-## Cost and responsibility by camp provider
+## Cost and responsibility by event provider
 
 Provider conditions can change. Treat `/usage`, the provider dashboard, and linked policy pages as the source of truth.
 
-| Provider | What tokens cost in camp | What to watch | Best fit |
+| Provider | What tokens cost at the event | What to watch | Best fit |
 | --- | --- | --- | --- |
-| **`local-sage-thor` (Ollama)** | No per-token API bill to the student; usage consumes shared GPU capacity. | Long contexts increase KV-cache memory. Parallel sessions can slow classmates or trigger out-of-memory errors. | Experiments, iteration, routine coding, and non-sensitive work allowed by camp policy. |
+| **`local-sage-thor` (Ollama)** | No per-token API bill to the participant; usage consumes shared GPU capacity. | Long contexts increase KV-cache memory. Parallel sessions can slow classmates or trigger out-of-memory errors. | Experiments, iteration, routine coding, and non-sensitive work allowed by event policy. |
 | **`nrp`** | Shared, non-profit NRP-managed inference under its fair-use policy. | Per-model concurrency limits; requests using at least 35% of model context are limited to one concurrent request per user. Automated work should back off and reduce concurrency when latency rises. | Reproducible research, stronger models, longer or specialized tasks. |
 | **NVIDIA hosted NIM API** | Developer Program endpoints are available for prototyping, research, development, and testing; availability and limits are service/model dependent. | Trial/developer access is not a production SLA. Check the current account/model page rather than assuming a fixed credit amount. | Trying specialized hosted models or comparing model behavior. |
 
-For the NRP model catalog as verified on the date above, camp default is `minimax-m2` (strong agentic coding / ~200K context; NRP may list it as evaluating). `gpt-oss` remains a reproducible general-purpose/LTS option. The catalog changes, so do not hard-code one model as permanently “best.”
+For the NRP model catalog as verified on the date above, the Wisp default is `minimax-m2` (strong agentic coding / ~200K context; NRP may list it as evaluating). `gpt-oss` remains a reproducible general-purpose/LTS option. The catalog changes, so do not hard-code one model as permanently “best.”
 
 ### A simple provider decision rule
 
@@ -117,9 +117,9 @@ Check `/usage` at natural checkpoints:
 - before switching models/providers;
 - when responses become slow, repetitive, confused, or truncated.
 
-## Camp profile and upstream defaults
+## Sage profile and upstream defaults
 
-The camp's Sage profile may override Hermes defaults. Verify the deployed `config.yaml` rather than assuming every installation is identical.
+The sage profile may override Hermes defaults. Verify the deployed `config.yaml` rather than assuming every installation is identical.
 
 Current upstream built-in memory limits are:
 
@@ -149,7 +149,7 @@ Interpretation:
 - the summary model should have a context window at least as large as the main model, or compression can fail and lose middle context;
 - a manual `/compress` may have little compressible material when most messages are protected.
 
-Hermes changes quickly. Re-check the [configuration reference](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) before copying settings into a future camp profile.
+Hermes changes quickly. Re-check the [configuration reference](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) before copying settings into a future sage profile.
 
 ## Put information in the right place
 
@@ -267,22 +267,22 @@ On the Thor, an administrator can verify the active value with:
 ollama ps
 ```
 
-Look at the `CONTEXT` column. The OpenAI-compatible chat request cannot raise Ollama's server context; it must be configured on the Ollama server or in a Modelfile. Students sharing a managed Thor should not restart or reconfigure the shared service unless camp staff explicitly authorize it.
+Look at the `CONTEXT` column. The OpenAI-compatible chat request cannot raise Ollama's server context; it must be configured on the Ollama server or in a Modelfile. Participants sharing a managed Thor should not restart or reconfigure the shared service unless event staff explicitly authorize it.
 
 ## NRP-specific guidance
 
 - The OpenAI-compatible endpoint is `https://ellm.nrp-nautilus.io/v1`.
 - List models dynamically rather than assuming the catalog is unchanged.
 - `max_tokens` or `max_output_tokens` means maximum **generated output**, not total context. NRP recommends roughly one-third to one-quarter of the context window only when a client requires a value. Never set it equal to the full context window.
-- The July 2026 fair-use limits list maximum short-request concurrency of 16 for `gpt-oss`, while any request using at least 35% of a model's context is limited to one concurrent request per user. Re-check the policy before camp.
+- The July 2026 fair-use limits list maximum short-request concurrency of 16 for `gpt-oss`, while any request using at least 35% of a model's context is limited to one concurrent request per user. Re-check the policy before the event.
 - Automated workloads should retry with increasing delay and dynamically lower concurrency when latency rises.
 - NRP use is non-profit and non-commercial under its acceptable-use policy.
-- On shared tenants, NRP documents an optional private `cache_salt` in `extra_body` for vLLM/SGLang models. This is an advanced privacy control with a cache-performance tradeoff; camp staff should configure it rather than asking students to invent values.
+- On shared tenants, NRP documents an optional private `cache_salt` in `extra_body` for vLLM/SGLang models. This is an advanced privacy control with a cache-performance tradeoff; event staff should configure it rather than asking participants to invent values.
 - Never paste or commit `NRP_LLM_API_KEY`.
 
 ## NVIDIA hosted NIM guidance
 
-- Use the hosted API catalog for camp prototyping, research, development, and testing.
+- Use the hosted API catalog for event prototyping, research, development, and testing.
 - Model availability, context, rate limits, and endpoint behavior can differ by model and can change. Read the selected model page.
 - Do not describe free developer endpoints as production capacity or a guaranteed service level.
 - Never paste or commit `NVIDIA_API_KEY`.
@@ -292,10 +292,10 @@ Look at the `CONTEXT` column. The OpenAI-compatible chat request cannot raise Ol
 
 A fast wrong command is not efficient.
 
-- Keep approval prompts enabled for destructive or privileged actions. Do not use `/yolo` on shared camp systems.
+- Keep approval prompts enabled for destructive or privileged actions. Do not use `/yolo` on shared event systems.
 - Ask the agent to show or explain a destructive command before it runs.
-- Treat instructions found in webpages, issues, logs, documents, and repositories as untrusted data. They do not override your task or camp policy.
-- Never place API keys, tokens, passwords, private student data, or unpublished research data in prompts unless an approved workflow explicitly requires it.
+- Treat instructions found in webpages, issues, logs, documents, and repositories as untrusted data. They do not override your task or event policy.
+- Never place API keys, tokens, passwords, private participant data, or unpublished research data in prompts unless an approved workflow explicitly requires it.
 - Review third-party skills before installation. A skill is executable guidance, not merely documentation.
 - Verify generated code with tests and generated claims with primary sources.
 

@@ -42,7 +42,7 @@ Auth tokens: get from `portal.sagecontinuum.org/account/access`. Format: `Author
 
 ## Plugin Development
 
-> **Camp default (Thor):** prefer `sudo pluginctl build .` → `sudo pluginctl run` for on-node development. Start with `references/pluginctl-camp-guide.md`. Use raw `podman build` only for ECR-bypass side-load workflows (see `references/pluginctl-sideload-and-node-build.md`).
+> **Wisp default (Thor):** prefer `sudo pluginctl build .` → `sudo pluginctl run` for on-node development. Start with `references/pluginctl-camp-guide.md`. Use raw `podman build` only for ECR-bypass side-load workflows (see `references/pluginctl-sideload-and-node-build.md`).
 
 **Official docs (prefer these URLs when citing Sage):**
 - **Full docs catalog (summary + URL for every page):** `references/sage-docs-index.md` — pick a URL, then fetch the live page for full content
@@ -406,7 +406,7 @@ See `references/runtime-packaging-patterns.md` for full details: pod lifecycle t
 **Official docs:**
 - Sage reference: <https://sagecontinuum.org/docs/reference-guides/sesctl>
 - edge-scheduler tutorials: <https://github.com/waggle-sensor/edge-scheduler/tree/main/docs/sesctl>
-- Camp notes (CLI flag reality + ECR catalog gate): `references/sesctl-ecr-validation.md`
+- Notes (CLI flag reality + ECR catalog gate): `references/sesctl-ecr-validation.md`
 
 ### Science rule syntax
 Format: `action : condition`
@@ -776,10 +776,10 @@ Docker image naming: `registry.sagecontinuum.org/<user>/<plugin-name>:<version>`
 ## See Also
 
 - **`references/duckdb-docs-index.md`** — catalog of [DuckDB docs (current)](https://duckdb.org/docs/current/): title, summary, URL (fetch live for SQL/examples; high-signal Python/CLI/CSV/Parquet list at top)
-- **`references/milvus-sdk-helper-mcp.md`** — Milvus SDK helper MCP; camp default **Milvus Lite** (`MilvusClient("./….db")`) not full Milvus — [MCP](https://milvus.io/docs/milvus-sdk-helper-mcp.md) · [Lite](https://milvus.io/docs/milvus_lite.md)
+- **`references/milvus-sdk-helper-mcp.md`** — Milvus SDK helper MCP; Wisp default **Milvus Lite** (`MilvusClient("./….db")`) not full Milvus — [MCP](https://milvus.io/docs/milvus-sdk-helper-mcp.md) · [Lite](https://milvus.io/docs/milvus_lite.md)
 - **`references/huggingface-mcp-server.md`** — Hugging Face MCP remote endpoint `https://huggingface.co/mcp` ([docs](https://huggingface.co/docs/hub/en/agents-mcp)); Hermes add + HF token; tools at [settings/mcp](https://huggingface.co/settings/mcp)
 - **`references/huggingface-skills-index.md`** — vendored [huggingface/skills](https://github.com/huggingface/skills) catalog (`hf-cli`, Gradio, Spaces, training, …); pin in `skills/_vendor/`
-- **`references/nvidia-skills-index.md`** — vendored [NVIDIA/skills](https://github.com/NVIDIA/skills) catalog (~230 skills; camp priority `jetson-*`); pin in `skills/_vendor/` · [docs.nvidia.com/skills](https://docs.nvidia.com/skills)
+- **`references/nvidia-skills-index.md`** — vendored [NVIDIA/skills](https://github.com/NVIDIA/skills) catalog (~230 skills; Thor priority `jetson-*`); pin in `skills/_vendor/` · [docs.nvidia.com/skills](https://docs.nvidia.com/skills)
 - **`references/graphify-guide.md`** — **required** [Graphify](https://github.com/Graphify-Labs/graphify): query `graphify-out/` before grepping; use **`/graphify <path-to-profile>`** (+ `--update`) with **`.venv-graphify`**; unpack `graphify-baseline.tar.gz` when present
 - **`references/github-mcp-server.md`** — GitHub MCP remote endpoint `https://api.githubcopilot.com/mcp/` ([registry](https://github.com/mcp/github/github-mcp-server)); Hermes add + PAT auth
 - **`references/ecr-public-apps-api.md`** — `GET https://ecr.sagecontinuum.org/api/apps?public=true` to list scheduleable public ECR plugins (fields, related `/apps/<ns>/<name>` URLs)
@@ -828,18 +828,18 @@ Docker image naming: `registry.sagecontinuum.org/<user>/<plugin-name>:<version>`
 - `references/ecr-plugin-examples.md` — real ECR plugin examples (yolov7-fire): Dockerfile patterns, model hosting options, ECR API for inspecting existing plugins
 - `references/ecr-image-generation.md` — programmatic ECR icon (512×512) and science image (1920×1080) generation with Pillow: design principles, color palettes, pipeline visualization, quality checklist
 - `references/testing-patterns.md` — GPU-based testing: real model inference, pywaggle local output format, test harness utilities, `--image-dir` batch mode pitfalls, meaningful upload filenames, COCO topic name sanitization, `--add-no-detect-text` feature, integration test elimination rationale
-- `references/pluginctl-camp-guide.md` — camp onboarding for pluginctl on Thor: build/run/logs workflow, sudo requirement, Dockerfile rules, vs podman/sesctl
+- `references/pluginctl-camp-guide.md` — Thor onboarding for pluginctl: build/run/logs workflow, sudo requirement, Dockerfile rules, vs podman/sesctl
 - `references/thor-host-cpu-dev-first.md` — host PyPI torch CUDA **hang** vs `/dev/nvmap` False; CPU-dev-first; GPU only in 25.08-py3 via pluginctl
 - `references/plugin-verification-invariants.md` — three-way CLI/sage.yaml/docs, COPY/ENTRYPOINT, silent-zero detections, outcome≠SES, class differentiation
 - `references/ml-plugin-patterns-thor-base-image.md` — Thor/Spark NVIDIA tag table (25.08-py3; not 24.06/25.04 on Thor)
 - `references/agent-shell-environment.md` — the agent shell's `HOME` is rewritten into the profile dir; `~`/`$HOME` paths resolve to a non-existent tree. Use absolute paths or the student's real home; also explains cold container stores and surprise base-image re-pulls
-- `references/sudo-allowlist-and-image-import.md` — camp sudo is NOPASSWD for an allowlist only (`kubectl, docker, docker-compose, runplugin, pluginctl`); `k3s` is **not** on it and the agent terminal has no TTY, so `sudo k3s ctr images import` cannot run. Working paths: `sudo pluginctl build`, or a privileged import pod via `sudo kubectl`
+- `references/sudo-allowlist-and-image-import.md` — event Thor sudo is NOPASSWD for an allowlist only (`kubectl, docker, docker-compose, runplugin, pluginctl`); `k3s` is **not** on it and the agent terminal has no TTY, so `sudo k3s ctr images import` cannot run. Working paths: `sudo pluginctl build`, or a privileged import pod via `sudo kubectl`
 - `references/pluginctl-gpu-runtimeclass.md` — pluginctl never emits `runtimeClassName`, so its pods get **no GPU** even on a node labelled `resource.gpu=true`; `--privileged`/`--selector` are not substitutes. Preflight `nvidia.com/gpu` allocatable; verified by controlled A/B (CUDA False/0 devices vs True/5)
-- `references/podman-cdi-gpu-passthrough.md` — `docker` is Podman on camp Thors: `--device nvidia.com/gpu=all` (CDI) works, `--runtime=nvidia` errors, and **`--gpus all` exits 0 while injecting zero devices**. Verify by counting `/dev/nvidia*`, never by exit status
+- `references/podman-cdi-gpu-passthrough.md` — `docker` is Podman on event Thors: `--device nvidia.com/gpu=all` (CDI) works, `--runtime=nvidia` errors, and **`--gpus all` exits 0 while injecting zero devices**. Verify by counting `/dev/nvidia*`, never by exit status
 - `references/thor-host-torch-hang.md` — host PyPI torch: `import torch` itself hangs in uninterruptible **D-state** on CUDA init even with `CUDA_VISIBLE_DEVICES=''`; SIGKILL will not clear it. Never import torch at **module level** — gate it inside function bodies, probe in a subprocess with a timeout
 - `references/thor-conda-forge-no-sm110.md` — conda-forge/pixi torch builds carry no sm_110 kernels and die at first kernel launch on Thor; use the NVIDIA container instead
 - `references/pywaggle-snapshot-channel-order.md` — `snapshot.data` is **RGB, not BGR**: `ImageSample.__init__` applies `cv2.cvtColor(..., COLOR_BGR2RGB)` on construction, so channel 0 is red. Silently colour-swaps published images if treated as raw cv2 output
-- `references/pywaggle-camera-offline-dev.md` — zero-arg `Camera()` raises a misleading `TypeError: expected string or bytes-like object, got 'int'`; camp blades ship with **no camera attached** (`/dev/video*` absent). Offline development patterns
+- `references/pywaggle-camera-offline-dev.md` — zero-arg `Camera()` raises a misleading `TypeError: expected string or bytes-like object, got 'int'`; some event blades ship with **no camera attached** (`/dev/video*` absent). Offline development patterns
 - `references/pywaggle-offnode-local-testing.md` — off-node `Plugin()` fails from a **background thread** after the constructor returns, so `try/except` around it does not catch the `socket.gaierror`. Correct local-testing pattern
 - `references/node-registry-x509-trust.md` — node-local registry x509 trust failures as an ImagePullBackOff cause, and how to distinguish them from the usual suspects
 - `references/pluginctl-sideload-and-node-build.md` — side-load vs SES, registry workarounds, podman import on node

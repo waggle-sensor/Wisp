@@ -1,8 +1,8 @@
 name: sage
 version: 1.4.0
-description: "Sage Grande Summer Camp 2026 agent — edge computing, Waggle plugins, Thor + Ollama; Graphify-required skills/docs discovery + HF/NVIDIA skills"
+description: "Sage event agent — hackathons, camps, and workshops; edge computing, Waggle plugins, Thor + Ollama; Graphify-required skills/docs discovery + HF/NVIDIA skills"
 hermes_requires: ">=0.12.0"
-author: "Sage Grande / UIC EVL"
+author: "Sage Grande/ Waggle"
 license: "MIT"
 env_requires:
   - name: NVIDIA_API_KEY

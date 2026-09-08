@@ -4,7 +4,7 @@ This profile **requires** a knowledge graph at `graphify-out/` over `skills/` + 
 
 When the user types `/graphify`, use the bundled **`graphify`** skill before doing anything else. If the user wants to **rebuild incrementally** after the graph exists, use that skill before doing anything else.
 
-**Do not** look for or invent a `scripts/setup-graphify.sh`. Camp Graphify is driven by skill **`graphify`**, which is more flexible than a one-off shell script.
+**Do not** look for or invent a `scripts/setup-graphify.sh`. Graphify is driven by skill **`graphify`**, which is more flexible than a one-off shell script.
 
 ### Where the live graph lives (non-negotiable)
 
@@ -18,7 +18,7 @@ That is where Hermes loads skills/docs for `sage`. Put `graphify-out/` and `.ven
 
 **Do not** run `/graphify` against the git clone (`…/Wisp`). The clone is only for `hermes profile install` / `update` and for instructors packaging `graphify-baseline.tar.gz` into the distribution. A graph under the clone is **not** what the running agent uses.
 
-### Camp rule — discover skills and docs through the graph
+### Profile rule — discover skills and docs through the graph
 
 This Hermes profile ships a large skill/doc corpus (Sage/Waggle, Hugging Face, NVIDIA Jetson, …). **Do not** mass-read the skills tree to find which skill or reference to use.
 
@@ -87,14 +87,14 @@ Use `"$GRAPHIFY" query …` or `"$PYTHON" -c "…"` for skill bash blocks — no
 When the skill / CLI needs a semantic extract against **local Ollama** (cold build without baseline, or doc-heavy `--update`):
 
 1. **`OLLAMA_BASE_URL` must end with `/v1`** (OpenAI-compat). Example: `http://127.0.0.1:11434/v1` — bare `:11434` → HTTP 404 on every chunk.
-2. Set **`OLLAMA_MODEL`** to an exact tag from `ollama list` (camp default often `gemma4:31b`).
+2. Set **`OLLAMA_MODEL`** to an exact tag from `ollama list` (profile default often `gemma4:31b`).
 3. Set **`OLLAMA_API_KEY=ollama`** (any non-empty string; Ollama ignores auth).
 4. Prefer **`GRAPHIFY_OLLAMA_KEEP_ALIVE=0`** so extract does not pin VRAM after chunks.
 5. Leave **`GRAPHIFY_OLLAMA_NUM_CTX` unset** (auto). Forcing `8192` truncates large markdown chunks (~57k) and hollows the graph. Use `--token-budget 25000` (and `--max-concurrency 1 --api-timeout 1800` if calling `graphify extract` directly).
 6. Probe before a long extract: `curl` `/api/tags`, `/v1/models`, and a tiny `/v1/chat/completions` — expect HTTP 200.
 7. Full extract over this corpus is **slow** (often 30+ minutes; can be hours). Prefer the baseline tarball; do not block forever in the foreground without telling the user.
 
-Camp procedure detail: `skills/sage-waggle/references/graphify-guide.md`.
+Procedure detail: `skills/sage-waggle/references/graphify-guide.md`.
 
 ### After the graph exists
 

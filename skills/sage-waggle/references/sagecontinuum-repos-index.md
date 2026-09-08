@@ -8,9 +8,9 @@ Scraped from [github.com/orgs/sagecontinuum/repositories](https://github.com/org
 
 1. Find the repo by name or skim category summaries below.
 2. Open the **URL** (clone / browse README / issues) when you need source — do not invent APIs from the summary alone.
-3. Prefer camp skill refs + [sage-docs-index.md](sage-docs-index.md) for conceptual/docs answers.
+3. Prefer Wisp skill refs + [sage-docs-index.md](sage-docs-index.md) for conceptual/docs answers.
 4. For **current** edge-stack / plugin tooling, prefer the [waggle-sensor](https://github.com/orgs/waggle-sensor) catalog ([waggle-sensor-repos-index.md](waggle-sensor-repos-index.md)) — many platform components live there now (`pywaggle`, `edge-scheduler`, `waggle-edge-stack`, `sage-mcp`).
-5. High-signal **sagecontinuum** repos for camp:
+5. High-signal **sagecontinuum** repos for events:
    - Data client: [sage-data-client](https://github.com/sagecontinuum/sage-data-client)
    - Storage API / clients: [sage-storage-api](https://github.com/sagecontinuum/sage-storage-api), [sage-storage-py](https://github.com/sagecontinuum/sage-storage-py), [sage-object-store](https://github.com/sagecontinuum/sage-object-store)
    - UI components: [sage-gui](https://github.com/sagecontinuum/sage-gui)

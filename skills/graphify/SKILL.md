@@ -64,7 +64,7 @@ Only when the path is one or more `https://github.com/...` URLs, or several loca
 
 ### Step 1 - Ensure graphify is installed
 
-**Camp profile override (sage):** Prefer **`.venv-graphify`** at the profile / scan root. Create it if missing. Do **not** start with `which graphify` / `uv tool` / system `pip` (hangs or hits PEP 668).
+**Sage profile override:** Prefer **`.venv-graphify`** at the profile / scan root. Create it if missing. Do **not** start with `which graphify` / `uv tool` / system `pip` (hangs or hits PEP 668).
 
 ```bash
 # Detect the correct Python interpreter (handles uv tool, pipx, venv, system installs)

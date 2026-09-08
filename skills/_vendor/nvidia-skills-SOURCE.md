@@ -11,7 +11,7 @@ Copied from [NVIDIA/skills](https://github.com/NVIDIA/skills) (`skills/`) for th
 | **Date** | 2026-07-15 12:36:07 -0500 |
 | **Skill count** | 230 |
 
-Do not edit these skill trees by hand for camp fixes unless necessary — prefer re-syncing from upstream (`npx skills update` mirrors the same catalog).
+Do not edit these skill trees by hand for profile fixes unless necessary — prefer re-syncing from upstream (`npx skills update` mirrors the same catalog).
 
 ```bash
 # Re-sync sketch:

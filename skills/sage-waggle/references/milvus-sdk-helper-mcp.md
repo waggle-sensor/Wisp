@@ -14,9 +14,9 @@ Official Milvus MCP that steers generated code toward the **current** SDK (`Milv
 
 ---
 
-## Camp default: Milvus Lite (not full Milvus)
+## Wisp default: Milvus Lite (not full Milvus)
 
-For summer-camp / Thor / laptop work, **prefer Milvus Lite** — embedded, file-backed, no Docker/K8s cluster.
+For Sage events / Thor / laptop work, **prefer Milvus Lite** — embedded, file-backed, no Docker/K8s cluster.
 
 | Prefer | Avoid unless user asks |
 |--------|-------------------------|
@@ -27,7 +27,7 @@ For summer-camp / Thor / laptop work, **prefer Milvus Lite** — embedded, file-
 ```python
 from pymilvus import MilvusClient
 
-# Milvus Lite — local file URI (camp default)
+# Milvus Lite — local file URI (Wisp default)
 client = MilvusClient("./milvus_demo.db")
 ```
 

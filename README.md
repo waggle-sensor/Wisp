@@ -1,6 +1,6 @@
 # Wisp
 
-Hermes **`sage` profile** for Sage / Waggle edge computing on NVIDIA Jetson AGX Thor + Ollama. This repo *is* the profile distribution — clone it, then `hermes profile install .`.
+Hermes **`sage` profile** for Sage hackathons, camps, and other Sage / Waggle events — edge computing on NVIDIA Jetson AGX Thor + Ollama. This repo *is* the profile distribution — clone it, then `hermes profile install .`.
 
 Setup guide: **[setup.md](setup.md)**. Token / context etiquette: **[token-economy.md](token-economy.md)**. Manifest: [`distribution.yaml`](distribution.yaml) (`name: sage`, **version 1.4.0**). Instructor scrape → mine → merge loop: **[foundry/README.md](foundry/README.md)** (`foundry/` is not part of the Hermes distribution or Graphify corpus).
 
@@ -104,7 +104,7 @@ The skill knows *how* Sage works, but you need your own access to touch nodes an
 
 1. **Sage portal account** — sign in at <https://portal.sagecontinuum.org> (Globus / institutional login).
 2. **Portal access token** (for protected data downloads) — generate at <https://portal.sagecontinuum.org/account/access>. Keep in a file you control (e.g. `~/.sage/token.txt`) — never commit it.
-3. **Node SSH access** — granted per-node by the instructor; ask for the exact `ssh` route and credentials.
+3. **Node SSH access** — granted per-node by event staff; ask for the exact `ssh` route and credentials.
 4. **Sage MCP** — pre-wired in `mcp.json`. Read-only tools need no token. For job-submission tools, set `SAGE_PORTAL_TOKEN` in your profile `.env` with Bearer header configured post-install.
 5. **GitHub MCP** (optional) — endpoint `https://api.githubcopilot.com/mcp/` ([registry](https://github.com/mcp/github/github-mcp-server)). In `mcp.json` as `github` with `enabled: false` until you add a PAT via `hermes mcp add` — details in `skills/sage-waggle/references/github-mcp-server.md`.
 6. **Hugging Face MCP** (optional) — endpoint `https://huggingface.co/mcp` ([docs](https://huggingface.co/docs/hub/en/agents-mcp)). In `mcp.json` as `huggingface` with `enabled: false` until you add an HF token; configure tools at [settings/mcp](https://huggingface.co/settings/mcp) — details in `skills/sage-waggle/references/huggingface-mcp-server.md`.
@@ -135,7 +135,7 @@ Run these as prompts inside `hermes -p sage` (with the sage-waggle skill active)
 1. **Orient.** *"Give me a 5-bullet overview of what a Sage/Waggle plugin is and the lifecycle from code to running on a node."*
 2. **Explore live data (needs Sage MCP).** *"List a few available Sage nodes and show the latest temperature readings from one of them."*
 3. **Read a real design.** *"Summarize `docs/pywaggle2-design.md` — specifically how a plugin should get its node's VSN and GPS location."*
-4. **Build something small.** *"Help me scaffold a minimal plugin that captures one camera snapshot and prints its size — using placeholder camera credentials I'll fill in from my instructor."*
+4. **Build something small.** *"Help me scaffold a minimal plugin that captures one camera snapshot and prints its size — using placeholder camera credentials I'll fill in from event staff."*
 5. **Learn the pitfalls.** *"What are the top 5 mistakes people make deploying Sage plugins, from the sage-waggle skill?"*
 
 ## Use the skill
@@ -157,7 +157,7 @@ hermes -p sage -s sage-waggle
 
 ## Contribute your brain
 
-Contribute what you learned back to this distribution so the shared Sage agent improves for everyone. See **[setup.md — End of camp](setup.md#end-of-camp--contribute-your-brain-required)** for the full checklist.
+Contribute what you learned back to this distribution so the shared Sage agent improves for everyone. See **[setup.md — End of event](setup.md#end-of-event--contribute-your-brain)** for the full checklist.
 
 ## Updates
 
@@ -184,8 +184,8 @@ Replaces distribution-owned files (SOUL, AGENTS, skills, mcp.json, docs). **Pres
 
 | Action | Why |
 | --- | --- |
-| Pre-create `gemma4-64k` on each Thor | Students skip [Step 4B](setup.md#step-4b--cap-ollama-context-recommended) |
-| Ship `graphify-baseline.tar.gz` (students unpack + create `.venv-graphify`) | Warm graph in seconds (no multi-hour extract) |
+| Pre-create `gemma4-64k` on each Thor | Participants skip [Step 4B](setup.md#step-4b--cap-ollama-context-recommended) |
+| Ship `graphify-baseline.tar.gz` (participants unpack + create `.venv-graphify`) | Warm graph in seconds (no multi-hour extract) |
 | `apt install catatonit` | Enables Hermes Docker sandbox later |
 | Pre-pull `docker.io/nikolaik/python-nodejs:python3.11-nodejs20` | Podman short-name fix |
 

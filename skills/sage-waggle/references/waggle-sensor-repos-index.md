@@ -8,7 +8,7 @@ Scraped from [github.com/orgs/waggle-sensor/repositories](https://github.com/org
 
 1. Find the repo by name or skim category summaries below.
 2. Open the **URL** (clone / browse README / issues) when you need source or examples — do not invent APIs from the summary alone.
-3. Prefer camp skill refs + [sage-docs-index.md](sage-docs-index.md) for conceptual/docs answers; use this index when you need **code**.
+3. Prefer Wisp skill refs + [sage-docs-index.md](sage-docs-index.md) for conceptual/docs answers; use this index when you need **code**.
 4. Sibling org catalog: [sagecontinuum-repos-index.md](sagecontinuum-repos-index.md) for [sagecontinuum](https://github.com/orgs/sagecontinuum) public repos.
 5. High-signal repos:
    - SDK: [pywaggle](https://github.com/waggle-sensor/pywaggle)

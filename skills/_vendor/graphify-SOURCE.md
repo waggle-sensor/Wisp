@@ -1,4 +1,4 @@
-# Vendored Graphify skill (required for camp profile)
+# Vendored Graphify skill (required for sage profile)
 
 Skill bundle + `AGENTS.md` rules copied from [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify) for Hermes.
 

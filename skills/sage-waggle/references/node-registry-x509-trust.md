@@ -49,7 +49,7 @@ common pull failures:
 
 1. **Re-import rather than re-pull.** Get the image into the node's containerd
    directly instead of going through the registry — but note that
-   `sudo k3s ctr images import` is **not available** on camp accounts; see
+   `sudo k3s ctr images import` is **not available** on participant accounts; see
    `sudo-allowlist-and-image-import.md` for the allowlisted routes.
 2. **Prefer `sudo pluginctl build`**, which builds and pushes in one allowlisted step
    and avoids a manual registry round-trip.

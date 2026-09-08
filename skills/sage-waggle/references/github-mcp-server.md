@@ -52,7 +52,7 @@ Hermes HTTP MCP entry (conceptually — exact file may be profile `mcp.json` or 
 }
 ```
 
-Optional env name used in camp docs: `GITHUB_MCP_PAT` or `GITHUB_PERSONAL_ACCESS_TOKEN` — copy into the Bearer header; do not ship real tokens in git.
+Optional env name used in Wisp docs: `GITHUB_MCP_PAT` or `GITHUB_PERSONAL_ACCESS_TOKEN` — copy into the Bearer header; do not ship real tokens in git.
 
 ### Toolsets / headers (advanced)
 
@@ -70,15 +70,15 @@ Common toolset groups: `context`, `repos`, `issues`, `pull_requests`, `actions`,
 
 ## Local server (optional)
 
-If remote HTTP is blocked: Docker image `ghcr.io/github/github-mcp-server` with env `GITHUB_PERSONAL_ACCESS_TOKEN`. Prefer remote on camp Thors unless Docker is required.
+If remote HTTP is blocked: Docker image `ghcr.io/github/github-mcp-server` with env `GITHUB_PERSONAL_ACCESS_TOKEN`. Prefer remote on event Thors unless Docker is required.
 
 Deprecated: npm `@modelcontextprotocol/server-github` (no longer supported upstream as of 2025).
 
 ---
 
-## Camp usage tips
+## Event usage tips
 
-1. Prefer GitHub MCP when you need **live** code/PRs/issues from `waggle-sensor`, student forks, or pywaggle — the skill’s `waggle-sensor-repos-index.md` is a static catalog.
+1. Prefer GitHub MCP when you need **live** code/PRs/issues from `waggle-sensor`, participant forks, or pywaggle — the skill’s `waggle-sensor-repos-index.md` is a static catalog.
 2. Keep Sage MCP (`mcp.sagecontinuum.org`) for nodes/data/jobs; use GitHub MCP for source control; Hugging Face MCP for Hub models/docs.
 3. Use least privilege: for read-only browsing, point at `/mcp/readonly` or a PAT with read-only scopes.
 4. Re-auth / new session after changing MCP config (same quirk as Sage MCP).

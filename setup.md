@@ -41,19 +41,19 @@ Hermes and Ollama both run on the Thor. Your laptop connects via SSH and attache
 
 ## Prerequisites
 
-- [ ] **Your personal Linux account** on the assigned Thor blade (provided by camp organizers)
+- [ ] **Your personal Linux account** on the assigned Thor blade (provided by event organizers)
 - [ ] SSH access: `ssh your-linux-user@thor-host` (use the username you were assigned)
 - [ ] Ollama installed and running on the Thor (shared system service — ask an instructor if it's not running)
 - [ ] At least one model pulled on the Thor (e.g. `gemma4:31b`)
 - [ ] Laptop with a terminal/SSH client only — nothing is installed locally
 
-### Before camp — Thor fleet prep (organizers, optional)
+### Before the event — Thor fleet prep (organizers, optional)
 
-Camp works without these — the profile defaults to `terminal.backend: local` and students can run [Step 4B](#step-4b--cap-ollama-context-recommended) themselves. Optional fleet actions:
+These are optional — the profile defaults to `terminal.backend: local` and participants can run [Step 4B](#step-4b--cap-ollama-context-recommended) themselves. Optional fleet actions:
 
 | Action | Why |
 | --- | --- |
-| Pre-create `gemma4-64k` on each Thor (`ollama create` from Modelfile) | Students skip Step 4B |
+| Pre-create `gemma4-64k` on each Thor (`ollama create` from Modelfile) | Participants skip Step 4B |
 | `apt install catatonit` on Thors | Enables Hermes Docker sandbox if desired later |
 | Pre-pull `docker.io/nikolaik/python-nodejs:python3.11-nodejs20` | Podman short-name fix for Docker backend |
 
@@ -88,7 +88,7 @@ Replace `your-linux-user` with the Linux username you were assigned and `thor-ho
 
 ## Step 2 — Install Hermes CLI
 
-Install the Hermes CLI into your home directory. Choose **Blank Slate** so the camp profile (Step 3A) provides the configuration.
+Install the Hermes CLI into your home directory. Choose **Blank Slate** so the sage profile (Step 3A) provides the configuration.
 
 ```bash
 curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
@@ -173,7 +173,7 @@ Launch with `hermes`.
 
 > **Note:** Graphify will automatically be used by the agent. see [graphify-guide.md](skills/sage-waggle/references/graphify-guide.md) or [graphify skills](skills/graphify/SKILL.md) for more details.
 
-### Pull camp config updates
+### Pull profile config updates
 
 ```bash
 hermes profile update sage --force-config
@@ -190,7 +190,7 @@ Replaces distribution-owned files (SOUL, skills, cron, mcp.json). **Preserves** 
 <details>
 <summary><strong>Backup — manual interactive setup</strong> (use only if profile install fails or you need custom config)</summary>
 
-Run the full installer wizard instead of the camp profile:
+Run the full installer wizard instead of the sage profile:
 
 ```bash
 hermes setup
@@ -315,7 +315,7 @@ If both return model data, Hermes can connect.
 
 ## Step 4B — Cap Ollama context (recommended)
 
-On Thor blades, the camp profile defaults to **`gemma4:31b`**. With Ollama's full auto-detected context (~262K tokens), the **first response can take 3–4+ minutes** and Hermes may look frozen. This is a known Thor issue — not a broken install.
+On Thor blades, the sage profile defaults to **`gemma4:31b`**. With Ollama's full auto-detected context (~262K tokens), the **first response can take 3–4+ minutes** and Hermes may look frozen. This is a known Thor issue — not a broken install.
 
 **Diagnose:**
 
@@ -427,7 +427,7 @@ give it a generous timeout rather than assuming it failed.
 ```bash
 hermes model              # add or change model providers
 hermes setup              # re-run setup wizard
-hermes profile update sage --force-config   # pull camp profile updates
+hermes profile update sage --force-config   # pull sage profile updates
 ```
 
 ---
@@ -452,13 +452,13 @@ hermes profile update sage --force-config   # pull camp profile updates
 
 See [Step 4B](#step-4b--cap-ollama-context-recommended) — cap context with a `gemma4-64k` Modelfile.
 
-### Hermes Docker sandbox (exit 125) — why camp uses `local` backend
+### Hermes Docker sandbox (exit 125) — why Wisp uses `local` backend
 
 **Symptom:** tool calls fail instantly with `Docker exit status 125`.
 
 **Cause:** on Thors, `docker` is actually **Podman**. Hermes launches its sandbox with Podman's `--init` flag, which requires the **`catatonit`** binary — not installed on current Thors.
 
-**Camp default:** the profile ships `terminal.backend: local` — commands run directly in your Linux account without a container sandbox. This is intentional for camp.
+**Wisp default:** the profile ships `terminal.backend: local` — commands run directly in your Linux account without a container sandbox. This is intentional on event Thors.
 
 **If you switched to Docker and hit exit 125:**
 
@@ -525,7 +525,7 @@ No SSH tunnel. No Ollama. No local GPU to manage.
 - [ ] NVIDIA Developer account
 - [ ] API key from [NVIDIA Build](https://build.nvidia.com/settings/api-keys)
 
-If you used the camp profile (Step 3A), it may already define the NVIDIA provider — you only need to add your API key to `.env`.
+If you used the sage profile (Step 3A), it may already define the NVIDIA provider — you only need to add your API key to `.env`.
 
 ---
 
@@ -617,7 +617,7 @@ All inference requests go to NVIDIA's hosted infrastructure from the Thor.
 
 # Part 2B: NRP Managed LLMs
 
-Hermes runs on the Thor and talks to **[NRP Managed LLMs](https://nrp.ai/documentation/userdocs/ai/llm-managed/)** over HTTPS via the Envoy AI Gateway. No Ollama required. The camp profile ships **`minimax-m2`** ([NRP model card](https://nrp.ai/documentation/userdocs/ai/llm-managed/models/#minimax-m2)) as the default NRP model — strong agentic tool calling and ~200K context.
+Hermes runs on the Thor and talks to **[NRP Managed LLMs](https://nrp.ai/documentation/userdocs/ai/llm-managed/)** over HTTPS via the Envoy AI Gateway. No Ollama required. The sage profile ships **`minimax-m2`** ([NRP model card](https://nrp.ai/documentation/userdocs/ai/llm-managed/models/#minimax-m2)) as the default NRP model — strong agentic tool calling and ~200K context.
 
 ## At a glance
 
@@ -637,7 +637,7 @@ Hermes runs on the Thor and talks to **[NRP Managed LLMs](https://nrp.ai/documen
 - [ ] NRP group membership with the **LLM flag** enabled (check the [namespaces page](https://nrp.ai/documentation/userdocs/ai/llm-managed/api-access/))
 - [ ] NRP LLM token from the [LLM token page](https://nrp.ai/documentation/userdocs/ai/llm-managed/api-access/)
 
-If you used the camp profile (Step 3A), the `nrp` custom provider is already in `config.yaml` — you only need to add your token to `.env`.
+If you used the sage profile (Step 3A), the `nrp` custom provider is already in `config.yaml` — you only need to add your token to `.env`.
 
 ---
 
@@ -772,23 +772,23 @@ Updates replace distribution-owned files (SOUL, skills, cron) but **never** touc
 
 ### Publish changes (authors)
 
-Camp organizers and team leads publish via git — see [Profile Distributions: For authors](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions#for-authors-publishing-a-distribution) and the checklist in [`README.md`](README.md).
+Event organizers and team leads publish via git — see [Profile Distributions: For authors](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions#for-authors-publishing-a-distribution) and the checklist in [`README.md`](README.md).
 
 ```bash
 # After editing SOUL.md, skills/, config.yaml, etc. in the profile repo:
 git add distribution.yaml SOUL.md skills/ config.yaml
-git commit -m "v1.1.0: updated camp SOUL and skills"
+git commit -m "v1.1.0: updated sage SOUL and skills"
 git tag v1.1.0
 git push --tags
 ```
 
 Anyone with the profile installed runs `hermes profile update sage` to pick up the changes.
 
-## End of camp — contribute your brain (required)
+## End of event — contribute your brain
 
-> **Don't forget:** Before you leave camp, contribute what you learned back to the shared Sage agent.
+> **Don't forget:** Before you leave, contribute what you learned back to the shared Sage agent.
 
-All week you build a personal **brain** under `~/.hermes/profiles/sage/` — memories, skill tweaks, reference notes, debugging recipes. That knowledge stays on your Thor unless you contribute it. Maintainers merge contributions into [this repo](README.md) so everyone can run `hermes profile update sage` and inherit the improvements.
+During the event you build a personal **brain** under `~/.hermes/profiles/sage/` — memories, skill tweaks, reference notes, debugging recipes. That knowledge stays on your Thor unless you contribute it. Maintainers merge contributions into [this repo](README.md) so everyone can run `hermes profile update sage` and inherit the improvements.
 
 ### How to contribute
 
@@ -814,20 +814,17 @@ cat ~/.hermes/profiles/sage/memories/MEMORY.md   # if you wrote memories
 hermes profile export sage -o ~/sage-brain-export.tar.gz
 ```
 
-4. **Upload the tarball** to your personal `sage-summer-camp-2026` repo (not the shared camp repo):
+4. **Upload the tarball** to a personal repo (or attach it to a Wisp issue). Do not push secrets into the shared [Wisp](https://github.com/waggle-sensor/Wisp) repo:
 
 ```bash
-cd ~/sage-summer-camp-2026   # or wherever you cloned your personal repo
 mkdir -p brain-exports
 cp ~/sage-brain-export.tar.gz brain-exports/
-git add brain-exports/sage-brain-export.tar.gz
-git commit -m "Add Hermes sage brain export"
-git push
+# commit to your personal repo, then tell event staff or open a Wisp issue
 ```
 
-5. **Instructors will pull from your repo**, extract shareable knowledge, and open PRs into [Wisp](README.md) on your behalf.
+5. **Event staff will pull shareable knowledge** and open PRs into [Wisp](README.md) on your behalf.
 
-### How to contribue [Claude Code]
+### How to contribute [Claude Code]
 
 Claude Code has no `hermes profile export`. Build a redacted `claude_backup/` folder from transcripts and Sage-related skills, then upload it to your personal repo.
 
@@ -837,7 +834,7 @@ Claude Code has no `hermes profile export`. Build a redacted `claude_backup/` fo
 mkdir -p ~/claude_backup/transcripts ~/claude_backup/skills
 ```
 
-2. **Export chat transcripts** from each useful Claude Code session (camp debugging, skill work, recipes worth keeping). In Claude Code:
+2. **Export chat transcripts** from each useful Claude Code session (event debugging, skill work, recipes worth keeping). In Claude Code:
 
 ```text
 /export ~/claude_backup/transcripts/<short-name>.md
@@ -871,18 +868,15 @@ rg -n 'sk-|api[_-]?key|token|password|Bearer ' ~/claude_backup || true
 tar -czf ~/claude-brain-export.tar.gz -C ~ claude_backup
 ```
 
-6. **Upload the tarball** to your personal `sage-summer-camp-2026` repo (not the shared camp repo):
+6. **Upload the tarball** to a personal repo (or attach it to a Wisp issue). Do not push secrets into the shared [Wisp](https://github.com/waggle-sensor/Wisp) repo:
 
 ```bash
-cd ~/sage-summer-camp-2026   # or wherever you cloned your personal repo
 mkdir -p brain-exports
 cp ~/claude-brain-export.tar.gz brain-exports/
-git add brain-exports/claude-brain-export.tar.gz
-git commit -m "Add Claude Code brain export"
-git push
+# commit to your personal repo, then tell event staff or open a Wisp issue
 ```
 
-7. **Instructors will pull from your repo**, extract shareable knowledge, and open PRs into [Wisp](README.md) on your behalf.
+7. **Event staff will pull shareable knowledge** and open PRs into [Wisp](README.md) on your behalf.
 
 ## Same-machine backup (profile export/import)
 
@@ -922,11 +916,11 @@ hermes doctor
 
 # Inference options compared
 
-Hermes always **runs on your Thor** (files, terminal, tools). What changes is **where the LLM lives**. The camp profile is wired so you can switch among these.
+Hermes always **runs on your Thor** (files, terminal, tools). What changes is **where the LLM lives**. The sage profile is wired so you can switch among these.
 
 ## 1. Local model on the Thor (Ollama) — Part 1
 
-Run inference **on the same machine** as Hermes via Ollama (camp default often `gemma4:31b`).
+Run inference **on the same machine** as Hermes via Ollama (profile default often `gemma4:31b`).
 
 - **Why it’s cool:** True on-device / edge-style agent — no cloud LLM required for the chat loop. Great for learning what agentic workflows feel like when the model sits next to the tools and sensors.
 - **Tradeoff:** Can feel **slower** than frontier cloud APIs, especially on large models or long context. Shared GPU with classmates.
@@ -936,7 +930,7 @@ Setup: [Part 1 — Thor + Ollama](#part-1-thor--ollama). Switch later with `herm
 
 ## 2. Big frontier models at NVIDIA (hosted APIs) — Part 2
 
-Send prompts from the Thor to **NVIDIA Build** over HTTPS — among the largest / fastest hosted models available to camp.
+Send prompts from the Thor to **NVIDIA Build** over HTTPS — among the largest / fastest hosted models available at the event.
 
 - **Why it’s cool:** Frontier-class capability without filling Thor VRAM.
 - **Tradeoff:** Rate limits apply (plan around about **40 requests per minute** — don’t hammer the API in tight loops). Needs `NVIDIA_API_KEY` and internet from the Thor.
@@ -946,7 +940,7 @@ Setup: [Part 2 — NVIDIA Hosted APIs](#part-2-nvidia-hosted-apis).
 
 ## 3. Hosted LLMs at NRP — Part 2B
 
-Use **NRP Managed LLMs** (`https://ellm.nrp-nautilus.io/v1`) — NSF research infrastructure. Camp default model: **`minimax-m2`** (others like `gpt-oss`, `qwen3`, `gemma` are in the [NRP catalog](https://nrp.ai/documentation/userdocs/ai/llm-managed/models/)).
+Use **NRP Managed LLMs** (`https://ellm.nrp-nautilus.io/v1`) — NSF research infrastructure. Wisp default model: **`minimax-m2`** (others like `gpt-oss`, `qwen3`, `gemma` are in the [NRP catalog](https://nrp.ai/documentation/userdocs/ai/llm-managed/models/)).
 
 - **Why it’s cool:** Strong open-weights models with a research fair-use policy; good middle path between “local only” and “NVIDIA frontier.”
 - **Tradeoff:** Needs an NRP LLM token (`NRP_LLM_API_KEY`) and group LLM access; concurrency / fair-use limits apply (see [token economy](#token-economy)).
@@ -964,7 +958,7 @@ You can also point Hermes at a **paid** provider (OpenAI, Anthropic, OpenRouter,
 
 Use `hermes model` / provider setup in the Hermes docs; keep keys in **your** `.env` only.
 
-> **Note:** A Commercial API is not required for this camp. The camp provides free and shared options for all students.
+> **Note:** A commercial API is not required. Events typically provide free and shared options for all participants.
 
 ## Quick chooser
 
@@ -972,7 +966,7 @@ Use `hermes model` / provider setup in the Hermes docs; keep keys in **your** `.
 | ---- | ------ |
 | Learn edge-style agents; stay on-box | **1 — Thor + Ollama** |
 | Max capability / speed for hard tasks | **2 — NVIDIA Build** (watch rate limits) |
-| Strong hosted open models, camp default cloud path | **3 — NRP** (`minimax-m2`) |
+| Strong hosted open models, Wisp default cloud path | **3 — NRP** (`minimax-m2`) |
 | A vendor model you’re willing to pay for | **4 — Commercial API** |
 
 Same Hermes install — swap with `hermes model` ([Switching between approaches](#switching-between-approaches)).
@@ -985,7 +979,7 @@ Same Hermes install — swap with `hermes model` ([Switching between approaches]
 | **Where inference runs** | Thor (Ollama, local GPU) | NRP Nautilus (cloud) | NVIDIA Build (cloud) | Vendor cloud (you pay) |
 | **Endpoint** | `http://127.0.0.1:11434/v1` | `https://ellm.nrp-nautilus.io/v1` | `https://integrate.api.nvidia.com/v1` | Provider-specific |
 | **API key** | Not required | `NRP_LLM_API_KEY` (Bearer token) | `NVIDIA_API_KEY` (`nvapi-...`) | Your paid key in `.env` |
-| **Default camp model** | `gemma4:31b` | `minimax-m2` | (user picks from catalog) | (you pick) |
+| **Default Wisp model** | `gemma4:31b` | `minimax-m2` | (user picks from catalog) | (you pick) |
 | **Models** | Any Ollama model on the Thor | NRP catalog ([model matrix](https://nrp.ai/documentation/userdocs/ai/llm-managed/models/)) | NVIDIA catalog only | Vendor catalog |
 | **Cost / limits** | Shared Thor GPU; may feel slower | NRP fair-use policy | ~**40 requests/min** (plan for it) | Per-token billing |
 
@@ -1029,7 +1023,7 @@ ssh -f -N -L 9119:127.0.0.1:9119 your-linux-user@thor-host
 ## 2. Start the dashboard on the Thor
 
 ```bash
-# Use the sage profile if that is your active camp profile:
+# Use the sage profile if that is your active profile:
 hermes -p sage dashboard --host 127.0.0.1 --port 9119 --no-open
 # or, if sage is already the active profile / alias:
 hermes dashboard --host 127.0.0.1 --port 9119 --no-open
@@ -1051,7 +1045,7 @@ When finished, stop the dashboard (`Ctrl-C` on the Thor) and close the SSH tunne
 
 # Token economy
 
-A practical guide for using context, compute, and provider quotas responsibly during summer camp. Covers `/usage`, `/compress`, provider switching costs, and **Thor-specific Ollama context** (why the first turn can take minutes on `gemma4:31b`).
+A practical guide for using context, compute, and provider quotas responsibly during Sage events. Covers `/usage`, `/compress`, provider switching costs, and **Thor-specific Ollama context** (why the first turn can take minutes on `gemma4:31b`).
 
 **Full guide:** [token-economy.md](token-economy.md)
 
@@ -1063,7 +1057,7 @@ A practical guide for using context, compute, and provider quotas responsibly du
 
 After adding/changing skills or docs **with a graph already built** → refresh the graph on the **installed** profile (where Hermes actually runs). Create `.venv-graphify` under that path if missing. Hermes CWD is often `$HOME`, so always pass an absolute path.
 
-**Use this path (students / day-to-day agent):**
+**Use this path (participants / day-to-day agent):**
 
 ```text
 /graphify ~/.hermes/profiles/sage --update

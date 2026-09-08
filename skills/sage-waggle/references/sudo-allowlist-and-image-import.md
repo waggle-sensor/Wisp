@@ -1,11 +1,11 @@
-# sudo on camp Thor accounts: NOPASSWD allowlist, and how to import an image
+# sudo on event Thor accounts: NOPASSWD allowlist, and how to import an image
 
-**Applicability:** camp Thor blades, participant accounts, commands issued from the
+**Applicability:** event Thor blades, participant accounts, commands issued from the
 Hermes terminal tool (no TTY).
 
 ## Claim
 
-Camp accounts have **passwordless sudo for an explicit binary allowlist only**:
+Participant accounts have **passwordless sudo for an explicit binary allowlist only**:
 
 ```
 (ALL) NOPASSWD: /usr/local/bin/kubectl, /usr/bin/docker, /usr/local/bin/docker,

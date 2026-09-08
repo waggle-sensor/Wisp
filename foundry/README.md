@@ -1,6 +1,6 @@
 # Foundry — scrape brains, improve Wisp
 
-Instructor loop for turning student Hermes profiles into better shared `sage`
+Instructor loop for turning participant Hermes profiles from Sage events into better shared `sage`
 docs. **Not shipped to agents:** `foundry/` is omitted from
 `distribution.yaml` `distribution_owned`, so `hermes profile install` / `update`
 do not copy it. Graphify ignore files list `foundry/` so clone-side extracts
