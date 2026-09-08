@@ -16,7 +16,7 @@ When the user types `/graphify`, use the bundled **`graphify`** skill before doi
 
 That is where Hermes loads skills/docs for `sage`. Put `graphify-out/` and `.venv-graphify/` **there**.
 
-**Do not** run `/graphify` against the git clone (`…/summer-camp-2026/hermes-profile`). The clone is only for `hermes profile install` / `update` and for instructors packaging `graphify-baseline.tar.gz` into the distribution. A graph under the clone is **not** what the running agent uses.
+**Do not** run `/graphify` against the git clone (`…/Wisp`). The clone is only for `hermes profile install` / `update` and for instructors packaging `graphify-baseline.tar.gz` into the distribution. A graph under the clone is **not** what the running agent uses.
 
 ### Camp rule — discover skills and docs through the graph
 
@@ -24,7 +24,7 @@ This Hermes profile ships a large skill/doc corpus (Sage/Waggle, Hugging Face, N
 
 Rules:
 - For any question about **which skill, which reference, which doc, architecture, or how things connect** in this profile: first run `graphify query "<question>"` when `graphify-out/graph.json` exists under the **installed profile**. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts.
-- **CWD is usually `$HOME` (e.g. `/root`), not the profile.** Always pass `~/.hermes/profiles/sage` (absolute) to `/graphify` — never assume `.` is the profile, and never use the camp repo path for day-to-day Graphify.
+- **CWD is usually `$HOME` (e.g. `/root`), not the profile.** Always pass `~/.hermes/profiles/sage` (absolute) to `/graphify` — never assume `.` is the profile, and never use the Wisp repo path for day-to-day Graphify.
 
 ### Build / update with `/graphify` + `.venv-graphify` + optional tarball
 

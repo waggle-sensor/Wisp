@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run `graphify extract` on the camp distribution profile (hermes-profile/).
+# Run `graphify extract` on this repo (the sage profile lives at the root).
 #
 # Student `sage` brains are installed from this tree. Use this script to rebuild
 # the *distribution* knowledge graph (instructor packaging), not the live
@@ -24,7 +24,7 @@
 # Recluster only (skip extract; needs graphify-out/graph.json):
 #   ./scripts/update_hermes_profile_graphify.sh --cluster-only --resolution 1.5
 #
-# Graph scope (copies hermes-profile/.graphifyignore.<scope> → .graphifyignore):
+# Graph scope (copies <repo>/.graphifyignore.<scope> → .graphifyignore):
 #   ./scripts/update_hermes_profile_graphify.sh --scope curated --wipe --pack-baseline
 #   ./scripts/update_hermes_profile_graphify.sh --scope full --wipe
 #
@@ -33,10 +33,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-DEFAULT_PROFILE="$REPO_ROOT/hermes-profile"
+DEFAULT_PROFILE="$REPO_ROOT"
 PROFILE="${HERMES_PROFILE:-$DEFAULT_PROFILE}"
 LOG_DIR="$REPO_ROOT/scripts/graphify-update-logs"
-LOG_FILE="$LOG_DIR/hermes-profile.log"
+LOG_FILE="$LOG_DIR/wisp-profile.log"
 
 DEFAULT_OPENAI_BASE_URL="http://localhost:8000/v1"
 DEFAULT_MODEL="google/gemma-4-31B-it"
@@ -72,14 +72,14 @@ Usage:
   update_hermes_profile_graphify.sh [options]
 
 Runs (live, streamed):
-  graphify extract <hermes-profile> --backend openai …
-  graphify cluster-only <hermes-profile> --backend openai …   # GRAPH_REPORT.md
+  graphify extract <repo-root> --backend openai …
+  graphify cluster-only <repo-root> --backend openai …   # GRAPH_REPORT.md
 
 Environment (openai-compatible; default = local NIM):
   OPENAI_BASE_URL   default http://localhost:8000/v1
   OPENAI_API_KEY    default not-needed (local NIM; set for remote)
   OPENAI_MODEL      default google/gemma-4-31B-it
-  HERMES_PROFILE    override profile path (default: <repo>/hermes-profile)
+  HERMES_PROFILE    override profile path (default: repo root)
   GRAPHIFY_VIZ_NODE_LIMIT  HTML viz node cap (or pass --viz-node-limit)
 
   Ensure the NIM is reachable first, e.g.:
@@ -87,7 +87,7 @@ Environment (openai-compatible; default = local NIM):
     curl -s http://localhost:8000/v1/models
 
 Options:
-  --profile PATH             hermes-profile directory (default: ../hermes-profile)
+  --profile PATH             profile directory (default: repo root)
   --backend NAME             default: openai
   --model NAME               default: $OPENAI_MODEL or google/gemma-4-31B-it
   --token-budget N           default: 25000
@@ -180,7 +180,7 @@ wipe_graph() {
   rm -f "$PROFILE/agent-knowledge-graph.html"
 }
 
-# Install hermes-profile/.graphifyignore.<scope> as the active .graphifyignore
+# Install <profile>/.graphifyignore.<scope> as the active .graphifyignore
 # that graphify extract reads. Skipped for --cluster-only (no rescan).
 apply_graphifyignore_scope() {
   local src="$PROFILE/.graphifyignore.${SCOPE}"
@@ -380,7 +380,7 @@ done
 
 PROFILE="$(cd "$PROFILE" && pwd)"
 if [[ ! -d "$PROFILE/skills" || ! -f "$PROFILE/AGENTS.md" ]]; then
-  echo "ERROR: does not look like hermes-profile (need skills/ + AGENTS.md): $PROFILE" >&2
+  echo "ERROR: does not look like a Hermes profile (need skills/ + AGENTS.md): $PROFILE" >&2
   exit 1
 fi
 
@@ -439,7 +439,7 @@ echo "viz-node-limit:${GRAPHIFY_VIZ_NODE_LIMIT:-unset (graphify default)}" >&2
 
 echo >&2
 echo "================================================================" >&2
-echo "======== hermes-profile ========" >&2
+echo "======== Wisp sage profile ========" >&2
 echo "================================================================" >&2
 
 if [[ "$CLUSTER_ONLY" == "1" ]]; then
@@ -458,15 +458,15 @@ if [[ "$CLUSTER_ONLY" == "1" ]]; then
     } >"$LOG_FILE"
   fi
   if ! run_cluster_only "$GRAPHIFY"; then
-    echo "[FAIL] hermes-profile cluster-only failed — see $LOG_FILE" >&2
+    echo "[FAIL] Wisp profile cluster-only failed — see $LOG_FILE" >&2
     exit 1
   fi
   if [[ "$DRY_RUN" == "1" ]]; then
-    echo "[DONE] hermes-profile (DRY_RUN)" >&2
+    echo "[DONE] Wisp profile (DRY_RUN)" >&2
     exit 0
   fi
   pack_baseline || exit 1
-  echo "[DONE] hermes-profile (SUCCESS, cluster-only)" >&2
+  echo "[DONE] Wisp profile (SUCCESS, cluster-only)" >&2
   echo "Log: $LOG_FILE" >&2
   echo "Graph: $PROFILE/graphify-out/graph.json" >&2
   [[ -f "$PROFILE/graphify-out/GRAPH_REPORT.md" ]] && echo "Report: $PROFILE/graphify-out/GRAPH_REPORT.md" >&2
@@ -484,7 +484,7 @@ fi
 
 if [[ "$DRY_RUN" == "1" ]]; then
   run_cluster_only "$GRAPHIFY"
-  echo "[DONE] hermes-profile (DRY_RUN)" >&2
+  echo "[DONE] Wisp profile (DRY_RUN)" >&2
   exit 0
 fi
 
@@ -497,7 +497,7 @@ run_cluster_only "$GRAPHIFY"
 
 pack_baseline || exit 1
 
-echo "[DONE] hermes-profile (SUCCESS)" >&2
+echo "[DONE] Wisp profile (SUCCESS)" >&2
 echo "Log: $LOG_FILE" >&2
 echo "Graph: $PROFILE/graphify-out/graph.json" >&2
 if [[ -f "$PROFILE/graphify-out/GRAPH_REPORT.md" ]]; then

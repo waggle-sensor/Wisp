@@ -9,7 +9,7 @@ Official docs:
 - [Edge apps tutorial series](https://sagecontinuum.org/docs/category/edge-apps) — intro → create → test → publish to ECR
 - **When ready to schedule fleet jobs (`sesctl`):** [Sage sesctl reference](https://sagecontinuum.org/docs/reference-guides/sesctl) · [edge-scheduler sesctl tutorials](https://github.com/waggle-sensor/edge-scheduler/tree/main/docs/sesctl)
 
-Camp setup guide: [hermes-agent.md — pluginctl workflow](../../../../hermes-agent.md#first-plugin-build-on-thor--use-pluginctl)
+Camp setup guide: [setup.md — pluginctl workflow](../../../setup.md#first-plugin-build-on-thor--use-pluginctl)
 
 ---
 

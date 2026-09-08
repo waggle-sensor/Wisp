@@ -15,5 +15,5 @@ Do not edit these skill trees by hand for camp fixes unless necessary — prefer
 
 ```bash
 # Re-sync sketch:
-# sparse-clone NVIDIA/skills → copy skills/* into hermes-profile/skills/
+# sparse-clone NVIDIA/skills → copy skills/* into skills/
 ```

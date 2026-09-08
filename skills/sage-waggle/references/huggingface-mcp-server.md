@@ -88,5 +88,5 @@ This profile also vendors workflow skills from [huggingface/skills](https://gith
 
 ## Security
 
-- Tokens stay in `.env` / Hermes auth store — never in skills, job YAMLs, or `hermes-profile/`.
+- Tokens stay in `.env` / Hermes auth store — never in skills, job YAMLs, or this repo.
 - Rotate tokens if exposed; revoke at <https://huggingface.co/settings/tokens>.

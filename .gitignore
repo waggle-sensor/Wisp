@@ -1,2 +1,43 @@
+# Never commit secrets or personal data into this shared distribution.
+# This bundle is intentionally credential-free; keep it that way.
+
 .cursor
 .DS_Store
+._*
+
+# Hermes runtime / secrets (should never be here, but guard anyway)
+.env
+.env.*
+auth.json
+*.token
+*token*.txt
+secrets/
+**/secrets/
+
+# Hermes user-owned data (never in a distribution)
+memories/
+sessions/
+state.db*
+logs/
+*_cache/
+local/
+checkpoints/
+backups/
+
+# Local/editor cruft
+*.swp
+*~
+__pycache__/
+*.pyc
+.venv/
+.venv-graphify/
+venv/
+
+# Graphify runtime (unpack graphify-baseline.tar.gz or /graphify <profile>)
+graphify-out/
+graphify-out-viz/
+# Ship compressed baseline instead (fast init)
+!graphify-baseline.tar.gz
+
+# Instructor rebuild logs (absolute paths; regenerate locally)
+scripts/graphify-update-logs/

@@ -46,6 +46,12 @@ cron/
 logs/
 sessions/
 
+# Repo-only (not shipped into the agent corpus)
+scripts/
+setup.md
+token-economy.md
+README.md
+
 # Hermes files
 .skills_prompt_snapshot.json
 

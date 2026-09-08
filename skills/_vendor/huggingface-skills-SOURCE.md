@@ -13,5 +13,5 @@ Do not edit these skill trees by hand for camp fixes unless necessary — prefer
 
 ```bash
 # Re-sync sketch (from repo root):
-# sparse-clone huggingface/skills → copy skills/* and hf-mcp/skills/hf-mcp into hermes-profile/skills/
+# sparse-clone huggingface/skills → copy skills/* and hf-mcp/skills/hf-mcp into skills/
 ```

@@ -85,5 +85,5 @@ Deprecated: npm `@modelcontextprotocol/server-github` (no longer supported upstr
 
 ## Security
 
-- Tokens stay in `.env` / Hermes auth store — never in skills, job YAMLs, or `hermes-profile/`.
+- Tokens stay in `.env` / Hermes auth store — never in skills, job YAMLs, or this repo.
 - Rotate PATs if exposed; revoke at <https://github.com/settings/tokens>.

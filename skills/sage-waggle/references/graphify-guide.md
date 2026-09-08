@@ -4,7 +4,7 @@
 
 There is **no** camp setup shell script. Use the bundled skill **`graphify`**.
 
-**Live graph location:** always `~/.hermes/profiles/sage/` (the installed Hermes profile). That is where Hermes loads skills for `sage`. **Do not** build or update day-to-day graphs under the git clone (`…/summer-camp-2026/hermes-profile`) — the clone is only for install/`hermes profile update` and for instructors shipping `graphify-baseline.tar.gz`.
+**Live graph location:** always `~/.hermes/profiles/sage/` (the installed Hermes profile). That is where Hermes loads skills for `sage`. **Do not** build or update day-to-day graphs under the git clone (`…/Wisp`) — the clone is only for install/`hermes profile update` and for instructors shipping `graphify-baseline.tar.gz`.
 
 | | |
 |--|--|
@@ -27,9 +27,9 @@ There is **no** camp setup shell script. Use the bundled skill **`graphify`**.
 
 ## Install + build (every Thor / every profile install)
 
-After `hermes profile install ./hermes-profile --name sage --alias`:
+After `hermes profile install . --name sage --alias`:
 
-**Hermes CWD is usually `$HOME`.** Always pass **`~/.hermes/profiles/sage`** (absolute) to `/graphify` — not the camp repo path.
+**Hermes CWD is usually `$HOME`.** Always pass **`~/.hermes/profiles/sage`** (absolute) to `/graphify` — not the Wisp repo path.
 
 ### 1. Create (or reuse) the Graphify venv on the installed profile
 

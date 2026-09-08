@@ -114,7 +114,7 @@ hermes --version
 
 > **Recommended.** Use this path unless profile install fails or you need a fully custom configuration.
 
-The camp maintains a Hermes **profile distribution** in this repo at [`hermes-profile/`](hermes-profile/). It ships pre-configured SOUL, model settings, tools, and skills. See the [Profile Distributions guide](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions) for details.
+This repo **is** the Hermes **`sage` profile distribution**. It ships pre-configured SOUL, model settings, tools, and skills at the repo root. See the [Profile Distributions guide](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions) for details.
 
 **What the distribution ships vs. what stays private:**
 
@@ -123,17 +123,17 @@ The camp maintains a Hermes **profile distribution** in this repo at [`hermes-pr
 | SOUL.md, AGENTS.md, config.yaml, skills/, docs/, scripts/, mcp.json | `memories/`, `sessions/`, `auth.json`, `.env` |
 | Updated via `hermes profile update` | Preserved across updates — your brain stays isolated |
 
-> see [agent-knowledge-graph](hermes-profile/agent-knowledge-graph.html) for a visual representation of the agent's baseline knowledge. As your agent learns, the live graph updates under **`~/.hermes/profiles/sage/graphify-out/`** (e.g. `graph.html`) — not under the camp git clone.
+> see [agent-knowledge-graph](agent-knowledge-graph.html) for a visual representation of the agent's baseline knowledge. As your agent learns, the live graph updates under **`~/.hermes/profiles/sage/graphify-out/`** (e.g. `graph.html`) — not under the Wisp git clone.
 
 ### Install from local clone (recommended)
 
-`hermes profile install github.com/org/repo` clones the **repo root** as the distribution — it does not support subpaths. Since the profile lives inside this monorepo, clone first:
+`hermes profile install github.com/org/repo` clones the **repo root** as the distribution. This repo's root *is* the profile:
 
 ```bash
-git clone https://github.com/waggle-sensor/summer-camp-2026.git
+git clone https://github.com/waggle-sensor/Wisp.git
 #git checkout <branch> #if desired
-cd summer-camp-2026
-hermes profile install ./hermes-profile --name sage --alias
+cd Wisp
+hermes profile install . --name sage --alias
 ```
 
 ### What happens on install
@@ -171,7 +171,7 @@ hermes setup tools #(optional) if you want to configure more tools
 
 Launch with `hermes`.
 
-> **Note:** Graphify will automatically be used by the agent. see [graphify-guide.md](hermes-profile/skills/sage-waggle/references/graphify-guide.md) or [graphify skills](hermes-profile/skills/graphify/SKILL.md) for more details.
+> **Note:** Graphify will automatically be used by the agent. see [graphify-guide.md](skills/sage-waggle/references/graphify-guide.md) or [graphify skills](skills/graphify/SKILL.md) for more details.
 
 ### Pull camp config updates
 
@@ -391,8 +391,8 @@ echo 'set-option -g history-limit 50000' >> ~/.tmux.conf
 **Save a full session transcript** — from **inside** the `hermes` tmux session (after `tmux attach -t hermes`):
 
 ```bash
-chmod +x ~/summer-camp-2026/scripts/write-tmux.sh   # once
-~/summer-camp-2026/scripts/write-tmux.sh
+chmod +x ~/Wisp/scripts/write-tmux.sh   # once
+~/Wisp/scripts/write-tmux.sh
 ```
 
 The script captures the full scrollback (with ANSI colors) to `~/AI-projects/tmux-logs/transcript_<timestamp>.ansi`. View with:
@@ -744,10 +744,10 @@ Use this when you want the **same agent configuration** — SOUL, skills, model 
 SSH into the new Thor as your Linux user, install the Hermes CLI ([Part 1, Step 2](#step-2--install-hermes-cli)), then install the profile:
 
 ```bash
-# From the camp repo
-git clone https://github.com/waggle-sensor/summer-camp-2026.git
-cd summer-camp-2026
-hermes profile install ./hermes-profile --name sage --alias
+# From the Wisp repo
+git clone https://github.com/waggle-sensor/Wisp.git
+cd Wisp
+hermes profile install . --name sage --alias
 ```
 
 Fill in your credentials and verify:
@@ -772,7 +772,7 @@ Updates replace distribution-owned files (SOUL, skills, cron) but **never** touc
 
 ### Publish changes (authors)
 
-Camp organizers and team leads publish via git — see [Profile Distributions: For authors](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions#for-authors-publishing-a-distribution) and the checklist in [`hermes-profile/README.md`](hermes-profile/README.md).
+Camp organizers and team leads publish via git — see [Profile Distributions: For authors](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions#for-authors-publishing-a-distribution) and the checklist in [`README.md`](README.md).
 
 ```bash
 # After editing SOUL.md, skills/, config.yaml, etc. in the profile repo:
@@ -788,7 +788,7 @@ Anyone with the profile installed runs `hermes profile update sage` to pick up t
 
 > **Don't forget:** Before you leave camp, contribute what you learned back to the shared Sage agent.
 
-All week you build a personal **brain** under `~/.hermes/profiles/sage/` — memories, skill tweaks, reference notes, debugging recipes. That knowledge stays on your Thor unless you contribute it. Camp organizers merge student contributions into [`hermes-profile/`](hermes-profile/) so everyone can run `hermes profile update sage` and inherit the improvements.
+All week you build a personal **brain** under `~/.hermes/profiles/sage/` — memories, skill tweaks, reference notes, debugging recipes. That knowledge stays on your Thor unless you contribute it. Maintainers merge contributions into [this repo](README.md) so everyone can run `hermes profile update sage` and inherit the improvements.
 
 ### How to contribute
 
@@ -806,7 +806,7 @@ cat ~/.hermes/profiles/sage/memories/MEMORY.md   # if you wrote memories
 /graphify ~/.hermes/profiles/sage --update
 ```
 
-(Use your real installed profile path if it differs — Hermes CWD is often `$HOME`, so pass an absolute path. Do **not** point this at the `summer-camp-2026` git clone.)
+(Use your real installed profile path if it differs — Hermes CWD is often `$HOME`, so pass an absolute path. Do **not** point this at the Wisp git clone.)
 
 3. **Export your brain** to a tarball:
 
@@ -825,7 +825,7 @@ git commit -m "Add Hermes sage brain export"
 git push
 ```
 
-5. **Instructors will pull from your repo**, extract shareable knowledge, and open PRs into [`hermes-profile/`](hermes-profile/) on your behalf.
+5. **Instructors will pull from your repo**, extract shareable knowledge, and open PRs into [Wisp](README.md) on your behalf.
 
 ### How to contribue [Claude Code]
 
@@ -882,7 +882,7 @@ git commit -m "Add Claude Code brain export"
 git push
 ```
 
-7. **Instructors will pull from your repo**, extract shareable knowledge, and open PRs into [`hermes-profile/`](hermes-profile/) on your behalf.
+7. **Instructors will pull from your repo**, extract shareable knowledge, and open PRs into [Wisp](README.md) on your behalf.
 
 ## Same-machine backup (profile export/import)
 
@@ -1069,7 +1069,7 @@ After adding/changing skills or docs **with a graph already built** → refresh 
 /graphify ~/.hermes/profiles/sage --update
 ```
 
-Do **not** point `/graphify` at `…/summer-camp-2026/hermes-profile` for normal updates — that clone is not the live agent home. A graph built only in the repo will not be what `sage` queries.
+Do **not** point `/graphify` at the Wisp git clone for normal updates — that clone is not the live agent home. A graph built only in the repo will not be what `sage` queries.
 
 Full `/graphify ~/.hermes/profiles/sage` again is start-from-scratch only — use `--update` for incremental adds.
 
@@ -1093,28 +1093,28 @@ matches no `.graphifyignore` rule and graphify will scan the stashed graph's own
 cache as source material.
 
 ```bash
-# From the distribution checkout (summer-camp-2026/hermes-profile):
+# From the Wisp repo root (the profile):
 STASH="$(mktemp -d)"                       # outside the profile, on purpose
 mv graphify-out "$STASH/full"
 
 # curated pass -> viz artifacts
 mv graphify-out-viz graphify-out
-../scripts/update_hermes_profile_graphify.sh --scope curated
+./scripts/update_hermes_profile_graphify.sh --scope curated
 tar -czf graphify-baseline-viz.tar.gz graphify-out
 cp graphify-out/graph.html agent-knowledge-graph.html
 mv graphify-out graphify-out-viz
 
 # full pass -> query graph
 mv "$STASH/full" graphify-out
-../scripts/update_hermes_profile_graphify.sh --scope full
+./scripts/update_hermes_profile_graphify.sh --scope full
 tar -czf graphify-baseline.tar.gz graphify-out
 rmdir "$STASH"
 
 # Strip the build machine's absolute paths before committing (see below)
-../scripts/sanitize_graph_tarball.sh graphify-baseline.tar.gz
-../scripts/sanitize_graph_tarball.sh graphify-baseline-viz.tar.gz
+./scripts/sanitize_graph_tarball.sh graphify-baseline.tar.gz
+./scripts/sanitize_graph_tarball.sh graphify-baseline-viz.tar.gz
 INSTALL_ROOT='$HOME/.hermes/profiles/sage' perl -pi -e \
-  's{(?:/Users|/home)/[^/\s"]+/[^\s"]*?hermes-profile}{$ENV{INSTALL_ROOT}}g' \
+  's{(?:/Users|/home)/[^/\s"]+/[^\s"]*?(?:hermes-profile|/Wisp)}{$ENV{INSTALL_ROOT}}g' \
   agent-knowledge-graph.html
 
 git add agent-knowledge-graph.html graphify-baseline.tar.gz graphify-baseline-viz.tar.gz
@@ -1140,7 +1140,7 @@ it back.** It is a functional file, not a cosmetic one, and there is no portable
 value to ship: graphify reads it with `Path(text)` and does no shell expansion,
 so a literal `$HOME/...` resolves to a bogus nested path, while a real absolute
 path is the packager's machine. So the profile install writes it (see
-`hermes-profile/README.md` and `AGENTS.md`):
+`README.md` and `AGENTS.md`):
 
 ```bash
 printf '%s\n' "$HOME/.hermes/profiles/sage" > graphify-out/.graphify_root
