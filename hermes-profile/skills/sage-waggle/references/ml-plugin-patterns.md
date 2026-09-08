@@ -4,10 +4,15 @@ Distilled from PTZ_APP (github.com/plebbyd/PTZ_APP) reference implementation and
 
 ## Base Image Selection
 
-For GPU-accelerated ML plugins, use `nvcr.io/nvidia/pytorch:24.06-py3` instead of `waggle/plugin-base:1.1.1-ml`. The NVIDIA image has:
-- PyTorch 2.x with current CUDA
-- Full CUDA runtime + cuDNN
-- Better compatibility with Ultralytics, open_clip, vLLM, transformers
+For GPU-accelerated ML plugins targeting **Thor (sm_110)** or **DGX Spark (sm_120/sm_121)**, use `nvcr.io/nvidia/pytorch:25.08-py3` — not `waggle/plugin-base:1.1.1-ml`, and **not** `24.06-py3` or `25.04-py3` on Thor.
+
+| Tag | Thor sm_110 | Notes |
+| --- | --- | --- |
+| `25.08-py3` | yes | **Recommended.** CUDA 13 / torch 2.8, sm_110 + sm_120/sm_121 |
+| `25.04-py3` | no | Fails on Thor (no sm_110 cubins) |
+| `24.06-py3` | no | Silent CPU fallback on Blackwell; do not use on Thor |
+
+The NVIDIA image has PyTorch with current CUDA, full CUDA runtime + cuDNN, and better compatibility with Ultralytics, open_clip, vLLM, transformers. See `docker-build-deploy.md`.
 
 The waggle/plugin-base images are fine for non-ML or lightweight inference.
 

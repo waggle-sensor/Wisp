@@ -8,7 +8,7 @@ Install on your Thor following [hermes-agent.md — Step 3A](../hermes-agent.md#
 
 ```text
 hermes-profile/
-├── distribution.yaml    # manifest (name: sage, version 1.1.0)
+├── distribution.yaml    # manifest (name: sage, version 1.2.0)
 ├── SOUL.md              # agent personality + Graphify-first discovery rules
 ├── AGENTS.md            # always-on: query graphify-out/ before grepping skills
 ├── config.yaml          # Ollama default + NRP provider pre-wired (minimax-m2)
@@ -50,6 +50,11 @@ git clone https://github.com/waggle-sensor/summer-camp-2026.git
 cd summer-camp-2026
 hermes profile install ./hermes-profile --name sage --alias
 hermes profile use sage
+
+# --alias installs the wrapper at ~/.local/bin/sage, which is not on PATH on
+# every host (e.g. root on the Thor node images). If `sage` is not found:
+#   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
+# `hermes -p sage ...` always works without the wrapper.
 cp ~/.hermes/profiles/sage/.env.EXAMPLE ~/.hermes/profiles/sage/.env
 
 # Required — Graphify (venv + optional baseline tarball; then skill graphify)
@@ -62,6 +67,10 @@ fi
 if [ ! -f graphify-out/graph.json ] && [ -f graphify-baseline.tar.gz ]; then
   tar -xzf graphify-baseline.tar.gz
 fi
+# Required: pin the scan root to an ABSOLUTE path. The tarball cannot carry one
+# (it would be the packager's path), and without this marker `graphify update`
+# falls back to the CWD and walks your entire home directory.
+printf '%s\n' "$HOME/.hermes/profiles/sage" > graphify-out/.graphify_root
 test -f graphify-out/graph.json && echo "graph ok"
 # If still missing: in Hermes run  /graphify ~/.hermes/profiles/sage
 # After skill/doc changes:         /graphify ~/.hermes/profiles/sage --update

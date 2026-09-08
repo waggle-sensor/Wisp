@@ -66,6 +66,10 @@ The profile ships with the Sage MCP server (`https://mcp.sagecontinuum.org/mcp`)
 
 **Cameras:** Reolink FLV/BCS auth uses query params (`&user=&password=`), not HTTP basic auth (basic-auth form makes ffmpeg fail with exit 187). Mobotix M16 MxPEG uses basic auth. Camera metadata does not live in the RTSP stream — acquire a native still (best metadata) and fall back to decode-from-H.264 only as a floor. Strong bias against re-encoding images.
 
+**Thor host PyPI torch:** `torch.cuda.is_available()` may **hang forever** in a host venv (missing sm_110 kernels) — that is not the `/dev/nvmap` “False + permission denied” case. Develop CPU-only (`CUDA_VISIBLE_DEVICES=`) on the host; GPU only in `nvcr.io/nvidia/pytorch:25.08-py3` via `pluginctl`. See `thor-host-cpu-dev-first.md`.
+
+**Verify outcomes:** SES `Running` or a clean log is not success. Check pod/fixture state; keep CLI, `sage.yaml`, and docs defaults aligned. See `plugin-verification-invariants.md`.
+
 ## Memory
 
 Participants build personal memory over time via the agent's memory tool. Keep memory compact — it is injected every turn with a small char budget.

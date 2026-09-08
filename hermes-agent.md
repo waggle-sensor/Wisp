@@ -143,7 +143,19 @@ hermes profile install ./hermes-profile --name sage --alias
 3. Marks each `env_requires` key as `✓ set` or `needs setting`
 4. Prompts for confirmation (pass `-y` to skip)
 5. Writes `.env.EXAMPLE` — you copy to `.env`
-6. With `--alias`, creates a `sage` wrapper command
+6. With `--alias`, creates a `sage` wrapper command at `~/.local/bin/sage`
+
+`~/.local/bin` is **not** on `PATH` on every host — notably for `root` on the
+Thor/Debian node images, whose minimal `/root/.profile` omits the usual
+`~/.local/bin` block. If `sage` is "command not found" right after install, the
+wrapper exists and the directory is simply unreachable:
+
+```bash
+ls -l ~/.local/bin/sage                      # wrapper is there
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
+```
+
+`hermes -p sage` works regardless — the wrapper is only a shorthand for it.
 
 ### Post-install
 
@@ -388,6 +400,25 @@ The script captures the full scrollback (with ANSI colors) to `~/AI-projects/tmu
 ```bash
 less -R ~/AI-projects/tmux-logs/transcript_*.ansi
 ```
+
+**Hermes keeps its own history in SQLite, not in files.** The profile's
+`sessions/` directory stays empty; conversations live in
+`~/.hermes/profiles/sage/state.db` (tables `sessions` and `messages`). Don't
+conclude a run was lost because `sessions/` is empty. To read one back:
+
+```bash
+hermes chat -p sage -r <session_id>          # session_id is printed on exit
+cd ~/.hermes/profiles/sage && python3 -c "
+import sqlite3
+c = sqlite3.connect('file:state.db?mode=ro', uri=True)
+for sid, n in c.execute('select session_id, count(*) from messages group by session_id'):
+    print(sid, n)"
+```
+
+Scripted use: `hermes chat -p sage -Q -q '<question>'` prints only the answer on
+stdout and `session_id: <id>` on stderr. Local Ollama on a Thor takes minutes
+per answer with nothing on stdout until it finishes — a quiet run is normal, so
+give it a generous timeout rather than assuming it failed.
 
 ---
 
@@ -1048,14 +1079,94 @@ graphify extract ~/.hermes/profiles/sage
 ```
 >NOTE: add [enviroment variables](https://github.com/Graphify-Labs/graphify#environment-variables) to determine which llm endpoint to use. Also the extract command does the incremental updates automatically by analyzing the graphify files. If no graphify files are detected then it will start from scratch.
 
-**Instructors only** — after rebuilding the graph on a staging profile (or copying an updated `graphify-out/` into the distribution tree), refresh the shipped camp baseline in the git repo:
+**Instructors only** — the shipped baseline is **two graphs**, not one:
+
+| Graph | Ignore file | Ships as | Purpose |
+|---|---|---|---|
+| **curated** | `.graphifyignore.curated` | `graphify-baseline-viz.tar.gz`, `agent-knowledge-graph.html` | Human-readable visualization — deliberately small so the HTML stays legible |
+| **full** | `.graphifyignore.full` | `graphify-baseline.tar.gz` | What the agent queries (GraphRAG); far larger, never shipped as the main viz |
+
+`graphify extract` always writes to `<profile>/graphify-out/` and has no
+output-directory flag, so building both means swapping directories. Stash the
+idle graph **outside** the profile — a sibling such as `graphify-out-full/`
+matches no `.graphifyignore` rule and graphify will scan the stashed graph's own
+cache as source material.
 
 ```bash
-# From the distribution checkout (summer-camp-2026/hermes-profile), after copying
-# a fresh graphify-out/ from ~/.hermes/profiles/sage (or rebuilding there for packaging):
+# From the distribution checkout (summer-camp-2026/hermes-profile):
+STASH="$(mktemp -d)"                       # outside the profile, on purpose
+mv graphify-out "$STASH/full"
+
+# curated pass -> viz artifacts
+mv graphify-out-viz graphify-out
+../scripts/update_hermes_profile_graphify.sh --scope curated
+tar -czf graphify-baseline-viz.tar.gz graphify-out
 cp graphify-out/graph.html agent-knowledge-graph.html
+mv graphify-out graphify-out-viz
+
+# full pass -> query graph
+mv "$STASH/full" graphify-out
+../scripts/update_hermes_profile_graphify.sh --scope full
 tar -czf graphify-baseline.tar.gz graphify-out
-git add agent-knowledge-graph.html graphify-baseline.tar.gz
+rmdir "$STASH"
+
+# Strip the build machine's absolute paths before committing (see below)
+../scripts/sanitize_graph_tarball.sh graphify-baseline.tar.gz
+../scripts/sanitize_graph_tarball.sh graphify-baseline-viz.tar.gz
+INSTALL_ROOT='$HOME/.hermes/profiles/sage' perl -pi -e \
+  's{(?:/Users|/home)/[^/\s"]+/[^\s"]*?hermes-profile}{$ENV{INSTALL_ROOT}}g' \
+  agent-knowledge-graph.html
+
+git add agent-knowledge-graph.html graphify-baseline.tar.gz graphify-baseline-viz.tar.gz
 git commit -m "Update knowledge graph baseline"
 git push
 ```
+
+**Always sanitize before committing.** Graphify records the absolute path of the
+directory it extracted, so a freshly packed tarball carries the packager's home
+directory in `graphify-out/.graphify_root`, `GRAPH_REPORT.md` (including dated
+backup copies) and the `<title>` of `graph.html`.
+`scripts/sanitize_graph_tarball.sh` rewrites the cosmetic ones to
+`$HOME/.hermes/profiles/sage`, **deletes** `.graphify_root`, and repacks.
+Verify with:
+
+```bash
+tar -tzf graphify-baseline.tar.gz | grep graphify_root   # -> no output
+tar -xzf graphify-baseline.tar.gz -C /tmp/check && grep -rl '/Users/' /tmp/check   # -> no matches
+```
+
+**`.graphify_root` is deleted, not rewritten, and the install step must write
+it back.** It is a functional file, not a cosmetic one, and there is no portable
+value to ship: graphify reads it with `Path(text)` and does no shell expansion,
+so a literal `$HOME/...` resolves to a bogus nested path, while a real absolute
+path is the packager's machine. So the profile install writes it (see
+`hermes-profile/README.md` and `AGENTS.md`):
+
+```bash
+printf '%s\n' "$HOME/.hermes/profiles/sage" > graphify-out/.graphify_root
+```
+
+Omitting that step is not safe. `graphify update` resolves the marker at
+`Path(GRAPHIFY_OUT)/".graphify_root"` where `GRAPHIFY_OUT` defaults to the
+*relative* name `graphify-out`, so it is looked up against the **CWD**. With no
+marker — or with the CWD anywhere but the profile — it falls back to `Path(".")`
+and walks that tree. Measured on a Thor node, 2026-09-03: run from `$HOME` with
+no marker it scanned **8,746** files and created a stray `~/graphify-out`; with
+a correct absolute marker and the CWD at the profile it scanned the right
+**244**. Two rules follow: write the marker at install time, and always invoke
+graphify from the profile directory.
+
+Prefer the incremental path above over `--wipe`. `--wipe` deletes `graphify-out/`
+*including its semantic cache*, turning a cheap refresh into a full paid
+re-extract. The cache stays valid as long as the prompt fingerprint directory
+(`graphify-out/cache/semantic/p<fingerprint>/`) is unchanged.
+
+**Caveat on curated coverage.** `.graphifyignore.curated` admits `docs/` and
+top-level skill entry points but not `skills/*/references/`. Reference pages
+therefore appear only in the full query graph, and `agent-knowledge-graph.html`
+will not visibly reflect changes confined to them — profile 1.4.0's skill split
+moved bulk into 11 routed `pitfalls-*.md` reference pages, so the published
+visualization gained only the new `docs/` entries even though the agent's
+queryable knowledge grew substantially. This is the intended trade-off: widening
+the curated scope to cover `references/` would make the HTML unreadable. If a
+change needs to show up in the visualization, it has to land in `docs/`.

@@ -62,7 +62,15 @@ mkdir -p graphify-out
 if [ ! -f graphify-out/graph.json ] && [ -f graphify-baseline.tar.gz ]; then
   tar -xzf graphify-baseline.tar.gz
 fi
+
+# Required: absolute scan root. Not shippable in the tarball (it would be the
+# packager's path); without it `graphify update` scans the CWD — i.e. all of $HOME.
+printf '%s\n' "$PROFILE" > graphify-out/.graphify_root
 ```
+
+Always run `graphify` **from the profile directory**. `graphify update` resolves
+`graphify-out/.graphify_root` relative to the CWD, so running it from `$HOME`
+misses the marker entirely and falls back to scanning `.`.
 
 Then in Hermes (absolute installed-profile path — CWD is often `$HOME`):
 

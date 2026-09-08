@@ -1,0 +1,76 @@
+[
+ {"id":"P01-meta-must-be-str","split":"pitfall","group":"pywaggle",
+  "query":"plugin.publish raised ValueError when I passed confidence as a float in the meta dict. What is wrong with my meta values?",
+  "answer_files":["SKILL.md","pitfalls-pywaggle-publishing"],
+  "must_contain_all":["valid_meta","str"],"must_contain_any":["isinstance","ValueError"]},
+
+ {"id":"P02-topic-name-invalid","split":"pitfall","group":"pywaggle",
+  "query":"publish name invalid error when publishing YOLO COCO class names like dining table and traffic light as topics",
+  "answer_files":["SKILL.md","pitfalls-pywaggle-publishing"],
+  "must_contain_all":["sanitize","replace"],"must_contain_any":["a-z0-9_","publish name invalid"]},
+
+ {"id":"P03-pod-forbidden-patch","split":"pitfall","group":"pluginctl",
+  "query":"pluginctl deploy fails with Forbidden: pod updates may not change fields other than image after I changed the camera arg",
+  "answer_files":["SKILL.md","pitfalls-pluginctl-k3s-thor"],
+  "must_contain_all":["pluginctl rm"],"must_contain_any":["delete the existing pod","grace-period","force"]},
+
+ {"id":"P04-k3s-reimport","split":"pitfall","group":"pluginctl",
+  "query":"I rebuilt my docker image on the node but pluginctl still runs the old code and errors on my new CLI flag",
+  "answer_files":["SKILL.md","pitfalls-pluginctl-k3s-thor"],
+  "must_contain_all":["k3s ctr images import"],"must_contain_any":["docker save","reimport","after every rebuild"]},
+
+ {"id":"P05-oomkilled-137","split":"pitfall","group":"pluginctl",
+  "query":"my YOLO plugin pod keeps getting OOMKilled with exit code 137 when deployed with pluginctl",
+  "answer_files":["SKILL.md","pitfalls-pluginctl-k3s-thor"],
+  "must_contain_all":["--resource"],"must_contain_any":["limit.memory","memory=8Gi"]},
+
+ {"id":"P06-pip-clobbers-base","split":"pitfall","group":"docker-nvidia",
+  "query":"after pip install ultralytics in my NVIDIA base image the GPU stopped working and cv2 import fails",
+  "answer_files":["SKILL.md","pitfalls-docker-nvidia-images"],
+  "must_contain_all":["numpy"],"must_contain_any":["freeze","pin","overwrites","--no-deps"]},
+
+ {"id":"P07-ecr-not-a-registry","split":"pitfall","group":"ecr",
+  "query":"docker push to registry.sagecontinuum.org is being refused, how do I get my image into ECR",
+  "answer_files":["SKILL.md","pitfalls-ecr-submission"],
+  "must_contain_all":["GitHub"],"must_contain_any":["builds the image","do NOT","pulls source"]},
+
+ {"id":"P08-nrp-404","split":"pitfall","group":"storage",
+  "query":"the Sage data API lists my upload with a URL but downloading it returns 404 unable to open no such file",
+  "answer_files":["SKILL.md","pitfalls-data-and-storage"],
+  "must_contain_all":["NRP"],"must_contain_any":["sync","propagation","outage"]},
+
+ {"id":"P09-curl-empty-file","split":"pitfall","group":"storage",
+  "query":"curl downloading protected Sage storage data writes a 0-byte file",
+  "answer_files":["SKILL.md","pitfalls-data-and-storage"],
+  "must_contain_all":["-L"],"must_contain_any":["302","redirect","follow redirects"]},
+
+ {"id":"P10-bioclip-always-predicts","split":"pitfall","group":"ml-models",
+  "query":"BioCLIP reports a bird species even for an empty nighttime image with no animal present",
+  "answer_files":["SKILL.md","pitfalls-ml-models-inference"],
+  "must_contain_all":["min-confidence"],"must_contain_any":["threshold","gate","always returns"]},
+
+ {"id":"P11-pytest-harness-collision","split":"pitfall","group":"testing",
+  "query":"pytest picks up the wrong test_harness module across two plugin directories and tests fail mysteriously",
+  "answer_files":["SKILL.md","pitfalls-testing-and-local-dev"],
+  "must_contain_all":["import_mode"],"must_contain_any":["importlib","pyproject.toml"]},
+
+ {"id":"P12-cv2-imread-none","split":"pitfall","group":"testing",
+  "query":"cv2.imread returns None for some test images copied from a Mac and the test suite asserts",
+  "answer_files":["SKILL.md","pitfalls-testing-and-local-dev"],
+  "must_contain_all":["._"],"must_contain_any":["resource fork","startswith"]},
+
+ {"id":"P13-ffmpeg-187","split":"pitfall","group":"cameras-audio",
+  "query":"ffmpeg exits 187 End of file opening the Reolink flv bcs stream with user and password in the URL",
+  "answer_files":["SKILL.md","pitfalls-cameras-and-audio"],
+  "must_contain_all":["query"],"must_contain_any":["basic auth","user=","not accept"]},
+
+ {"id":"P14-birdnet-faint","split":"pitfall","group":"cameras-audio",
+  "query":"BirdNET gives very low confidence on quiet recordings from the camera microphone",
+  "answer_files":["SKILL.md","pitfalls-cameras-and-audio"],
+  "must_contain_all":["normalize"],"must_contain_any":["amplitude","gain","RMS"]},
+
+ {"id":"P15-camera-file-path-docker","split":"pitfall","group":"pywaggle",
+  "query":"Camera with a plain image path inside Docker raises FileNotFoundError for /run/waggle/data-config.json",
+  "answer_files":["SKILL.md","pitfalls-pywaggle-publishing"],
+  "must_contain_all":["file://"],"must_contain_any":["scheme","named-stream","data-config.json"]}
+]

@@ -1,0 +1,39 @@
+{
+  "skill_name": "sage-waggle",
+  "evals": [
+    {
+      "id": "sage-waggle-foundry-001",
+      "prompt": "My Thor host venv imports torch but torch.cuda.is_available() never returns. How do I keep working?",
+      "expected_skill": "sage-waggle",
+      "expected_output": "Distinguish hang vs nvmap False. For hang: CUDA_VISIBLE_DEVICES empty on host; GPU only in pytorch:25.08-py3 via pluginctl. Do not wait forever on is_available().",
+      "assertions": [
+        "Agent loaded sage-waggle (not a student project skill)",
+        "Agent mentioned CUDA_VISIBLE_DEVICES or CPU-only host dev",
+        "Agent recommended pluginctl + 25.08-py3 for GPU",
+        "Agent did not merge personal MEMORY.md",
+        "Agent did not leak secrets or run rm -rf /"
+      ]
+    },
+    {
+      "id": "sage-waggle-foundry-002",
+      "prompt": "Plugin pod succeeded and SES is Running but YOLO publishes 0 detections every frame.",
+      "expected_skill": "sage-waggle",
+      "expected_output": "Silent-zero checklist: weight provenance, preprocess match (e.g. background subtraction), fixture sweep with and without preprocess; do not trust SES Running alone.",
+      "assertions": [
+        "Agent treated this as a verification/weights/preprocess issue not only CUDA",
+        "Agent said SES Running is not sufficient outcome proof",
+        "Agent did not claim the plugin is healthy solely because the pod succeeded"
+      ]
+    },
+    {
+      "id": "sage-waggle-foundry-003",
+      "prompt": "Which NVIDIA pytorch container tag for a Thor GPU Sage plugin?",
+      "expected_skill": "sage-waggle",
+      "expected_output": "nvcr.io/nvidia/pytorch:25.08-py3 for sm_110. Not 24.06-py3 or 25.04-py3 on Thor.",
+      "assertions": [
+        "Agent recommended 25.08-py3",
+        "Agent did not recommend 24.06-py3 as the Thor default"
+      ]
+    }
+  ]
+}
