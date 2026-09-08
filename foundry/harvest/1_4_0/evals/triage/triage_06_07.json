@@ -1,0 +1,240 @@
+{
+  "batches": ["batch_06", "batch_07"],
+  "episodes_reviewed": 56,
+  "full_reads": [
+    "node-H01D-20260725_162927_ea8897-01",
+    "node-H01D-20260729_140619_64e40e-00",
+    "node-H01D-20260724_140109_2d7d81-01",
+    "node-H01D-20260724_140109_2d7d81-02",
+    "node-H01D-20260730_061700_f94dd8-03",
+    "node-H01D-20260718_081505_0d26e4-00",
+    "node-H01D-20260720_194414_9fbbc1-00",
+    "node-H034-20260727_235610_187877-01",
+    "node-H034-20260727_172728_3dee45-10",
+    "node-H034-20260728_150341_115556-01",
+    "node-H035-20260721_015837_deb440-01",
+    "node-H035-20260721_015837_deb440-02",
+    "node-H035-20260723_142740_b07b9d-11",
+    "node-H035-20260723_142740_b07b9d-12",
+    "node-H035-20260724_011258_f7a2ab-01",
+    "node-H035-20260725_163838_dd9d34-08",
+    "node-H035-20260727_024905_596214-05",
+    "node-H035-20260727_024905_596214-07",
+    "node-H035-20260727_212256_d2e016-01",
+    "node-H023-20260721_192104_492625-00",
+    "node-H032-20260720_022922_b9c1ab-00",
+    "node-H032-20260723_145518_ce24dc-00",
+    "node-H032-20260723_145518_ce24dc-10",
+    "node-H032-20260729_190742_1b0e68-02",
+    "node-H021-20260724_153151_f3cf31-02",
+    "node-H021-20260727_142358_6b4b35-11",
+    "node-H021-20260723_212632_b287ca-00",
+    "node-H02F-20260721_164039_1891e1-00",
+    "node-H02F-20260721_183724_b612c3-00",
+    "node-H02F-20260722_162825_227a5c-01"
+  ],
+  "hits": [
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-11",
+      "student": "<student-H035>",
+      "claim": "On a Thor node with no nvidia-device-plugin, a GPU plugin launched with `pluginctl run` silently reports `torch.cuda.is_available()=False` and falls back to ~1440ms/frame CPU inference (no error, no OOMKill) because pluginctl creates the pod with the default runtime and never sets `runtimeClassName`; the fix is to skip pluginctl for GPU plugins and `kubectl apply` a pod manifest that sets `runtimeClassName: nvidia` plus `nodeSelector: resource.gpu=\"true\"`, which yields `torch.cuda.is_available()=True` and ~27ms/frame.",
+      "kind": "failure_class",
+      "evidence_quote": "Definitive: the container has **no GPU access** — `/dev/nvidia*` devices are absent and `runtimeClassName` is empty (no NVIDIA runtime class attached). On a Thor this normally \"just works\" via the NVIDIA container runtime, but apparently not for `pluginctl run` on this node.",
+      "why_novel": "The baseline's pluginctl refs cover GPU failure modes but not this one. `pluginctl-sideload-and-node-build.md` names only 'GPU consumer OOMKilled at first inference — pluginctl's default mem limit'; `pluginctl-camp-guide.md`'s troubleshooting covers '`torch.cuda.is_available()` False on host (/dev/nvmap permissions)' — i.e. False on the HOST, not inside a pluginctl pod. `direct-node-testing.md` has 'Thor GPU Access: /dev/nvmap Permissions'. `docker-build-deploy.md` says use `--runtime=nvidia` for raw docker but says nothing about the k8s RuntimeClass path. Nowhere does the baseline state that pluginctl sets no runtimeClassName, that Thor nodes may advertise no `nvidia.com/gpu` allocatable, or that a hand-rolled manifest with `runtimeClassName: nvidia` is the workaround. The baseline agent would have looked for an OOMKill or an nvmap permission problem and missed it.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-12",
+      "student": "<student-H035>",
+      "claim": "The diagnostic that distinguishes 'GPU not attached' from 'GPU attached but code is wrong' on a Thor is that the node advertises NO `nvidia.com/gpu` in `kubectl describe node` allocatable and there is no nvidia-device-plugin/gpu-operator pod, so resource-based GPU requests are silently no-ops — GPU node labels (`resource.gpu=true`, `resource.cuda110=true`) are present and are NOT evidence that pods get the GPU.",
+      "kind": "invariant",
+      "evidence_quote": "there is no `nvidia-device-plugin` pod anywhere (no `kube-system` nvidia-device-plugin, no `gpu-operator`), and the node's `allocatable` resources list NO `nvidia.com/gpu`. On a stock Jetson/Thor with the NVIDIA container runtime correctly configured, you see `nvidia.com/gpu: 1` ... Here it's absent",
+      "why_novel": "No baseline file mentions `nvidia-device-plugin`, `nvidia.com/gpu` allocatable, or the `resource.gpu` / `resource.cuda110` node labels as a GPU preflight. `deployment-and-diagnostics.md` teaches `kubectl get pods -A` namespace reading; `node-control-plane-disconnect-diagnosis.md` and `node-stopped-reporting-diagnosis.md` are about connectivity, not GPU plumbing. This is a cheap preflight (one `kubectl describe node`) that would have short-circuited a multi-turn arc.",
+      "baseline_files_checked": [
+        "sage-waggle/references/deployment-and-diagnostics.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/node-control-plane-disconnect-diagnosis.md",
+        "sage-waggle/references/docker-build-deploy.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260721_015837_deb440-01",
+      "student": "<student-H035>",
+      "claim": "A node that is missing from the portal's 'all nodes' list is usually not broken but filtered out by project scope — the fleet catalog carries six distinct `project` values (SAGE, SGT, APIARY, VTO, DAWN, Wildebeest) plus ~11 untagged nodes, and the portal defaults to SAGE-scoped; confirm with `GET /manifests/<vsn>` (HTTP 200 + a phase/project) and a `-30d` data-API query before treating it as an outage.",
+      "kind": "failure_class",
+      "evidence_quote": "W072 actually returns HTTP 200 and a full manifest from the auth API — so the node is registered in the Sage fleet. The cloud-side manifest knows about it: it's a DAWN project node at \"TBD, Chicago, IL\" ... project DAWN, with an active nxcore (Xavier NX), nxagent, rpi, etc.",
+      "why_novel": "`auth-api-manifests-and-nodes.md` documents the `?project=` / `?project__name=` filters and the manifest shape, but it never states that the PORTAL's node list is project-scoped, never enumerates the live project set, and never frames 'node invisible on the portal' as a symptom class. `node-stopped-reporting-diagnosis.md` and `node-control-plane-disconnect-diagnosis.md` give ladders for 'stopped reporting' but not for 'never appears'. The baseline agent would likely have started a reporting-outage ladder on a healthy node.",
+      "baseline_files_checked": [
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/node-stopped-reporting-diagnosis.md",
+        "sage-waggle/references/node-control-plane-disconnect-diagnosis.md",
+        "sage-waggle/references/data-viz-and-honesty.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260721_015837_deb440-01",
+      "student": "<student-H035>",
+      "claim": "`curl` against `auth.sagecontinuum.org/manifests/<vsn>` without `-L` returns HTTP 301 with an EMPTY body, which reads as 'node not found / node down' — the endpoint redirects and needs `curl -sL`, so a bare curl is a false-negative generator when probing node existence.",
+      "kind": "invariant",
+      "evidence_quote": "=== W072 manifest (HTTP status) ===\\nHTTP 301\\n=== W072 nodes API (HTTP status) ===\\nHTTP 301\\n=== known-good node W088 manifest ===\\n\\n=== W088 HTTP status ===\\nHTTP 301",
+      "why_novel": "`auth-api-manifests-and-nodes.md` does show `curl -sL` in its examples and notes the trailing-slash rule for the collection URL, but it never says WHAT happens without `-L` (301 + empty body) or warns that the empty body is misread as node-absent. The stated gotcha in that file is about trailing slashes, not redirects. This cost the episode two probe rounds and an initial wrong 'both endpoints returned empty bodies — that's a strong signal' conclusion.",
+      "baseline_files_checked": [
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/timeseries-data-query-api.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260727_212256_d2e016-01",
+      "student": "<student-H035>",
+      "claim": "`nvcr.io/nvidia/pytorch:25.08-py3` ships with NO cv2 at all, so the widely-copied `rm -rf /usr/local/lib/python3.*/dist-packages/cv2*` line in Sage Dockerfiles deletes nothing and is dead code; a runtime `No module named 'cv2'` from an ECR-built plugin therefore points at the broken ECR builder, not at the OpenCV-purge step.",
+      "kind": "correction",
+      "evidence_quote": "I ran `nvcr.io/nvidia/pytorch:25.08-py3` just now and it has **no cv2 at all** — NVIDIA cleaned it out. So the `rm -rf /usr/local/lib/python3.*/dist-packages/cv2*` line in your Dockerfile (lines 18-19) is deleting nothing.",
+      "why_novel": "`docker-build-deploy.md` has a section literally titled 'OpenCV Fix (Required in All Dockerfiles)' and 'Protecting Base Image Packages (Critical)', which is what led students to carry the purge line. This episode's live probe of the 25.08-py3 image contradicts the premise for that specific tag. `ml-plugin-patterns.md` also recommends nvcr.io PyTorch bases without noting the cv2 absence. Naming the tag makes the correction checkable.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/runtime-packaging-patterns.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H01D-20260718_081505_0d26e4-00",
+      "student": "<student-H01D>",
+      "claim": "`skill_view(\"sage-waggle\")` returns ~121.8k characters, which exceeds the tool-result cap and is truncated or spilled to a temp file after the first ~1.5k chars — so loading the whole skill is not a way to answer a Sage question; the agent must go straight to `search_files` / read the named `references/*.md` file instead, and this reproduced in five separate episodes across four students.",
+      "kind": "procedure",
+      "evidence_quote": "[Truncated: tool response was 121,827 chars. Full output could not be saved to sandbox.]",
+      "why_novel": "AGENTS.md and SOUL.md both instruct 'Always use the sage-waggle skill' and 'discover via Graphify, then load the right skill', and `graphify-guide.md` says the agent must discover via the knowledge graph rather than grepping — but nothing states that a bare `skill_view` of sage-waggle is over the result cap and returns essentially nothing usable. Observed identically in cnunes ...0d26e4-00 (121,827), cnunes ...9fbbc1-00 (121,827), lehovaa ...492625-00 (121,811), gotemzzz ...deb440-01 (121,812), kylelima21 ...f3cf31-01 (121,814), and skills_list at 108,580 in cnunes ...64e40e-00. Every one of those episodes then burned turns recovering via search_files.",
+      "baseline_files_checked": [
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md",
+        "sage-waggle/references/graphify-guide.md",
+        "skills/sage-waggle/SKILL.md"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL"
+    },
+    {
+      "episode_id": "node-H01D-20260724_140109_2d7d81-02",
+      "student": "<student-H01D>",
+      "claim": "On camp Thor profiles both web tools are dead — `web_search` fails with 'ddgs package is not installed', `web_extract` fails because DuckDuckGo is search-only, and `browser_navigate` fails with 'Chrome not found' — so the working way to read a public web page is `execute_code` with urllib/requests; agents that retry the web tools burn multiple turns.",
+      "kind": "failure_class",
+      "evidence_quote": "{\"success\": false, \"error\": \"DuckDuckGo (ddgs) is a search-only backend and cannot extract URL content. Set web.extract_backend to firecrawl, tavily, exa, or parallel.\"}",
+      "why_novel": "Nothing in the baseline map covers the camp profile's web-tool state. `sage-docs-index.md`, `duckdb-docs-index.md` and `nvidia-jetson-thor-docs-index.md` all instruct the agent to 'Fetch the live URL' / 'Fetch the live page' for full content — a procedure that cannot work on these profiles as configured. Reproduced across three episodes and two students in this batch (cnunes ...2d7d81-02, lehovaa ...492625-00, gotemzzz ...deb440-01). This is a correction to the fetch-the-live-page instruction in every index reference, plus a stated fallback.",
+      "baseline_files_checked": [
+        "sage-waggle/references/sage-docs-index.md",
+        "sage-waggle/references/duckdb-docs-index.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL"
+    },
+    {
+      "episode_id": "node-H01D-20260725_162927_ea8897-01",
+      "student": "<student-H01D>",
+      "claim": "A USB-serial peripheral documented as `/dev/ttyACM0` (Meshtastic/Arduino-class CDC device) can enumerate on a Thor as `/dev/ttyUSB0` via the `ftdi_sio` driver instead, and it is `root:dialout crw-rw----` so a non-root agent cannot open it — check `lsusb` + `ls -l /dev/ttyUSB* /dev/ttyACM*` and the loaded serial kernel module BEFORE building or deploying a serial plugin, and remember the WES pod needs the device bind-mounted (`-v /dev/ttyXXX:/dev/ttyXXX`) since the README's bare `python3 -m ...` invocations assume host execution.",
+      "kind": "invariant",
+      "evidence_quote": "=== USB serial devices ===\\nls: cannot access '/dev/ttyACM*': No such file or directory\\ncrw-rw---- 1 root dialout 188, 0 Jan  1  1970 /dev/ttyUSB0",
+      "why_novel": "The baseline has no coverage of serial/USB peripherals on a node at all — the camera/audio refs cover RTSP, HTTP-still and USB-mic paths only, and `wes-shared-filesystem-and-cache-architecture.md` / `plugin-deploy-pluginctl-vs-ses.md` cover volume mounts for caches and credentials, not `/dev` device passthrough into a plugin pod. Genuinely uncovered category (the brief explicitly asks for these).",
+      "baseline_files_checked": [
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/wes-shared-filesystem-and-cache-architecture.md",
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/hanwha-xnp6400rw-audio.md",
+        "sage-waggle/references/direct-node-testing.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260727_024905_596214-05",
+      "student": "<student-H035>",
+      "claim": "The common `try: from waggle.plugin import Plugin / except ImportError:` local-test guard does NOT protect against the real on-node failure — `Plugin()` construction raises later from a pika/RabbitMQ `socket.getaddrinfo` failure inside `rabbitmq.py`, not at import — so the guard must wrap both the import AND `Plugin().__enter__()` and catch `Exception`, or the plugin crashes on any node where the broker is unreachable.",
+      "kind": "failure_class",
+      "evidence_quote": "File \"/usr/local/lib/python3.12/dist-packages/waggle/plugin/rabbitmq.py\", line 47, in __connect_and_flush_messages\\n    with pika.BlockingConnection(self.params) as conn, conn.channel() as ch:",
+      "why_novel": "`runtime-packaging-patterns.md` covers 'pywaggle `publish()` pitfalls (silent data loss)' and the string-meta rule; SKILL.md has a 'Local testing (no node required)' section and `testing-patterns.md` prescribes `PYWAGGLE_LOG_DIR`. None of them state that the import-guard idiom is insufficient because the broker connection is deferred past import, nor that the failure surfaces as a pika getaddrinfo traceback. The local-test-mode idiom is exactly what the baseline's local-testing guidance encourages, so this is a correction to a pattern the baseline promotes.",
+      "baseline_files_checked": [
+        "sage-waggle/references/runtime-packaging-patterns.md",
+        "sage-waggle/references/testing-patterns.md",
+        "skills/sage-waggle/SKILL.md",
+        "sage-waggle/references/plugin-duration-performance-telemetry.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    }
+  ],
+  "near_misses": [
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-11",
+      "note": "Same episode also found that a `--weight` argparse DEFAULT of a RELATIVE path (`models/.../best.pt`) accidentally works on the host (CWD = repo root) and silently loads the wrong file, then breaks in the container. Real and transferable, but it is generic Python/Docker CWD knowledge rather than a Sage platform fact, and `plugin-deploy-pluginctl-vs-ses.md` already covers the adjacent 'Dockerfile must COPY all modules' trap. Folded into the GPU hit's episode rather than claimed separately."
+    },
+    {
+      "episode_id": "node-H035-20260727_212256_d2e016-01",
+      "note": "The agent asserted, twice and confidently, that the runtime `No module named 'cv2'` was caused by the fleet-wide ECR `/proc/acpi` runc bug — but that bug is documented as FIXED for CPU-base plugins as of 2026-07-10 (`ecr-build-to-ses-cutover.md`) with GPU/NVIDIA-base still open, and the episode never actually inspected the ECR build log to confirm. A hit would be 'the baseline's ECR-bug refs are stale enough that agents reach for /proc/acpi as a universal explanation', but the episode does not establish the true root cause, so it stays a near miss."
+    },
+    {
+      "episode_id": "node-H035-20260727_212256_d2e016-01",
+      "note": "Node-local registry at a raw private IP on port 5000 is HTTPS-only ('Client sent an HTTP request to an HTTPS server' on the plain-HTTP probe) and the agent raised, but never resolved, whether the k3s scheduler will pull from a raw-IP no-TLS registry. `plugin-deploy-pluginctl-vs-ses.md` already says the node-local registry is often DOWN. Unresolved, so not a hit."
+    },
+    {
+      "episode_id": "node-H032-20260723_145518_ce24dc-10",
+      "note": "pywaggle's `AudioSample.data` is a mutable in-memory array that can be zeroed IN PLACE before `sample.save()`, giving a clean privacy/redaction insertion point between `mic.record()` and persistence. Genuinely useful and confirmed against installed pywaggle source in the follow-on episode (mighdz ...1b0e68-02), but it reads as an application design pattern on a documented API rather than a misleading-symptom failure class, and SKILL.md already covers the pywaggle Microphone abstraction."
+    },
+    {
+      "episode_id": "node-H032-20260723_145518_ce24dc-10",
+      "note": "Pyright/LSP on the node produces two false positives that could derail an agent: it cannot resolve `ai_edge_litert` (present only in the plugin container, not system Python) and it misreports a literal `True` as `float`. A real toolchain annoyance, but harness/lint noise rather than a platform lesson — the brief excludes harness noise."
+    },
+    {
+      "episode_id": "node-H021-20260724_153151_f3cf31-02",
+      "note": "An `EmbeddingBundle` round-trip assert fails with `np.array_equal` because load-time re-normalization of already-unit float32 vectors drifts by ~7e-9; fix is `np.allclose(atol=1e-6)`. Correct and well-diagnosed but it is generic numpy float32 knowledge, not Sage/Waggle platform or toolchain."
+    },
+    {
+      "episode_id": "node-H021-20260727_142358_6b4b35-11",
+      "note": "`/graphify <profile> --update` fails when `graphify-out/graph.json` does not exist — the profile AGENTS.md mandates graph-first discovery but the graph is frequently absent on a fresh install. `graphify-guide.md` does cover 'Updating an existing graph' and the build path, so the gap is only that no ref says to probe for graph.json before honoring an --update request. Marginal."
+    },
+    {
+      "episode_id": "node-H01D-20260730_061700_f94dd8-03",
+      "note": "A `cd` built a doubled profile path (`.../profiles/sage/home/.hermes/profiles/sage`) and failed; the same doubled prefix appears in agent-browser and directory probes in three other episodes, suggesting the sandbox CWD is the profile's `home/` subdir rather than the real `$HOME`. AGENTS.md already warns 'CWD is usually $HOME, not the profile' — the observed shape is the inverse and would be worth a correction, but I could not establish the actual CWD semantics from these transcripts alone."
+    },
+    {
+      "episode_id": "node-H035-20260725_163838_dd9d34-08",
+      "note": "Long, well-instrumented arc on bat entering/leaving transit classification (edge-margin heuristics, roost-center dot product, distance-to-roost). Genuinely interesting debugging discipline but entirely project-specific business logic, which the brief excludes."
+    },
+    {
+      "episode_id": "node-H01D-20260724_140109_2d7d81-01",
+      "note": "Good inventory of what a camp Thor ships with vs needs requesting: podman.sock is permission-denied to the student user (blocking the documented side-load workaround), sesctl defaults to `--server http://localhost:9770` which may not be running on a given blade, and /etc/waggle is host-readable. Each is plausible and useful, but none was run to ground in-episode (the user explicitly said 'do not do any work, just look'), so it is observation rather than a verified claim."
+    },
+    {
+      "episode_id": "node-H023-20260721_192104_492625-00",
+      "note": "Produces a complete VS Code MCP wiring recipe for the Sage MCP server (`code --add-mcp`, the `servers`/`type:http` shape vs Hermes's `mcp_servers`/`url` shape, and the read-only-vs-job-submission auth split). `mcp-tools.md` documents the endpoint and auth model but no client-config shapes. Withheld because the VS Code specifics were assembled from the model's own knowledge after every web fetch failed — nothing in the episode verifies them."
+    },
+    {
+      "episode_id": "node-H02F-20260722_162825_227a5c-01",
+      "note": "Found that a plugin published an unbounded `score` float (>1.0, e.g. 18.39) because a fused audio crest-factor metric was mixed with [0,1] model confidences, plus README/argparser flag drift and a Dockerfile that COPYs app.py but not its sibling modules. The last of those is already in `plugin-deploy-pluginctl-vs-ses.md` ('Dockerfile must COPY all modules'); the score-range issue is project-specific fusion design."
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "batches": [
+    "batch_00",
+    "batch_01"
+  ],
+  "episodes_reviewed": 56,
+  "full_reads": [
+    "node-H01D-20260730_061700_f94dd8-02",
+    "node-H01D-20260730_061700_f94dd8-00",
+    "node-H01D-20260725_175019_07a38a-02",
+    "node-H035-20260723_142740_b07b9d-04",
+    "node-H035-20260723_142740_b07b9d-05",
+    "node-H035-20260723_142740_b07b9d-00",
+    "node-H035-20260724_011258_f7a2ab-05",
+    "node-H035-20260724_011258_f7a2ab-06",
+    "node-H035-20260727_212256_d2e016-00",
+    "node-H035-20260727_212256_d2e016-03",
+    "node-H021-20260723_004314_437672-02",
+    "node-H021-20260723_004314_437672-03",
+    "node-H021-20260723_004314_437672-05",
+    "node-H021-20260725_162553_193a20-03",
+    "node-H021-20260725_162553_193a20-06",
+    "node-H023-20260721_035409_752c13-00",
+    "node-H032-20260721_145114_cfcfa0-01",
+    "node-H032-20260723_145518_ce24dc-06",
+    "node-H03F-20260726_201000_c89bbc-03",
+    "node-H02F-20260721_142910_732265-00"
+  ],
+  "hits": [
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-04",
+      "student": "[REDACTED]",
+      "claim": "In the camp Hermes terminal tool, $HOME is rewritten to <profile>/home, so any command using ~ or $HOME silently resolves under /home/<user>/.hermes/profiles/sage/home/ instead of the real /home/<user>/ — producing bogus 'No such file or directory' for files that plainly exist and making installed tools look missing (which pixi -> not found while /home/<user>/.pixi/bin/pixi exists); fix: always use absolute /home/<user>/... paths in terminal commands and never rely on ~ or a login-shell PATH.",
+      "kind": "invariant",
+      "evidence_quote": "Pixi isn't installed on this machine. The terminal tool is running with `$HOME` expanded under the Hermes profile (`~/.hermes/profiles/sage/home`), which I've already seen in earlier calls — so my `~` lookups go there, not the real `/home/<user>`.",
+      "why_novel": "Nothing in the baseline map addresses the agent's own shell environment. I checked sage-waggle/references/pluginctl-camp-guide.md (has a 'pluginctl vs podman vs Hermes terminal' section but only about which tool to build with), direct-node-testing.md, graphify-guide.md, and summer-camp-2026/hermes-profile/SOUL.md + AGENTS.md — none mention the HOME rewrite. This is the single highest-frequency failure in these two batches: 23 of the 56 episodes contain at least one tool failure whose output path is the doubled `.hermes/profiles/sage/home/...` prefix, across five different students.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/SKILL.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/graphify-guide.md",
+        "summer-camp-2026/hermes-profile/SOUL.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL"
+    },
+    {
+      "episode_id": "node-H021-20260723_004314_437672-02",
+      "student": "[REDACTED]",
+      "claim": "On a camp Thor (JetPack R38.2.1 / L4T 38.2.1), a generic PyPI aarch64 torch wheel (torch 2.13.0+cu130) imports fine but every CUDA entry point — torch.cuda.is_available(), .cuda(), even nvidia-smi on the host — HANGS FOREVER rather than returning False or raising; the misleading symptom is a series of tool timeouts that look like 'slow first import', and the fix is to stop probing on the host and do all GPU work inside nvcr.io/nvidia/pytorch:25.08-py3.",
+      "kind": "failure_class",
+      "evidence_quote": "torch ok: 2.13.0+cu130\\nchecking cuda...\\n\\n[Command timed out after 40s]",
+      "why_novel": "sage-waggle/references/docker-build-deploy.md and the ml-plugin-Dockerfile template describe base-image selection and say the wrong CUDA base 'silently falls back to CPU'; direct-node-testing.md covers '/dev/nvmap permissions' for host Python. Neither says the host-Python failure mode on Thor is an INDEFINITE HANG (not a False return, not an exception, not a fallback). That distinction is what cost this session ~8 successive command timeouts of 15s-240s, plus a 180s nvidia-smi hang in a later episode of the same project (node-H021-20260725_162553_193a20-03).",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-04",
+      "student": "[REDACTED]",
+      "claim": "conda-forge publishes no sm_110 PyTorch for linux-aarch64 (only cuda129 builds; the pytorch and nvidia channels have no aarch64 pytorch at all), so a pixi/conda env on a Thor reports torch.cuda.is_available()=True and then dies at the FIRST kernel launch with 'CUDA error: no kernel image is available for execution on the device' — a GPU-capability mismatch masquerading as a model/ultralytics bug; there is no conda pin that fixes it, the only path is the CUDA-13 container base.",
+      "kind": "failure_class",
+      "evidence_quote": "NVIDIA Thor with CUDA capability sm_110 is not compatible with the current PyTorch installation.\\nThe current PyTorch install supports CUDA capabilities sm_50 sm_60 ... sm_100 sm_120 ... torch.AcceleratorError: CUDA error: no kernel image is available for execution on the device",
+      "why_novel": "sage-waggle/references/docker-build-deploy.md and ml-plugin-patterns.md cover Docker base-image selection for sm_110/sm_121; the word 'pixi' does not appear anywhere in the baseline map and 'conda' appears only in unrelated contexts. Neither the fact that conda-forge aarch64 tops out at cuda129 (verified by `pixi search` in-episode), nor the is_available()==True-then-crash signature, is stated. Students arriving with a conda/pixi research repo (a common hand-off shape per external-project-edge-porting-review.md) hit this immediately.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/external-project-edge-porting-review.md",
+        "sage-waggle/references/direct-node-testing.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H021-20260725_162553_193a20-03",
+      "student": "[REDACTED]",
+      "claim": "Camp Thor student accounts have NOPASSWD sudo for an explicit binary allowlist only (kubectl, docker, docker-compose, runplugin, pluginctl) and the Hermes terminal has no TTY, so every other sudo command fails with 'a terminal is required to read the password' — this makes the documented side-load step `sudo k3s ctr images import` impossible (/usr/local/bin/ctr is a symlink to k3s, so it inherits the block); the working substitute is to apply a privileged pod with `sudo kubectl` that mounts the containerd socket and runs the import from inside.",
+      "kind": "correction",
+      "evidence_quote": "User <user> may run the following commands on <node>:\\n    (ALL) NOPASSWD: /usr/local/bin/kubectl, /usr/bin/docker, /usr/local/bin/docker, /usr/bin/docker-compose, /usr/local/bin/docker-compose, /usr/bin/runplugin, /usr/bin/pluginctl",
+      "why_novel": "sage-waggle/references/pluginctl-sideload-and-node-build.md and thor-arm64-deploy-pipeline.md both present `podman save | sudo k3s ctr images import` as THE registry-free side-load path, and pluginctl-camp-guide.md's troubleshooting table just says 'Prefix with sudo'. Neither states that k3s/ctr/crictl/systemctl are outside the camp sudoers allowlist, nor gives a fallback. node-ssh-access-and-gpsd-probe.md has CAN/CANNOT-do-as-plain-waggle lists, but those are for the `waggle` user on WSN nodes, not camp Thor student accounts. The import-pod workaround succeeded in-episode ('Importing bisonn.tar into k3s containerd... localhost/bisonn 0.1.0 ... 15.6GB / Done.') and the pod then started with 'Container image \"localhost/bisonn:0.1.0\" already present on machine'.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/thor-arm64-deploy-pipeline.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/node-ssh-access-and-gpsd-probe.md",
+        "sage-waggle/references/on-node-verification-recipe.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H021-20260725_162553_193a20-03",
+      "student": "[REDACTED]",
+      "claim": "`pluginctl build` can succeed and hand back a 10.31.81.1:5000/local/... ref that `pluginctl run` can never pull: kubelet rejects the node-local registry with x509 'certificate signed by unknown authority' even though /etc/rancher/k3s/registries.yaml names the CA and `openssl verify` of the serving cert against that CA returns 0 — i.e. containerd has not loaded the registries.yaml, and the diagnosis is that a build-succeeds/run-ImagePullBackOff pair is a registry-trust fault, not a build or image-name fault.",
+      "kind": "failure_class",
+      "evidence_quote": "Failed to pull image \"10.31.81.1:5000/local/plugin:latest\": failed to pull and unpack image ...: failed to do request: Head \"https://10.31.81.1:5000/v2/local/plugin/manifests/latest\": tls: failed to verify certificate: x509: certificate signed by unknown authority",
+      "why_novel": "pluginctl-camp-guide.md's troubleshooting table lists exactly one node-local-registry failure ('Build push to 10.31.81.1:5000 refused | Node-local registry unreachable (lan0 down)') and plugin-deploy-pluginctl-vs-ses.md says 'H00F node-local registry often DOWN' — both are reachability, not TLS trust. pluginctl-sideload-and-node-build.md documents an IMAGE-NAME trap causing ImagePullBackOff, which sends you down the wrong path here (the name was correct; the cert chain was the problem). The 'openssl verifies but kubelet does not' discriminator is absent everywhere.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/thor-arm64-deploy-pipeline.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260724_011258_f7a2ab-06",
+      "student": "[REDACTED]",
+      "claim": "`pluginctl run --privileged` is NOT a substitute for runtimeClassName: nvidia on a Thor — even with --privileged --selector resource.gpu=true the pod still reports torch.cuda.is_available()=False and /dev/nvidia* is absent, because on Tegra the devices are wired by the NVIDIA runtime hook, not by the privileged securityContext; `pluginctl deploy --dry-run` is the cheap proof (it prints the full generated pod spec, which never contains runtimeClassName no matter which flags you pass).",
+      "kind": "correction",
+      "evidence_quote": "sudo pluginctl run --privileged --selector resource.gpu=true --resource limit.memory=16Gi,request.memory=4Gi  --name batman-app 10.31.81.1:5000/local/plugin -- --camera-source videos/P1.1.2_grey.mov\\n...\\n2026-07-24 02:24:49,014 INFO Model loaded. torch.cuda.is_available()=False",
+      "why_novel": "sage-waggle/references/pluginctl-camp-guide.md already carries the root cause (a VERIFIED row saying pluginctl run does not set runtimeClassName) and prescribes a hand-written pod manifest. What is absent — and what the agent proposed, tried, and had disproven by the student — is that --privileged looks like it should work (the --dry-run spec shows `privileged: true` plus a /host/dev mount) and does not. Also absent: the node HAS a registered `nvidia` RuntimeClass (`NAME nvidia HANDLER nvidia`) and node labels resource.gpu/cuda110=true, so both of those checks pass while the GPU is still invisible; and the --dry-run inspection technique itself, which works without any cluster read RBAC.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/producer-consumer-gpu-and-shared-mounts.md",
+        "sage-waggle/references/scheduling-continuous-vs-oneshot-and-gpu-contention.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H032-20260723_145518_ce24dc-06",
+      "student": "[REDACTED]",
+      "claim": "Running YAMNet (or any TFLite model) on a Thor has four non-obvious gates, all verified end-to-end on aarch64: tfhub.dev is dead and the only working kagglehub slug is google/yamnet/tensorFlow2/yamnet (tensorflow1/*, */classification, */yamnet-1 all 404); that download is a SavedModel, not a .tflite, so you convert it yourself; TF 2.21 removed tensorflow.lite.Interpreter, so the interpreter must come from ai_edge_litert.interpreter (already present because birdnet 0.2.16 depends on ai-edge-litert); and the converted model bakes a fixed [1] input shape, so you must call resize_tensor_input per waveform length or set_tensor raises a dimension mismatch.",
+      "kind": "procedure",
+      "evidence_quote": "ImportError: cannot import name 'Interpreter' from 'tensorflow.lite' (/home/<user>/work/.venv/lib/python3.12/site-packages/tensorflow/lite/__init__.py)\\ntf 2.21.0 ... ValueError: Cannot set tensor: Dimension mismatch. Got 2 but expected 1 for input 0.",
+      "why_novel": "The baseline's audio coverage is BirdNET-only (audio-classification-models.md, birdnet-audio-debugging-and-geofilter.md, audio-plugin-debugging-birdnet.md, audio-plugin-flac-and-portal-inlining.md). The strings 'tflite', 'litert', 'yamnet' and 'kagglehub' appear nowhere in the baseline map. Since BirdNET itself is a TFLite model and pulls ai-edge-litert plus full TensorFlow (~400MB) into every audio plugin container, these are general Thor-audio-toolchain facts, not one student's redaction feature. Verified in-episode: 3s of silence -> 6 frames of (1,521) scores with class 494 'Silence' at 1.0, XNNPACK CPU delegate.",
+      "baseline_files_checked": [
+        "sage-waggle/references/audio-classification-models.md",
+        "sage-waggle/references/birdnet-audio-debugging-and-geofilter.md",
+        "sage-waggle/references/audio-plugin-debugging-birdnet.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/huggingface-skills-index.md"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-00",
+      "student": "[REDACTED]",
+      "claim": "git-lfs is not installed on camp Thor nodes, so an LFS-tracked file in a cloned research repo checks out as ~130 bytes of pointer text rather than the real blob — `file` reports 'ASCII text' and the head is 'version https://git-lfs.github.com/spec/v1' — and a Dockerfile that COPYs such a path bakes the pointer into the image; preflight any handed-off repo by checking .gitattributes for filter=lfs and byte-checking each model/video file before building.",
+      "kind": "invariant",
+      "evidence_quote": "===GIT LFS LS-FILES===\\ngit: 'lfs' is not a git command. ... ===.avi file head (first 200 bytes)===\\nversion https://git-lfs.github.com/spec/v1\\noid sha256:04cc308cbc55b916725d92d3037a660a16a3186daa17a350e547315b5239ef49\\nsize 238696990",
+      "why_novel": "The baseline has no LFS coverage at all — I checked git-bundle-transfer-to-node.md (covers getting a NEW private repo onto a node with no GitHub creds, nothing about LFS), external-project-edge-porting-review.md (the 'what to flag on an HPC/desktop -> edge port' checklist has no LFS item), ml-plugin-patterns.md and ecr-plugin-examples.md (model-weight baking, which is exactly the code path a pointer file silently corrupts). Camp repos routinely arrive with *.pt / *.avi under LFS, so this is a recurring class, not one repo's mess.",
+      "baseline_files_checked": [
+        "sage-waggle/references/git-bundle-transfer-to-node.md",
+        "sage-waggle/references/external-project-edge-porting-review.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/ecr-plugin-examples.md",
+        "sage-waggle/references/docker-build-deploy.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260727_212256_d2e016-03",
+      "student": "[REDACTED]",
+      "claim": "The camp fleet camera URL rtsp://10.107.0.1/camera/<name> is a redirector on the wg-sage network, not the camera: ffprobe reports an RTSP 302 to the camera's real address with credentials embedded, so any pod or firewall analysis must target the REDIRECT TARGET's host/port, and code that logs `camera_source.split(\"@\")[-1]` shows the proxy URL while the connection is actually going somewhere else; separately, OPENCV_FFMPEG_CAPTURE_OPTIONS is read at cv2.VideoCapture() open time, so setting it inside the frame-read loop has no effect.",
+      "kind": "failure_class",
+      "evidence_quote": "[rtsp @ 0xaaaae7d8d110] Status 302: Redirecting to rtsp://[REDACTED]@10.107.0.231:10004/h264Preview_01_main\\nInput #0, rtsp, from 'rtsp://10.107.0.1/camera/[REDACTED]':\\n  Stream #0:0: Video: hevc (Main), yuv420p(tv), 3840x2160, 20 fps",
+      "why_novel": "sage-waggle/references/camera-rtsp-patterns.md documents per-vendor RTSP URL shapes and pywaggle's resolve_device chain, and scheduling-and-cameras.md covers vendor-specific auth — neither mentions that the camp-side rtsp://10.107.0.1/camera/<name> form is a 302 redirector, nor that the redirect target is on a different host and port than the URL you were handed. Verified in-episode from both the host and a --network host container (both UDP and TCP read a 2160x3840 frame successfully), which is also the evidence that ruled out the transport-protocol hypothesis the student proposed.",
+      "baseline_files_checked": [
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/scheduling-and-cameras.md",
+        "sage-waggle/references/reolink-http-snapshot.md",
+        "sage-waggle/references/rtsp-vs-still-metadata-acquisition.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    }
+  ],
+  "near_misses": [
+    {
+      "episode_id": "node-H03F-20260726_201000_c89bbc-03",
+      "note": "Observed that the ECR catalog's unversioned listing endpoint and the versioned endpoint /api/apps/<ns>/<app>/<ver> disagree — 0.1.1 appeared in the listing a day earlier but returned {\"error\":\"App not found\"} at the versioned URL, which is the one SES validates against. Would be a valuable correction to sesctl-ecr-validation.md / ecr-public-apps-api.md, but it is a single observation that could equally be eventual consistency or the agent's own earlier mis-parse, so it is not falsifiable from this transcript alone. Same episode also has a good re-usable technique (poll .status.containerStatuses[0].state.terminated for exitCode/reason when a ses-namespace pod is GC'd faster than kubectl logs can attach) but thor-arm64-deploy-pipeline.md and pluginctl-sideload-and-node-build.md already document both the log race and terminated-reason diagnosis."
+    },
+    {
+      "episode_id": "node-H01D-20260725_175019_07a38a-02",
+      "note": "A /24 ping-sweep to 'discover' peer Thors is misleading: a Thor holds secondary aliases on wan0 (10.31.80.3 and .4 both answered as the SAME node, hostname and /etc/waggle/vsn identical), and waggle-dev-node-<vsn> names do not resolve from a node (/etc/hosts has only localhost; nsswitch is files + mdns4_minimal). Real and checkable, but node-ssh-access-and-gpsd-probe.md already gives the sanctioned route (ssh USER@node-<VSN>.sage) and node-to-node ssh is stated to be gateway-only, so the lesson is mostly 'do not do the thing the baseline already tells you not to do'."
+    },
+    {
+      "episode_id": "node-H023-20260721_035409_752c13-00",
+      "note": "Clean demonstration that a student's kubeconfig defaults to namespace=<username> and that pluginctl ps / kubectl get pods return Forbidden in default and at cluster scope, so 'what plugins are on this node' is unanswerable without sudo. Covered by pluginctl-camp-guide.md's troubleshooting row ('pods is forbidden ... Prefix with sudo'). The one sliver that may be new is that the public https://data.sagecontinuum.org/api/v1/apps endpoint now 404s, but that was one probe of a URL the baseline does not recommend anyway."
+    },
+    {
+      "episode_id": "node-H021-20260725_162553_193a20-06",
+      "note": "ECR 'Register and Build' looks for Dockerfile + sage.yaml at the repo ROOT, so a plugin kept in a plugin/ subdirectory fails; the registration payload has a source.directory field (the local register script hardcodes \".\"). Potentially a useful procedure note for plugin-doc-surfaces-and-versioning.md, but the episode never tested source.directory=\"plugin\" — it moved the files to the root instead — so the actionable half is unverified."
+    },
+    {
+      "episode_id": "node-H035-20260727_212256_d2e016-00",
+      "note": "Two Dockerfiles in one repo (a pixi-based root one and a pip-based plugin/ one) with only the second being what ECR builds; plus a fragile 'uninstall opencv then rm -rf dist-packages/cv2* then reinstall' incantation copied from the baseline's OpenCV fix, applied to a 25.08-py3 base that ships no cv2 at all — so the rm deletes nothing and a failed pip step leaves ModuleNotFoundError: cv2. Suggestive that docker-build-deploy.md's 'OpenCV Fix (Required in All Dockerfiles)' is now stale for 25.08-py3, but the episode was interrupted before confirming, so the correction is not established."
+    },
+    {
+      "episode_id": "node-H021-20260723_004314_437672-06",
+      "note": "The Hermes memory tool enforces a hard 2,200-character total and refuses adds/replaces that would exceed it, costing repeated turns across two episodes. Real and checkable, and arguably SOUL material, but it is agent-harness capacity rather than a platform/toolchain claim."
+    },
+    {
+      "episode_id": "node-H02F-20260721_142910_732265-00",
+      "note": "write_file refuses to create sage.yaml when the candidate content fails YAML syntax validation ('The file was NOT created or modified'), which is a useful guard to know about when authoring job/ECR YAML, and .env is a protected path that write_file will not touch (also seen in node-H01D-20260725_171322_db2927-01). Harness behavior, not platform knowledge."
+    },
+    {
+      "episode_id": "node-H01D-20260730_061700_f94dd8-00",
+      "note": "The graphify prerequisite that AGENTS.md calls non-negotiable was entirely absent on this profile (no graphify-out/, no .venv-graphify, no baseline tarball, no setup script, no uv), and a from-scratch build over the profile inventories 3,482 files / 3.8M words and 65 semantic-extraction chunks. graphify-guide.md already covers install and the venv; the only arguably new datum is the corpus scale, which is a cost estimate rather than a checkable platform claim."
+    },
+    {
+      "episode_id": "node-H035-20260725_163838_dd9d34-22",
+      "note": "Highest tool-failure count in either batch (176 tools, 22 failures) but the content is bat-counting tracking logic — transit direction, frame-edge heuristics, ROI config — i.e. project-specific science, not platform. The dd9d34-01/-09/-24/-30 siblings are the same."
+    },
+    {
+      "episode_id": "node-H032-20260729_190742_1b0e68-04",
+      "note": "git push from a node fails with 'could not read Password for https://***@github.com: No such device or address', and a commit first fails with 'Author identity unknown' (seen in three separate episodes across two students). git-bundle-transfer-to-node.md already states there is no gh and no credential helper on the node; the missing user.name/user.email default is generic git."
+    }
+  ]
+}

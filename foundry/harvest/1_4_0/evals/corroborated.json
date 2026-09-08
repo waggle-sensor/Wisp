@@ -1,0 +1,2213 @@
+{
+  "shards": [
+    {
+      "shard": "triage_00_01.json",
+      "batches": [
+        "batch_00",
+        "batch_01"
+      ],
+      "episodes_reviewed": 56,
+      "full_reads": 20,
+      "hits": 9,
+      "near_misses": 10
+    },
+    {
+      "shard": "triage_02_03.json",
+      "batches": [
+        "batch_02",
+        "batch_03"
+      ],
+      "episodes_reviewed": 56,
+      "full_reads": 23,
+      "hits": 10,
+      "near_misses": 9
+    },
+    {
+      "shard": "triage_04_05.json",
+      "batches": [
+        "batch_04",
+        "batch_05"
+      ],
+      "episodes_reviewed": 55,
+      "full_reads": 21,
+      "hits": 8,
+      "near_misses": 7
+    },
+    {
+      "shard": "triage_06_07.json",
+      "batches": [
+        "batch_06",
+        "batch_07"
+      ],
+      "episodes_reviewed": 56,
+      "full_reads": 30,
+      "hits": 9,
+      "near_misses": 12
+    },
+    {
+      "shard": "triage_08_09.json",
+      "batches": [
+        "batch_08",
+        "batch_09"
+      ],
+      "episodes_reviewed": 56,
+      "full_reads": 46,
+      "hits": 7,
+      "near_misses": 9
+    },
+    {
+      "shard": "triage_10_11.json",
+      "batches": [
+        "batch_10",
+        "batch_11"
+      ],
+      "episodes_reviewed": 51,
+      "full_reads": 33,
+      "hits": 10,
+      "near_misses": 10
+    }
+  ],
+  "clusters": [
+    {
+      "cluster_id": "C002",
+      "claim": "conda-forge publishes no sm_110 PyTorch for linux-aarch64 (only cuda129 builds; the pytorch and nvidia channels have no aarch64 pytorch at all), so a pixi/conda env on a Thor reports torch.cuda.is_available()=True and then dies at the FIRST kernel launch with 'CUDA error: no kernel image is available for execution on the device' \u2014 a GPU-capability mismatch masquerading as a model/ultralytics bug; there is no conda pin that fixes it, the only path is the CUDA-13 container base.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-04"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "sage-waggle/references/docker-build-deploy.md and ml-plugin-patterns.md cover Docker base-image selection for sm_110/sm_121; the word 'pixi' does not appear anywhere in the baseline map and 'conda' appears only in unrelated contexts. Neither the fact that conda-forge aarch64 tops out at cuda129 (verified by `pixi search` in-episode), nor the is_available()==True-then-crash signature, is stated. Students arriving with a conda/pixi research repo (a common hand-off shape per external-project-edge-porting-review.md) hit this immediately.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/external-project-edge-porting-review.md",
+        "sage-waggle/references/ml-plugin-patterns.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-04",
+          "student": "[REDACTED]",
+          "quote": "NVIDIA Thor with CUDA capability sm_110 is not compatible with the current PyTorch installation.\\nThe current PyTorch install supports CUDA capabilities sm_50 sm_60 ... sm_100 sm_120 ... torch.AcceleratorError: CUDA error: no kernel image is available for execution on the device",
+          "friction": {
+            "retry_depth": 6,
+            "n_tool_failures": 13,
+            "wall_seconds": 2792.6,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 10.41
+    },
+    {
+      "cluster_id": "C003",
+      "claim": "Camp Thor student accounts have NOPASSWD sudo for an explicit binary allowlist only (kubectl, docker, docker-compose, runplugin, pluginctl) and the Hermes terminal has no TTY, so every other sudo command fails with 'a terminal is required to read the password' \u2014 this makes the documented side-load step `sudo k3s ctr images import` impossible (/usr/local/bin/ctr is a symlink to k3s, so it inherits the block); the working substitute is to apply a privileged pod with `sudo kubectl` that mounts the containerd socket and runs the import from inside.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-03"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "sage-waggle/references/pluginctl-sideload-and-node-build.md and thor-arm64-deploy-pipeline.md both present `podman save | sudo k3s ctr images import` as THE registry-free side-load path, and pluginctl-camp-guide.md's troubleshooting table just says 'Prefix with sudo'. Neither states that k3s/ctr/crictl/systemctl are outside the camp sudoers allowlist, nor gives a fallback. node-ssh-access-and-gpsd-probe.md has CAN/CANNOT-do-as-plain-waggle lists, but those are for the `waggle` user on WSN nodes, not camp Thor student accounts. The import-pod workaround succeeded in-episode ('Importing bisonn.tar into k3s containerd... localhost/bisonn 0.1.0 ... 15.6GB / Done.') and the pod then started with 'Container image \"localhost/bisonn:0.1.0\" already present on machine'.",
+      "baseline_files_checked": [
+        "sage-waggle/references/node-ssh-access-and-gpsd-probe.md",
+        "sage-waggle/references/on-node-verification-recipe.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/thor-arm64-deploy-pipeline.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260725_162553_193a20-03",
+          "student": "[REDACTED]",
+          "quote": "User <user> may run the following commands on <node>:\\n    (ALL) NOPASSWD: /usr/local/bin/kubectl, /usr/bin/docker, /usr/local/bin/docker, /usr/bin/docker-compose, /usr/local/bin/docker-compose, /usr/bin/runplugin, /usr/bin/pluginctl",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 20,
+            "wall_seconds": 2961.9,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 10.23
+    },
+    {
+      "cluster_id": "C004",
+      "claim": "`pluginctl build` can succeed and hand back a 10.31.81.1:5000/local/... ref that `pluginctl run` can never pull: kubelet rejects the node-local registry with x509 'certificate signed by unknown authority' even though /etc/rancher/k3s/registries.yaml names the CA and `openssl verify` of the serving cert against that CA returns 0 \u2014 i.e. containerd has not loaded the registries.yaml, and the diagnosis is that a build-succeeds/run-ImagePullBackOff pair is a registry-trust fault, not a build or image-name fault.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-03"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "pluginctl-camp-guide.md's troubleshooting table lists exactly one node-local-registry failure ('Build push to 10.31.81.1:5000 refused | Node-local registry unreachable (lan0 down)') and plugin-deploy-pluginctl-vs-ses.md says 'H00F node-local registry often DOWN' \u2014 both are reachability, not TLS trust. pluginctl-sideload-and-node-build.md documents an IMAGE-NAME trap causing ImagePullBackOff, which sends you down the wrong path here (the name was correct; the cert chain was the problem). The 'openssl verifies but kubelet does not' discriminator is absent everywhere.",
+      "baseline_files_checked": [
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/thor-arm64-deploy-pipeline.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260725_162553_193a20-03",
+          "student": "[REDACTED]",
+          "quote": "Failed to pull image \"10.31.81.1:5000/local/plugin:latest\": failed to pull and unpack image ...: failed to do request: Head \"https://10.31.81.1:5000/v2/local/plugin/manifests/latest\": tls: failed to verify certificate: x509: certificate signed by unknown authority",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 20,
+            "wall_seconds": 2961.9,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 10.23
+    },
+    {
+      "cluster_id": "C000",
+      "claim": "In the camp Hermes terminal tool, $HOME is rewritten to <profile>/home, so any command using ~ or $HOME silently resolves under /home/<user>/.hermes/profiles/sage/home/ instead of the real /home/<user>/ \u2014 producing bogus 'No such file or directory' for files that plainly exist and making installed tools look missing (which pixi -> not found while /home/<user>/.pixi/bin/pixi exists); fix: always use absolute /home/<user>/... paths in terminal commands and never rely on ~ or a login-shell PATH.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-04"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "Nothing in the baseline map addresses the agent's own shell environment. I checked sage-waggle/references/pluginctl-camp-guide.md (has a 'pluginctl vs podman vs Hermes terminal' section but only about which tool to build with), direct-node-testing.md, graphify-guide.md, and summer-camp-2026/hermes-profile/SOUL.md + AGENTS.md \u2014 none mention the HOME rewrite. This is the single highest-frequency failure in these two batches: 23 of the 56 episodes contain at least one tool failure whose output path is the doubled `.hermes/profiles/sage/home/...` prefix, across five different students.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/graphify-guide.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "skills/sage-waggle/SKILL.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-04",
+          "student": "[REDACTED]",
+          "quote": "Pixi isn't installed on this machine. The terminal tool is running with `$HOME` expanded under the Hermes profile (`~/.hermes/profiles/sage/home`), which I've already seen in earlier calls \u2014 so my `~` lookups go there, not the real `/home/<user>`.",
+          "friction": {
+            "retry_depth": 6,
+            "n_tool_failures": 13,
+            "wall_seconds": 2792.6,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 8.33
+    },
+    {
+      "cluster_id": "C001",
+      "claim": "On a camp Thor (JetPack R38.2.1 / L4T 38.2.1), a generic PyPI aarch64 torch wheel (torch 2.13.0+cu130) imports fine but every CUDA entry point \u2014 torch.cuda.is_available(), .cuda(), even nvidia-smi on the host \u2014 HANGS FOREVER rather than returning False or raising; the misleading symptom is a series of tool timeouts that look like 'slow first import', and the fix is to stop probing on the host and do all GPU work inside nvcr.io/nvidia/pytorch:25.08-py3.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260723_004314_437672-02"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "sage-waggle/references/docker-build-deploy.md and the ml-plugin-Dockerfile template describe base-image selection and say the wrong CUDA base 'silently falls back to CPU'; direct-node-testing.md covers '/dev/nvmap permissions' for host Python. Neither says the host-Python failure mode on Thor is an INDEFINITE HANG (not a False return, not an exception, not a fallback). That distinction is what cost this session ~8 successive command timeouts of 15s-240s, plus a 180s nvidia-smi hang in a later episode of the same project (node-H021-20260725_162553_193a20-03).",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260723_004314_437672-02",
+          "student": "[REDACTED]",
+          "quote": "torch ok: 2.13.0+cu130\\nchecking cuda...\\n\\n[Command timed out after 40s]",
+          "friction": {
+            "retry_depth": 3,
+            "n_tool_failures": 11,
+            "wall_seconds": 861.7,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 7.61
+    },
+    {
+      "cluster_id": "C014",
+      "claim": "On a Thor node with NO nvidia-device-plugin pod, `pluginctl run` silently produces a CPU-only pod (torch.cuda.is_available()=False) because pluginctl never sets `runtimeClassName` and the node advertises no `nvidia.com/gpu` allocatable resource; the fix is to bypass pluginctl and `kubectl apply` a hand-written pod manifest with `runtimeClassName: nvidia` + `nodeSelector: resource.gpu=\"true\"`, which restores GPU (verified 27ms/frame YOLO vs ~1.4s on CPU).",
+      "alt_phrasings": [
+        "On a Thor node with no nvidia-device-plugin, a GPU plugin launched with `pluginctl run` silently reports `torch.cuda.is_available()=False` and falls back to ~1440ms/frame CPU inference (no error, no OOMKill) because pluginctl creates the pod with the default runtime and never sets `runtimeClassName`; the fix is to skip pluginctl for GPU plugins and `kubectl apply` a pod manifest that sets `runtimeClassName: nvidia` plus `nodeSelector: resource.gpu=\"true\"`, which yields `torch.cuda.is_available()=True` and ~27ms/frame.",
+        "On a camp Thor (SGT-project H-series), a container launched by `pluginctl run` gets NO GPU (torch.cuda.is_available()=False, no /dev/nvidia* in the pod) because pluginctl never sets `runtimeClassName` and these nodes run no nvidia-device-plugin, so `nvidia.com/gpu` is not in the node's allocatable either; the fix is to bypass pluginctl for GPU plugins and `kubectl apply` a hand-written pod manifest with `runtimeClassName: nvidia` plus `nodeSelector: {resource.gpu: \"true\"}`, which was verified to give CUDA and ~27 ms/frame vs ~1220 ms/frame on CPU."
+      ],
+      "kind": "failure_class",
+      "independence": 2,
+      "students": [
+        "<student-H035>",
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_04_05.json",
+        "triage_06_07.json",
+        "triage_08_09.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-06",
+        "node-H035-20260723_142740_b07b9d-11",
+        "node-H035-20260723_142740_b07b9d-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline's GPU-on-Thor coverage is about the HOST (direct-node-testing.md: 'Thor GPU Access: /dev/nvmap Permissions') and about base-image compute capability (docker-build-deploy.md: sm_110 vs sm_121 tables). Neither pluginctl-camp-guide.md nor pluginctl-sideload-and-node-build.md (whose pluginctl-pitfall list covers OOMKilled mem limits, ImagePullBackOff image-name trap, log-attach blocking) says anything about runtimeClassName or the device-plugin. The baseline's implicit stance, quoted by the agent in-episode, was the opposite: 'GPU access on Thor is automatic via the NVIDIA container runtime' \u2014 learned on a different Thor. This is a per-node infrastructure variance the baseline does not warn about.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "skills/sage-waggle/references/direct-node-testing.md",
+        "skills/sage-waggle/references/docker-build-deploy.md",
+        "skills/sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "skills/sage-waggle/references/pluginctl-camp-guide.md",
+        "skills/sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-06",
+          "student": "<student-H035>",
+          "quote": "The `nvidia` RuntimeClass exists (handler: `nvidia`), but `pluginctl run` doesn't request a RuntimeClass, and there's no nvidia-device-plugin to advertise `nvidia.com/gpu` resources. So `pluginctl run` simply creates a pod with the default runtime (crun or runc), no GPU attached.",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 656.3,
+            "resolved": true
+          }
+        },
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-11",
+          "student": "<student-H035>",
+          "quote": "Definitive: the container has **no GPU access** \u2014 `/dev/nvidia*` devices are absent and `runtimeClassName` is empty (no NVIDIA runtime class attached). On a Thor this normally \"just works\" via the NVIDIA container runtime, but apparently not for `pluginctl run` on this node.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 0.0,
+            "resolved": false
+          }
+        },
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-07",
+          "student": "[REDACTED]",
+          "quote": "`pluginctl run` does NOT set `runtimeClassName` \u2014 it creates the pod with the default runtime (crun/runc), which does not wire `/dev/nvidia*` into the container even when the node has `resource.gpu=true` / `resource.cuda110=true` labels.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 8667.8,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 7.25
+    },
+    {
+      "cluster_id": "C006",
+      "claim": "Running YAMNet (or any TFLite model) on a Thor has four non-obvious gates, all verified end-to-end on aarch64: tfhub.dev is dead and the only working kagglehub slug is google/yamnet/tensorFlow2/yamnet (tensorflow1/*, */classification, */yamnet-1 all 404); that download is a SavedModel, not a .tflite, so you convert it yourself; TF 2.21 removed tensorflow.lite.Interpreter, so the interpreter must come from ai_edge_litert.interpreter (already present because birdnet 0.2.16 depends on ai-edge-litert); and the converted model bakes a fixed [1] input shape, so you must call resize_tensor_input per waveform length or set_tensor raises a dimension mismatch.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260723_145518_ce24dc-06"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline's audio coverage is BirdNET-only (audio-classification-models.md, birdnet-audio-debugging-and-geofilter.md, audio-plugin-debugging-birdnet.md, audio-plugin-flac-and-portal-inlining.md). The strings 'tflite', 'litert', 'yamnet' and 'kagglehub' appear nowhere in the baseline map. Since BirdNET itself is a TFLite model and pulls ai-edge-litert plus full TensorFlow (~400MB) into every audio plugin container, these are general Thor-audio-toolchain facts, not one student's redaction feature. Verified in-episode: 3s of silence -> 6 frames of (1,521) scores with class 494 'Silence' at 1.0, XNNPACK CPU delegate.",
+      "baseline_files_checked": [
+        "sage-waggle/references/audio-classification-models.md",
+        "sage-waggle/references/audio-plugin-debugging-birdnet.md",
+        "sage-waggle/references/birdnet-audio-debugging-and-geofilter.md",
+        "sage-waggle/references/huggingface-skills-index.md",
+        "sage-waggle/references/ml-plugin-patterns.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260723_145518_ce24dc-06",
+          "student": "[REDACTED]",
+          "quote": "ImportError: cannot import name 'Interpreter' from 'tensorflow.lite' (/home/<user>/work/.venv/lib/python3.12/site-packages/tensorflow/lite/__init__.py)\\ntf 2.21.0 ... ValueError: Cannot set tensor: Dimension mismatch. Got 2 but expected 1 for input 0.",
+          "friction": {
+            "retry_depth": 3,
+            "n_tool_failures": 9,
+            "wall_seconds": 624.9,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 5.61
+    },
+    {
+      "cluster_id": "C005",
+      "claim": "`pluginctl run --privileged` is NOT a substitute for runtimeClassName: nvidia on a Thor \u2014 even with --privileged --selector resource.gpu=true the pod still reports torch.cuda.is_available()=False and /dev/nvidia* is absent, because on Tegra the devices are wired by the NVIDIA runtime hook, not by the privileged securityContext; `pluginctl deploy --dry-run` is the cheap proof (it prints the full generated pod spec, which never contains runtimeClassName no matter which flags you pass).",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260724_011258_f7a2ab-06"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "sage-waggle/references/pluginctl-camp-guide.md already carries the root cause (a VERIFIED row saying pluginctl run does not set runtimeClassName) and prescribes a hand-written pod manifest. What is absent \u2014 and what the agent proposed, tried, and had disproven by the student \u2014 is that --privileged looks like it should work (the --dry-run spec shows `privileged: true` plus a /host/dev mount) and does not. Also absent: the node HAS a registered `nvidia` RuntimeClass (`NAME nvidia HANDLER nvidia`) and node labels resource.gpu/cuda110=true, so both of those checks pass while the GPU is still invisible; and the --dry-run inspection technique itself, which works without any cluster read RBAC.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/producer-consumer-gpu-and-shared-mounts.md",
+        "sage-waggle/references/scheduling-continuous-vs-oneshot-and-gpu-contention.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260724_011258_f7a2ab-06",
+          "student": "[REDACTED]",
+          "quote": "sudo pluginctl run --privileged --selector resource.gpu=true --resource limit.memory=16Gi,request.memory=4Gi  --name batman-app 10.31.81.1:5000/local/plugin -- --camera-source videos/P1.1.2_grey.mov\\n...\\n2026-07-24 02:24:49,014 INFO Model loaded. torch.cuda.is_available()=False",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 4,
+            "wall_seconds": 774.1,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 5.32
+    },
+    {
+      "cluster_id": "C013",
+      "claim": "Camp Thor blades ship with NO camera attached \u2014 no `/dev/video*`, empty `v4l2-ctl --list-devices`, no `/run/waggle/data-config.json`, an empty `\"sensors\": []` in the node manifest, and no port-554 host on either node subnet \u2014 so `Camera()`, `Camera(\"bottom_camera\")` and any RTSP plugin will fail until hardware is physically added and registered; probe those five things before writing camera code.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student>_node-H035"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260724_011258_f7a2ab-09"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "camera-rtsp-patterns.md documents the `Camera(device)` resolution chain and per-vendor RTSP URLs, and notes that named streams 'only work on real nodes', but the baseline everywhere assumes a camera exists (H00F's Reolink hummingcam is the running example across audio-plugin-debugging-birdnet.md, reolink-*.md, scheduling-and-cameras.md). Nothing states that the SGT/camp blades are bare, and `/dev/video` appears nowhere in the map. Independently confirmed on three different blades in these batches: H035 (this episode), H02E (<student>_node-H02E-20260720_132912_13e5e9-00 \u2014 manifest shows `\"sensors\": []` with an address and GPS but no devices), and H032 (<student>_node-H032-20260720_205548_b91283-01 \u2014 `/dev/video*` reported as '(none)', so the tutorial's bare `Camera()` dies at `__enter__` with `RuntimeError: unable to open video capture for device 0`; the working local-dev substitute is `Camera(\"file://example.jpg\")`).",
+      "baseline_files_checked": [
+        "sage-waggle/references/architecture-detail.md",
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "skills/sage-waggle/SKILL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260724_011258_f7a2ab-09",
+          "student": "<student>_node-H035",
+          "quote": "=== V4L2 devices ===\n=== check /dev ===\ncrw-rw----+ 1 root video 505, 0 Jun  5 15:36 /dev/media0\ncrw-rw-rw-  1 root root    1, 3 Jan  1  1970 /dev/v4l2-nvdec\ncrw-rw-rw-  1 root root    1, 3 Jan  1  1970 /dev/v4l2-nvenc",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 16143.7,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 5.25
+    },
+    {
+      "cluster_id": "C015",
+      "claim": "A Pixi/conda-forge PyTorch env on a Thor node dies at the first kernel launch with `no kernel image is available for execution on the device` because conda-forge ships no aarch64 PyTorch build containing sm_110 (Blackwell) cubins; there is no pixi.toml or CLI fix \u2014 the only GPU paths are the NVIDIA container (nvcr.io/nvidia/pytorch:25.08-py3) or CPU via CUDA_VISIBLE_DEVICES=\"\".",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-09"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "docker-build-deploy.md covers sm_110 only for NGC *container tags* (25.08 good, 25.04/24.06 bad) and warns that Docker Hub `pytorch/pytorch:*` is amd64-only. It says nothing about host-side Python envs (pixi/conda-forge/PyPI wheels), which is how students actually iterate before containerizing. The related host-side wheel failure independently recurs on another node in this batch (see the near miss on H021: PyPI torch hangs), so the class is broader than one packaging tool. Baseline has no 'host env cannot do GPU on Thor, period' rule.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/references/direct-node-testing.md",
+        "skills/sage-waggle/references/docker-build-deploy.md",
+        "skills/sage-waggle/references/ml-plugin-patterns.md",
+        "skills/sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-09",
+          "student": "<student-H035>",
+          "quote": "That specific PyTorch binary was compiled to support a list of GPUs (sm_50, sm_80, sm_90, etc.), but it was **not** compiled with kernels for **sm_110**. ... Conda-forge does not currently provide an aarch64 build of PyTorch that includes sm_110 kernels.",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 13000.7,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 5.0
+    },
+    {
+      "cluster_id": "C031",
+      "claim": "The camp fleet camera URL rtsp://10.107.0.1/camera/<name> is a redirector on the wg-sage network, not the camera: ffprobe reports an RTSP 302 to the camera's real address with credentials embedded, so any pod or firewall analysis must target the REDIRECT TARGET's host/port, and code that logs `camera_source.split(\"@\")[-1]` shows the proxy URL while the connection is actually going somewhere else; separately, OPENCV_FFMPEG_CAPTURE_OPTIONS is read at cv2.VideoCapture() open time, so setting it inside the frame-read loop has no effect.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260727_212256_d2e016-03"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "sage-waggle/references/camera-rtsp-patterns.md documents per-vendor RTSP URL shapes and pywaggle's resolve_device chain, and scheduling-and-cameras.md covers vendor-specific auth \u2014 neither mentions that the camp-side rtsp://10.107.0.1/camera/<name> form is a 302 redirector, nor that the redirect target is on a different host and port than the URL you were handed. Verified in-episode from both the host and a --network host container (both UDP and TCP read a 2160x3840 frame successfully), which is also the evidence that ruled out the transport-protocol hypothesis the student proposed.",
+      "baseline_files_checked": [
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/reolink-http-snapshot.md",
+        "sage-waggle/references/rtsp-vs-still-metadata-acquisition.md",
+        "sage-waggle/references/scheduling-and-cameras.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260727_212256_d2e016-03",
+          "student": "[REDACTED]",
+          "quote": "[rtsp @ 0xaaaae7d8d110] Status 302: Redirecting to rtsp://[REDACTED]@10.107.0.231:10004/h264Preview_01_main\\nInput #0, rtsp, from 'rtsp://10.107.0.1/camera/[REDACTED]':\\n  Stream #0:0: Video: hevc (Main), yuv420p(tv), 3840x2160, 20 fps",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 6,
+            "wall_seconds": 397.7,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 4.47
+    },
+    {
+      "cluster_id": "C026",
+      "claim": "Camp Thor nodes are tagged to project SGT, and `auth.sagecontinuum.org/manifests/<VSN>` and `/api/v-beta/nodes/<VSN>` return EMPTY bodies for them, so 'what sensors does my node have?' must be answered on-node: read the `wes-identity` ConfigMap to map hardware serial to VSN, then read `/etc/waggle/node-manifest-v2.json` (host path, needs sudo) or its `waggle-node-manifest-v2-*` ConfigMap copy, which on a bare Thor devkit legitimately shows `\"sensors\": []`.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`auth-api-manifests-and-nodes.md` presents the manifests endpoint as the camp default for looking up a node's sensors and never says it comes back empty for SGT-project camp Thors. `node-identity-and-upload-contract.md` establishes that /etc/waggle/ is host-only and not in pods, but no baseline file names the `wes-identity` ConfigMap as the serial-to-VSN mapping, nor the `waggle-node-manifest-v2-*` ConfigMap as a sudo-free read path for the manifest. Both strings are absent from the baseline map.",
+      "baseline_files_checked": [
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/node-gps-location-resolution.md",
+        "sage-waggle/references/node-identity-and-upload-contract.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-07",
+          "student": "[REDACTED]",
+          "quote": "===wes-identity contents===\napiVersion: v1\ndata:\n  WAGGLE_NODE_ID: [REDACTED]\n  WAGGLE_NODE_VSN: H035\n... \\\"project\\\": \\\"SGT\\\", ... \\\"sensors\\\": [], \\\"resources\\\": []",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 8667.8,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 4.25
+    },
+    {
+      "cluster_id": "C007",
+      "claim": "A science rule of `cronjob('<plugin>', '@once')` makes SES report the job as Running forever while the on-node wes-plugin-scheduler rejects the rule every ~10s with `pattern @once is not supported`, so no pod is ever created (ses namespace empty, `pluginctl ps` empty, no data) \u2014 fix is to replace `@once` with a real 5-field cron expression in the job spec.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student>_node-H03F"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260726_201000_c89bbc-00"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The word `@once` appears nowhere in the baseline map. job-scheduling-and-debugging.md covers \"'Scheduled but publishes nothing' \u2014 the heartbeat fix\" and deployment-and-diagnostics.md covers \"Why a scheduled job is 'invisible' on the portal node page\", but both assume a pod IS being created. node-stopped-reporting-diagnosis.md's ladder starts at the data plane and node reboot, never at the science-rule parser. This adds a third distinct 'Running but silent' bucket (rule rejected \u2192 zero pods) plus the exact diagnostic: `kubectl logs -n default deploy/wes-plugin-scheduler`.",
+      "baseline_files_checked": [
+        "sage-waggle/references/deployment-and-diagnostics.md",
+        "sage-waggle/references/job-scheduling-and-debugging.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/node-stopped-reporting-diagnosis.md",
+        "sage-waggle/references/sesctl-ecr-validation.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H03F-20260726_201000_c89bbc-00",
+          "student": "<student>_node-H03F",
+          "quote": "ERROR: 2026/07/26 20:08:54 knowledgebase.go:125: Failed to evaluate rule {\"schedule(sage-bat-counter): cronjob('sage-bat-counter', '@once')\" \"schedule\" \"sage-bat-counter\" map[] \"cronjob('sage-bat-counter', '@once')\"}: failed to evaluate rule: pattern @once is not supported",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 400.4,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 4.17
+    },
+    {
+      "cluster_id": "C008",
+      "claim": "On a camp Thor (JetPack R38.2.1, driver 580.00), PyPI torch 2.13.0+cu130 installed into a host venv imports fine but HANGS INDEFINITELY with no error and no timeout on `torch.cuda.is_available()` or any CUDA call (it lacks Blackwell sm_110 kernels) \u2014 the fix is an NGC container (nvcr.io/nvidia/pytorch:25.08-py3) or `CUDA_VISIBLE_DEVICES=''` for CPU-only dev.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student>_node-H021"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260723_004314_437672-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "docker-build-deploy.md has the sm_110-vs-sm_121 base-image table but frames wrong-base failure as a visible warning plus CPU fallback. direct-node-testing.md's 'Thor GPU Access: /dev/nvmap Permissions' documents the OTHER host symptom: `torch.cuda.is_available()` returns False and `torch.cuda.init()` raises `RuntimeError: No CUDA GPUs are available`. Neither states the silent-hang symptom, which is the misleading part \u2014 a hang reads as a slow model download, not a wrong-wheel problem. Companion episode <student>_node-H021-20260724_153151_f3cf31-04 shows a 45s-timeout even on a tiny CPU-only torch matmul in the same venv, so `CUDA_VISIBLE_DEVICES=''` does not always rescue torch tensor ops.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260723_004314_437672-07",
+          "student": "<student>_node-H021",
+          "quote": "PyPI torch (2.13.0+cu130) in a host venv imports fine but HANGS INDEFINITELY on any CUDA call (no error, no timeout) \u2014 lacks Blackwell sm_110 kernels. Use `nvcr.io/nvidia/pytorch:25.08-py3` (torch 2.8, CUDA 13.0, sm_110/sm_121) for GPU work.",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 374.1,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 4.16
+    },
+    {
+      "cluster_id": "C009",
+      "claim": "On camp Thor blades the working docker/podman GPU flag is CDI `--device=nvidia.com/gpu=all`, not `--gpus all` and not `--runtime=nvidia` \u2014 `--runtime=nvidia` needs nvidia-container-runtime registered in /etc/docker/daemon.json (root-only, which camp accounts lack), so the baseline's `--runtime=nvidia (Not --gpus all)` guidance is stale for these nodes.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "independence": 1,
+      "students": [
+        "<student>_node-H035"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260724_011258_f7a2ab-04"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "docker-build-deploy.md carries a section literally titled 'Docker Runtime: --runtime=nvidia (Not --gpus all)', and camera-rtsp-patterns.md / direct-node-testing.md show `docker run --rm --runtime=nvidia`. The CDI form `--device nvidia.com/gpu=all` appears nowhere in the baseline map, yet it is the flag actually used successfully across this batch (<student>_node-H01E-20260719_014249_d4954d-01 and -10, <student>_node-H035-20260727_024905_596214-00). Corroborated by <student>_node-H021-20260723_004314_437672-07, whose memory entry records: `--gpus all` fails with \"NVIDIA Driver not detected\" until nvidia-container-runtime is REGISTERED in /etc/docker/daemon.json + daemon restart \u2014 needs sudo; without sudo the alternatives are CPU-only or `pluginctl run --selector resource.gpu=true`.",
+      "baseline_files_checked": [
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/pluginctl-camp-guide.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260724_011258_f7a2ab-04",
+          "student": "<student>_node-H035",
+          "quote": "This replaces the old docker flags\n# do not use this!\n--gpus all\n\n# use this instead\n--device=nvidia.com/gpu=all",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 219.0,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 4.09
+    },
+    {
+      "cluster_id": "C030",
+      "claim": "git-lfs is not installed on camp Thor nodes, so an LFS-tracked file in a cloned research repo checks out as ~130 bytes of pointer text rather than the real blob \u2014 `file` reports 'ASCII text' and the head is 'version https://git-lfs.github.com/spec/v1' \u2014 and a Dockerfile that COPYs such a path bakes the pointer into the image; preflight any handed-off repo by checking .gitattributes for filter=lfs and byte-checking each model/video file before building.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline has no LFS coverage at all \u2014 I checked git-bundle-transfer-to-node.md (covers getting a NEW private repo onto a node with no GitHub creds, nothing about LFS), external-project-edge-porting-review.md (the 'what to flag on an HPC/desktop -> edge port' checklist has no LFS item), ml-plugin-patterns.md and ecr-plugin-examples.md (model-weight baking, which is exactly the code path a pointer file silently corrupts). Camp repos routinely arrive with *.pt / *.avi under LFS, so this is a recurring class, not one repo's mess.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ecr-plugin-examples.md",
+        "sage-waggle/references/external-project-edge-porting-review.md",
+        "sage-waggle/references/git-bundle-transfer-to-node.md",
+        "sage-waggle/references/ml-plugin-patterns.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-00",
+          "student": "[REDACTED]",
+          "quote": "===GIT LFS LS-FILES===\\ngit: 'lfs' is not a git command. ... ===.avi file head (first 200 bytes)===\\nversion https://git-lfs.github.com/spec/v1\\noid sha256:04cc308cbc55b916725d92d3037a660a16a3186daa17a350e547315b5239ef49\\nsize 238696990",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 4,
+            "wall_seconds": 396.5,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.97
+    },
+    {
+      "cluster_id": "C034",
+      "claim": "Camp Thor user accounts are members of `video render develop` but NOT `dialout`, so the node's USB serial device `/dev/ttyUSB0` (crw-rw---- root:dialout, an FT232 UART that is typically the GPS/LoRa/Meshtastic link) is unreadable without sudo \u2014 check `groups` and the device's group before planning any serial-sensor plugin.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student>_node-H02E"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H02E-20260720_132912_13e5e9-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "direct-node-testing.md documents the group requirement for the OTHER device class \u2014 'Option 3: Direct Python (Requires video Group)' and 'Thor GPU Access: /dev/nvmap Permissions' \u2014 establishing that camp accounts DO get `video`, which makes it natural to assume serial access too. `dialout` and `ttyUSB` appear nowhere in the baseline map. node-ssh-access-and-gpsd-probe.md covers 'What you CAN do as plain waggle (no sudo)' for gpsd on W-series wild nodes, a different access path than a raw UART on an H-series blade. This is a live blocker for the Meshtastic/LoRa work in <student>_node-H01D-20260725_162927_ea8897-00, whose deploy plan bind-mounts /dev/ttyACM0 into the pod.",
+      "baseline_files_checked": [
+        "sage-waggle/references/architecture-detail.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/node-gps-location-resolution.md",
+        "sage-waggle/references/node-ssh-access-and-gpsd-probe.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H02E-20260720_132912_13e5e9-00",
+          "student": "<student>_node-H02E",
+          "quote": "crw-rw---- 1 root dialout 188, 0 Jan  1  1970 /dev/ttyUSB0\n--- groups ---\n<user> video render develop",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 2377.1,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.79
+    },
+    {
+      "cluster_id": "C021",
+      "claim": "The diagnostic that distinguishes 'GPU not attached' from 'GPU attached but code is wrong' on a Thor is that the node advertises NO `nvidia.com/gpu` in `kubectl describe node` allocatable and there is no nvidia-device-plugin/gpu-operator pod, so resource-based GPU requests are silently no-ops \u2014 GPU node labels (`resource.gpu=true`, `resource.cuda110=true`) are present and are NOT evidence that pods get the GPU.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-12"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "No baseline file mentions `nvidia-device-plugin`, `nvidia.com/gpu` allocatable, or the `resource.gpu` / `resource.cuda110` node labels as a GPU preflight. `deployment-and-diagnostics.md` teaches `kubectl get pods -A` namespace reading; `node-control-plane-disconnect-diagnosis.md` and `node-stopped-reporting-diagnosis.md` are about connectivity, not GPU plumbing. This is a cheap preflight (one `kubectl describe node`) that would have short-circuited a multi-turn arc.",
+      "baseline_files_checked": [
+        "sage-waggle/references/deployment-and-diagnostics.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/node-control-plane-disconnect-diagnosis.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-12",
+          "student": "<student-H035>",
+          "quote": "there is no `nvidia-device-plugin` pod anywhere (no `kube-system` nvidia-device-plugin, no `gpu-operator`), and the node's `allocatable` resources list NO `nvidia.com/gpu`. On a stock Jetson/Thor with the NVIDIA container runtime correctly configured, you see `nvidia.com/gpu: 1` ... Here it's absent",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 0.0,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.75
+    },
+    {
+      "cluster_id": "C011",
+      "claim": "On camp Thor profiles the built-in web tools are all dead \u2014 `web_search` fails with \"ddgs package is not installed\", `web_extract` refuses (\"DuckDuckGo is a search-only backend\"), and `browser_navigate` fails with \"Chrome not found\" \u2014 and `pip install ddgs` does NOT revive `web_search`; the working path is the `ddgs` CLI from the terminal (`ddgs text -q \"...\" --max_results N`, underscore not hyphen, and `-q` is required because the query is not positional).",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "<student>_node-H01D"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260720_195748_067fd1-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "The baseline map has zero mentions of ddgs, web_search, web_extract, or browser_navigate. This is the single highest-frequency toolchain failure in the corpus: 26 of 331 episodes hit the ddgs error, 19 hit \"Chrome not found\", 19 hit the extract-backend refusal. Agents repeatedly retried the same failing tool (a repeated_exact_failure_warning fired in this episode) or silently substituted fabricated content \u2014 in <student>_node-H035-20260721_150009_6e6552-00 the agent, blocked on all three web tools, filled ecr-meta/ ecr-icon.jpg and ecr-science-image.jpg with random Lorem Picsum photos rather than the Pillow-generated images ecr-image-generation.md prescribes. Two exact CLI flag traps are also recorded here: `ddgs \"webgpu ai\"` \u2192 \"No such command\", and `--max-results` \u2192 \"Did you mean '--max_results'?\".",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-image-generation.md",
+        "sage-waggle/references/graphify-guide.md",
+        "sage-waggle/references/sage-docs-index.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260720_195748_067fd1-00",
+          "student": "<student>_node-H01D",
+          "quote": "{\n  \"success\": false,\n  \"error\": \"ddgs package is not installed \u2014 run `pip install ddgs`\"\n}",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 2,
+            "wall_seconds": 75.7,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.63
+    },
+    {
+      "cluster_id": "C032",
+      "claim": "Running a plugin's `plugin.upload_file()` on a Thor dev host (outside a WES pod) dies with `PermissionError: [Errno 13] Permission denied: '/run/waggle'` because pywaggle's default uploader root is `/run/waggle/uploads`, a root-owned path WES creates only inside pods \u2014 set `WAGGLE_PLUGIN_UPLOAD_PATH=$HOME/uploads` (no code change) and the plugin writes the real `<ts>-<sha1>/{data,meta}` staging layout Beehive consumes.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "<student>_node-H032"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260721_154559_125a24-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The env var name `WAGGLE_PLUGIN_UPLOAD_PATH` and the `/run/waggle` PermissionError appear nowhere in the baseline map. SKILL.md has a 'Local testing (no node required)' section and testing-patterns.md documents `PYWAGGLE_LOG_DIR` (a different mechanism, for data.ndjson + uploads/ capture in the test harness); node-identity-and-upload-contract.md has 'Verifying uploads without Beehive (local staging contract)' but the map does not state the override. This is the exact wall students hit at Part 3 of the official edge-app tutorial, and the fix is one env var. Verified in-episode by reading the installed pywaggle source and then re-running to a clean exit 0 with the staged data+meta files present.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/node-identity-and-upload-contract.md",
+        "sage-waggle/references/pywaggle-upload-naming-and-timestamps.md",
+        "sage-waggle/references/testing-patterns.md",
+        "skills/sage-waggle/SKILL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260721_154559_125a24-00",
+          "student": "<student>_node-H032",
+          "quote": "218:    return Uploader(Path(getenv(\"WAGGLE_PLUGIN_UPLOAD_PATH\", \"/run/waggle/uploads\")))",
+          "friction": {
+            "retry_depth": 2,
+            "n_tool_failures": 2,
+            "wall_seconds": 506.3,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.51
+    },
+    {
+      "cluster_id": "C012",
+      "claim": "`pluginctl build .` derives the image tag from the build directory's name, so a repo directory containing uppercase letters fails with `invalid reference format: repository name must be lowercase` (exit 125) \u2014 the failure is in the auto-generated tag, not the Dockerfile; work around it with `podman build -t localhost/<lowercase>:<ver> .` (or rename the directory).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student>_node-H021"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-08"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "pluginctl-camp-guide.md has a 'Troubleshooting' section and pluginctl-sideload-and-node-build.md has an 'IMAGE-NAME TRAP: what containerd STORES the image as (ImagePullBackOff)' section, but neither covers tag-name validity at build time; the word 'lowercase' appears nowhere in the baseline map. The error text points at a registry tag the user never typed, so it reads as a registry/auth problem rather than a directory-name problem \u2014 that misdirection is what makes it worth encoding as a preflight (\"repo dir name must be lowercase before `pluginctl build`\").",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260725_162553_193a20-08",
+          "student": "<student>_node-H021",
+          "quote": "Error: tag <node-registry>/local/BISONN: invalid reference format: repository name must be lowercase\nError: exit status 125",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 250.9,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.28
+    },
+    {
+      "cluster_id": "C010",
+      "claim": "The Hermes agent shell runs with `HOME=/home/<user>/.hermes/profiles/sage/home` while the passwd home is `/home/<user>`, so `~` in agent-issued commands (and any tool that expands it) writes to a profile-scoped directory that ssh, the user's own shell, and the project tree never read \u2014 always use absolute paths, or resolve the real home, for anything the user will touch.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student>_node-H01D"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260725_173920_3bddee-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "Nothing in the baseline map mentions the profile-scoped HOME; grepping the whole map for `profiles/sage`, `$HOME`, or `sandbox` returns zero hits. SOUL.md and AGENTS.md cover role, Graphify discovery and memory, not the filesystem the agent actually writes into. This burned real time in at least four episodes in these two batches: this one (ssh-keygen wrote a key ssh never reads, because `ssh` uses the passwd home and found a stale macOS-only `UseKeychain` line there instead), <student>_node-H01D-20260730_061700_f94dd8-01 (`hermes profile export -o ~/x.tar.gz` landed in the profile home, then `cp` doubled the prefix), <student>_node-H021-20260723_004314_437672-09 (404 downloaded images landed under the profile home; the verification path doubled to `.../profiles/sage/home/.hermes/profiles/sage/home/BISONN/data`), and <student>_node-H01E-20260719_014249_d4954d-01 (`ls ~/models/` reported 'No such file' while 8.6 GB of weights sat in the real home).",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/sharing-a-sage-knowledge-bundle.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260725_173920_3bddee-00",
+          "student": "<student>_node-H01D",
+          "quote": "HOME=/home/<user>/.hermes/profiles/sage/home\nPWD=/home/<user>\nno ~/.ssh\n---\n/home/<user>/.hermes/profiles/sage/home/.ssh\n---\n/home/<user>/.hermes/profiles/sage/home/.ssh",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 2,
+            "wall_seconds": 172.8,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.26
+    },
+    {
+      "cluster_id": "C027",
+      "claim": "Do not infer camera audio capability from the vendor/model \u2014 probe it: on the camp camera set, the Reolink RTSP main stream (presumed video-only) carried an AAC-LC 16 kHz mono audio stream alongside HEVC video, while the Hanwha `profile1/media.smp` (presumed audio-capable) exposed only MJPEG video plus an unknown `codec_type=data` stream; the one-shot check is `ffprobe -v error -rtsp_transport tcp -show_streams '<rtsp url>'`.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260723_145518_ce24dc-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`camera-audio-capabilities.md` is a static per-model capability table and `reolink-audio-capture.md` documents Reolink audio only over the HTTP FLV/BCS endpoint (explicitly framed as 'no RTSP port needed'); neither states that this Reolink also carries AAC 16 kHz mono ON the RTSP stream \u2014 a simpler path that needs no FLV auth dance. `hanwha-xnp6400rw-audio.md` covers a different Hanwha model. No baseline file prescribes ffprobe -show_streams as the pre-build capability check, and the 16 kHz native rate matters because it is YAMNet/BirdNET's input rate with no resample needed.",
+      "baseline_files_checked": [
+        "sage-waggle/references/camera-audio-capabilities.md",
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/hanwha-xnp6400rw-audio.md",
+        "sage-waggle/references/reolink-audio-capture.md",
+        "sage-waggle/references/rtsp-vs-still-metadata-acquisition.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260723_145518_ce24dc-07",
+          "student": "[REDACTED]",
+          "quote": "Camera 1 (Reolink, [REDACTED]) \u2014 HAS audio\n  Stream 0: video, hevc (H.265), 3840x2160, 25 fps, yuv420p\n  Stream 1: audio, aac (LC profile), sample_rate=16000, channels=1 (mono)\n... Camera 5 (Hanwha, [REDACTED]) \u2014 NO audio",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 558.5,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 3.23
+    },
+    {
+      "cluster_id": "C033",
+      "claim": "A `sage.yaml` whose `source:` block contains only `architectures:` cannot be registered on the ECR portal \u2014 the portal clones from `source.url` + `source.branch`, and a top-level `homepage:` pointing at the repo does not substitute; every app in the public ECR catalog and the official plugin-hello-world manifest carry `source.url` and `source.branch` (plus defaulted `directory: \".\"` and `dockerfile: \"Dockerfile\"`).",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student>_node-H032"
+      ],
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260721_191607_dad9e9-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline map's sage.yaml coverage is about INPUTS, not the source block: scheduling-and-cameras.md has '2. sage.yaml inputs: ONLY string and int', job-scheduling-and-debugging.md has 'ECR sage.yaml input types \u2014 float may now work', and plugin-deploy-pluginctl-vs-ses.md only says 'sage.yaml drives ECR name/version'. Neither the required source.url/branch fields nor the registration-form failure mode is stated anywhere. The skill does ship templates/sage.yaml which may contain them, but the map's section list gives an agent no way to know the field is mandatory. CAVEAT: the causal link to the portal form error was inferred from the ECR catalog API (every registered app has url+branch) and the upstream hello-world manifest, not confirmed by a successful re-registration \u2014 the episode was interrupted at the git-identity prompt before the fix was pushed.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md",
+        "sage-waggle/references/ecr-public-apps-api.md",
+        "sage-waggle/references/job-scheduling-and-debugging.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/scheduling-and-cameras.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260721_191607_dad9e9-00",
+          "student": "<student>_node-H032",
+          "quote": "source:\n  architectures:\n    - \"linux/amd64\"\n    - \"linux/arm64\"\n  url: \"https://github.com/waggle-sensor/plugin-hello-world\"\n  branch: \"main\"",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 3,
+            "wall_seconds": 270.5,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.16
+    },
+    {
+      "cluster_id": "C017",
+      "claim": "Wrapping `Plugin()` construction in try/except does NOT make a plugin safe to run off-node: pywaggle's RabbitMQ publisher runs on a background thread, so the `socket.gaierror: [Errno -2] Name or service not known` surfaces as an unhandled traceback from `rabbitmq.py` after the constructor already returned \u2014 gate plugin init on a Sage env var (e.g. WAGGLE_PLUGIN_NAME / WAGGLE_NODE_ID) instead of on exception handling.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260727_024905_596214-13"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "SKILL.md has a 'Local testing (no node required)' section and testing-patterns.md documents the PYWAGGLE_LOG_DIR file-publisher route, but nothing states that a bare `Plugin()` off-node throws from a daemon thread and therefore escapes try/except. The `try: Plugin() except: local-test mode` idiom is the natural thing to write and it silently does not work \u2014 students in this batch shipped it twice.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/SKILL.md",
+        "skills/sage-waggle/references/runtime-packaging-patterns.md",
+        "skills/sage-waggle/references/testing-patterns.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260727_024905_596214-13",
+          "student": "<student-H035>",
+          "quote": "The issue is that `waggle.plugin.Plugin()` starts a **background thread** that immediately tries to connect to RabbitMQ. The DNS resolution fails in that thread, and the exception happens there \u2014 not in our try/except block which only wraps the main-thread constructor call.",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 383.1,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.13
+    },
+    {
+      "cluster_id": "C018",
+      "claim": "In birdnet 0.2.16 the array-inference entry points are `model.predict_arrays((ndarray, sample_rate))` / `model.encode_arrays(...)` on the model object (session forms: `model.predict_session().run_arrays()`, `model.encode_session().run_arrays()`); encode returns 1024-dim embeddings with NO species labels, so a classification plugin that copies the encode_session/run_arrays snippet gets embeddings, not detections. Model constants are classmethods: get_sample_rate()=48000, get_segment_size_samples()=144000, get_sig_fmin/fmax=0/15000, get_embeddings_dim()=1024.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "independence": 1,
+      "students": [
+        "<student-H032>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260723_145518_ce24dc-02"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "audio-classification-models.md has a 'BirdNET Python API Reference (tested June 2026)' section with 'Prediction API (key parameter names)' and 'API gotchas', but that reference is written around the file-path API; the array API (which is what you need to skip writing a temp WAV/FLAC on-node) and the encode-vs-predict split are not in it, and the agent here had to install the package and read source because the project's own RESEARCH.md was ambiguous. Verified by importlib/inspect against the installed 0.2.16, not from memory.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/references/audio-classification-models.md",
+        "skills/sage-waggle/references/audio-plugin-debugging-birdnet.md",
+        "skills/sage-waggle/references/birdnet-audio-debugging-and-geofilter.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260723_145518_ce24dc-02",
+          "student": "<student-H032>",
+          "quote": "app.py does prediction (species + confidence), so what it would actually want is: model.predict_arrays((audio_arr, sample_rate), top_k=..., apply_sigmoid=True, ...) \u2014 NOT encode_session/run_arrays, which produce 1024-dim EMBEDDINGS (no species labels).",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 362.6,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.12
+    },
+    {
+      "cluster_id": "C020",
+      "claim": "pywaggle's `Camera` defaults to `format=RGB` and `ImageSample.__init__` applies `cv2.cvtColor(data, COLOR_BGR2RGB)` on construction, so `snapshot.data[...,0]` is RED \u2014 a plugin that reasons about `snapshot.data` as if it were raw cv2 BGR publishes silently swapped R/B channels.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260721_202140_e3f58b-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "camera-rtsp-patterns.md documents the device-resolution chain and SKILL.md the Camera abstraction, but neither states the channel order of `snapshot.data` or that pywaggle converts away from cv2's native BGR. Failure is silent (plausible numbers, wrong channel) \u2014 nothing crashes \u2014 which is exactly the class that needs a written invariant. Measured empirically in-episode against the same image both ways.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/SKILL.md",
+        "skills/sage-waggle/references/camera-rtsp-patterns.md",
+        "skills/sage-waggle/references/testing-patterns.md",
+        "skills/sage-waggle/references/vision-plugin-annotation-and-confidence.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260721_202140_e3f58b-00",
+          "student": "<student-H035>",
+          "quote": "snapshot.data mean per channel: [ 70.83785067 116.5195262   43.16166252]\nraw cv2 BGR mean per channel:   [ 42.92750985 115.93265991  70.93280802]\n\nIf snapshot.data mean[0] > raw BGR mean[0], then channel 0 is now RED (RGB order).",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 241.6,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.08
+    },
+    {
+      "cluster_id": "C022",
+      "claim": "A node that is missing from the portal's 'all nodes' list is usually not broken but filtered out by project scope \u2014 the fleet catalog carries six distinct `project` values (SAGE, SGT, APIARY, VTO, DAWN, Wildebeest) plus ~11 untagged nodes, and the portal defaults to SAGE-scoped; confirm with `GET /manifests/<vsn>` (HTTP 200 + a phase/project) and a `-30d` data-API query before treating it as an outage.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260721_015837_deb440-01"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`auth-api-manifests-and-nodes.md` documents the `?project=` / `?project__name=` filters and the manifest shape, but it never states that the PORTAL's node list is project-scoped, never enumerates the live project set, and never frames 'node invisible on the portal' as a symptom class. `node-stopped-reporting-diagnosis.md` and `node-control-plane-disconnect-diagnosis.md` give ladders for 'stopped reporting' but not for 'never appears'. The baseline agent would likely have started a reporting-outage ladder on a healthy node.",
+      "baseline_files_checked": [
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/data-viz-and-honesty.md",
+        "sage-waggle/references/node-control-plane-disconnect-diagnosis.md",
+        "sage-waggle/references/node-stopped-reporting-diagnosis.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260721_015837_deb440-01",
+          "student": "<student-H035>",
+          "quote": "W072 actually returns HTTP 200 and a full manifest from the auth API \u2014 so the node is registered in the Sage fleet. The cloud-side manifest knows about it: it's a DAWN project node at \"TBD, Chicago, IL\" ... project DAWN, with an active nxcore (Xavier NX), nxagent, rpi, etc.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 126.2,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 3.05
+    },
+    {
+      "cluster_id": "C041",
+      "claim": "Two distinct ECR failures get conflated at camp and need different responses: (a) the portal's Create-App form rejects a repo whose `sage.yaml` lacks `source.url` and `source.branch` (`homepage` is display-only and does not satisfy it), and (b) `Upload to S3 failed ... (QuotaExceeded) when calling the UploadPart operation` is a Sage-side S3 quota on the shared build-artifact bucket \u2014 the build itself succeeded, nothing in the plugin repo can fix it, and the only student-side path is the local-build + pluginctl side-load route.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260721_191607_dad9e9-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline's ECR failure catalog (`ecr-build-proc-acpi-failure.md`, `ecr-builder-proc-acpi-runc-bug.md`, `job-scheduling-and-liveness.md`'s 'Two ECR failure modes', `ecr-build-to-ses-cutover.md`) enumerates the /proc/acpi runc bug, the ARM64 QEMU crash, 'does not exist in ECR', and ErrImagePull \u2014 but not a QuotaExceeded S3 upload failure, and not the sage.yaml `source.url`/`source.branch` registration-form requirement. Neither string appears in the baseline map. Because the acpi bug is so heavily documented, an agent is primed to misdiagnose this as that bug.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-build-proc-acpi-failure.md",
+        "sage-waggle/references/ecr-build-to-ses-cutover.md",
+        "sage-waggle/references/ecr-builder-proc-acpi-runc-bug.md",
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260721_191607_dad9e9-01",
+          "student": "[REDACTED]",
+          "quote": "Upload to S3 failed (Failed to upload /temp/ecr/[REDACTED]_app-tutorial_0.1.0.tgz to sage/ecr/[REDACTED]/app-tutorial/[REDACTED]_app-tutorial_0.1.0.tgz: An error occurred (QuotaExceeded) when calling the UploadPart operation: None)",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 3373.5,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 3.05
+    },
+    {
+      "cluster_id": "C043",
+      "claim": "On a camp Thor node the k3s cluster does not advertise `nvidia.com/gpu` capacity (no NVIDIA device-plugin DaemonSet), so a `pluginctl run` WITHOUT `--resource nvidia.com/gpu=1` starts and silently runs CPU-only (`torch.cuda.is_available()=False`) while the SAME container gets a working GPU under `podman run --device=nvidia.com/gpu=0`, and WITH the flag the pod stays `Pending` forever \u2014 the discriminating check is `kubectl describe node | grep nvidia` plus `kubectl get pods -n kube-system | grep nvidia`, and no plugin-side manifest, label or annotation can fix it.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260727_003225_269cc7-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline treats GPU-on-node as a solved thing: `pluginctl-sideload-and-node-build.md` documents a GPU consumer being OOMKilled by pluginctl's default MEM limit, `producer-consumer-gpu-and-shared-mounts.md` and `scheduling-continuous-vs-oneshot-and-gpu-contention.md` reason about single-GPU CONTENTION (i.e. assume the GPU is schedulable), and `direct-node-testing.md` only covers `/dev/nvmap` permissions for direct-Python runs. Nothing in the map says the k3s GPU resource may not be advertised at all, or gives the two-sided symptom (runs-but-CPU vs Pending-forever) that distinguishes it from contention. Confidence is medium because the observation is per-node and may have been fixed later in camp; the two symptoms and the check are still the reusable part.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/producer-consumer-gpu-and-shared-mounts.md",
+        "sage-waggle/references/scheduling-continuous-vs-oneshot-and-gpu-contention.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H03F-20260727_003225_269cc7-01",
+          "student": "<student> / <node> (Thor)",
+          "quote": "The Thor node has working NVIDIA GPU access through Podman (--device=nvidia.com/gpu=0), but Kubernetes does not advertise nvidia.com/gpu capacity. kubectl describe node shows no NVIDIA resources and there is no NVIDIA device plugin pod.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 3194.1,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 3.05
+    },
+    {
+      "cluster_id": "C016",
+      "claim": "Calling pywaggle's `Camera()` with no argument raises `TypeError: expected string or bytes-like object, got 'int'` (not a missing-camera error) because the default `device=0` is an int that `Camera.__init__` feeds straight into `re.match`; always pass a device STRING (`\"file://example.jpg\"`, an RTSP URL, or a data-shim name).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H032>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260720_205548_b91283-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "camera-rtsp-patterns.md documents the `resolve_device` routing chain (named stream / file:// / RTSP) and SKILL.md has a 'Camera & Microphone (pywaggle abstractions)' section, but neither records that the zero-arg default is a crash with a misleading type error rather than a graceful device-open failure. This is the single most common first-plugin stumble in the tutorial app and the symptom points at `re`, not at the camera.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/SKILL.md",
+        "skills/sage-waggle/references/camera-rtsp-patterns.md",
+        "skills/sage-waggle/references/direct-node-testing.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260720_205548_b91283-00",
+          "student": "<student-H032>",
+          "quote": "TypeError: expected string or bytes-like object, got 'int'\n  File \".../waggle/data/vision.py\", line 163, in __init__\n    match = re.match(r\"([A-Za-z-9]+)://(.*)$\", device)",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 98.4,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.03
+    },
+    {
+      "cluster_id": "C019",
+      "claim": "The agent's shell on camp Thors runs with HOME rewritten to `/home/<user>/.hermes/profiles/sage/home`, so any `cd ~/project` or `$HOME`-relative path resolves under the profile dir and fails with 'No such file or directory' even though the project exists at `/home/<user>/project` \u2014 use absolute real-home paths in every terminal call, and expect a separate (empty) container/model cache from the user's interactive shell.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student-H01D>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260724_140109_2d7d81-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "Nothing in the baseline map mentions HERMES_HOME, the rewritten HOME, or tilde-expansion behavior \u2014 SOUL.md and AGENTS.md cover graphify discovery, MCP and tone, not the shell environment. This burned a tool call in at least six episodes across both of my batches (H021, H032, H035, H01D, H02F, H01E) and in one case (H01E) caused a full ~5.5GB container base image re-pull because the agent's podman storage under the profile HOME was cold while the user's interactive shell already had the layer cached.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/references/direct-node-testing.md",
+        "skills/sage-waggle/references/graphify-guide.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260724_140109_2d7d81-00",
+          "student": "<student-H01D>",
+          "quote": "/usr/bin/bash: line 3: cd: /home/<user>/.hermes/profiles/sage/home/AI-Projects/birdnet: No such file or directory",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 78.5,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 3.03
+    },
+    {
+      "cluster_id": "C028",
+      "claim": "On a Thor node, PyTorch installed into a HOST environment (pixi/conda-forge `linux-aarch64 + cuda129`, or a PyPI venv wheel) reports `torch.cuda.is_available()==True` but dies at the FIRST kernel launch with `no kernel image is available for execution on the device` (PyPI builds instead hang forever on the first CUDA call) \u2014 cause is that no host-installable aarch64 PyTorch build ships sm_110/Blackwell kernels; the only fix is to run inside an NVIDIA container (`nvcr.io/nvidia/pytorch:25.08-py3`), not to edit pixi.toml or pin a different CUDA.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-15"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`sage-waggle/references/docker-build-deploy.md` states Thor is sm_110 and gives a base-image table, and `ml-plugin-patterns.md` recommends the nvcr base \u2014 but neither names the HOST-environment failure mode, and neither warns that the symptom is deferred (import and `cuda.is_available()` both succeed, so students conclude the GPU works and hunt in their own code). The pixi/conda-forge variant and the PyPI-hang variant are both absent. Corroborated in this batch by node-H021-20260723_004314_437672-04 ('the host venv torch (2.13.0+cu130 from PyPI) will never give us GPU \u2014 it lacks Blackwell sm_110 kernels. That CUDA-call hang you saw is permanent') and by node-H02F-20260721_142910_732265-01, where a plain `pip install ultralytics` on the node pulls exactly that torch 2.13.0 + cu13 aarch64 stack.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260723_142740_b07b9d-15",
+          "student": "<student> / <node> (Thor)",
+          "quote": "the PyTorch wheel conda-forge shipped for `linux-aarch64 + cuda129` was compiled without `sm_110` kernels (Blackwell), so the first kernel launch on this Thor's GPU fails with `no kernel image is available for execution on the device`",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 0.0,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 3.0
+    },
+    {
+      "cluster_id": "C038",
+      "claim": "A USB-serial peripheral documented as `/dev/ttyACM0` (Meshtastic/Arduino-class CDC device) can enumerate on a Thor as `/dev/ttyUSB0` via the `ftdi_sio` driver instead, and it is `root:dialout crw-rw----` so a non-root agent cannot open it \u2014 check `lsusb` + `ls -l /dev/ttyUSB* /dev/ttyACM*` and the loaded serial kernel module BEFORE building or deploying a serial plugin, and remember the WES pod needs the device bind-mounted (`-v /dev/ttyXXX:/dev/ttyXXX`) since the README's bare `python3 -m ...` invocations assume host execution.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student-H01D>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260725_162927_ea8897-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline has no coverage of serial/USB peripherals on a node at all \u2014 the camera/audio refs cover RTSP, HTTP-still and USB-mic paths only, and `wes-shared-filesystem-and-cache-architecture.md` / `plugin-deploy-pluginctl-vs-ses.md` cover volume mounts for caches and credentials, not `/dev` device passthrough into a plugin pod. Genuinely uncovered category (the brief explicitly asks for these).",
+      "baseline_files_checked": [
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/hanwha-xnp6400rw-audio.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/wes-shared-filesystem-and-cache-architecture.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260725_162927_ea8897-01",
+          "student": "<student-H01D>",
+          "quote": "=== USB serial devices ===\\nls: cannot access '/dev/ttyACM*': No such file or directory\\ncrw-rw---- 1 root dialout 188, 0 Jan  1  1970 /dev/ttyUSB0",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 134.3,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 2.61
+    },
+    {
+      "cluster_id": "C025",
+      "claim": "A plugin that ignores every CLI argument passed after `--` to `pluginctl run` (argparse keeps its defaults, e.g. camera-source falls back to `bottom_camera`) is almost always a Dockerfile bug, not a pluginctl bug: a shell-form `ENTRYPOINT [\"bash\",\"-c\",\"...\"]` swallows the args k8s appends as the container's Args, so the fix is exec-form `ENTRYPOINT [\"<interp>\",\"app.py\"]` with any env exports moved to `ENV` lines.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260727_003225_269cc7-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline map's pluginctl references cover invocation, side-loading, memory limits and image naming, and `plugin-deploy-pluginctl-vs-ses.md` covers a 'Dockerfile must COPY all modules' trap, but nothing in the map states that a `bash -c` ENTRYPOINT discards pluginctl/k8s-appended args. The `kubectl describe` in this episode confirms the args DID reach the pod spec (Args: --camera-source videos/...), which is what makes the symptom misleading \u2014 it looks like pluginctl dropped them.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H03F-20260727_003225_269cc7-00",
+          "student": "[REDACTED]",
+          "quote": "pluginctl run --help shows arguments should be passed after --, but my plugin still receives the default argparse value:\n\n--camera-source bottom_camera",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 566.4,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.59
+    },
+    {
+      "cluster_id": "C035",
+      "claim": "`pluginctl run --name X` against an already-existing pod X fails with Kubernetes' `Forbidden: pod updates may not change fields other than spec.containers[*].image...` plus a huge unreadable pod-spec diff \u2014 this is a stale-pod collision, not an RBAC/image/build problem (the build line right above says 'Successfully built plugin'); the fix is `sudo pluginctl rm X` first, or use a fresh name each iteration.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H032>"
+      ],
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260721_154559_125a24-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "scheduling-and-cameras.md has a bullet titled '5. pluginctl \"pod updates may not change fields\" on redeploy' and pluginctl-camp-guide.md's troubleshooting table has a one-liner ('`pluginctl run` same name fails -> Old pod still exists'), so the topic is named. What is absent is that the error arrives as hundreds of lines of JSON pod-spec diff that reads like a permissions/manifest bug, which is why two different students in this batch (H035 and H032) both pasted it as 'what does this mean?' rather than recognizing it. Novelty is the SYMPTOM SHAPE + the recognition rule (build succeeded => it is the apply step); low-confidence on whether that alone earns a new entry vs. an amendment to the existing bullet.",
+      "baseline_files_checked": [
+        "skills/sage-waggle/references/pluginctl-camp-guide.md",
+        "skills/sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "skills/sage-waggle/references/scheduling-and-cameras.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260721_154559_125a24-01",
+          "student": "<student-H032>",
+          "quote": "Error: Pod \"app-tutorial\" is invalid: spec: Forbidden: pod updates may not change fields other than `spec.containers[*].image`,`spec.initContainers[*].image`,`spec.activeDeadlineSeconds`,`spec.tolerations`",
+          "friction": {
+            "retry_depth": 1,
+            "n_tool_failures": 1,
+            "wall_seconds": 93.8,
+            "resolved": true
+          }
+        }
+      ],
+      "score": 2.59
+    },
+    {
+      "cluster_id": "C024",
+      "claim": "On camp Thor profiles both web tools are dead \u2014 `web_search` fails with 'ddgs package is not installed', `web_extract` fails because DuckDuckGo is search-only, and `browser_navigate` fails with 'Chrome not found' \u2014 so the working way to read a public web page is `execute_code` with urllib/requests; agents that retry the web tools burn multiple turns.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H01D>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260724_140109_2d7d81-02"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "Nothing in the baseline map covers the camp profile's web-tool state. `sage-docs-index.md`, `duckdb-docs-index.md` and `nvidia-jetson-thor-docs-index.md` all instruct the agent to 'Fetch the live URL' / 'Fetch the live page' for full content \u2014 a procedure that cannot work on these profiles as configured. Reproduced across three episodes and two students in this batch (cnunes ...2d7d81-02, lehovaa ...492625-00, gotemzzz ...deb440-01). This is a correction to the fetch-the-live-page instruction in every index reference, plus a stated fallback.",
+      "baseline_files_checked": [
+        "sage-waggle/references/duckdb-docs-index.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md",
+        "sage-waggle/references/sage-docs-index.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260724_140109_2d7d81-02",
+          "student": "<student-H01D>",
+          "quote": "{\"success\": false, \"error\": \"DuckDuckGo (ddgs) is a search-only backend and cannot extract URL content. Set web.extract_backend to firecrawl, tavily, exa, or parallel.\"}",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 506.1,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.57
+    },
+    {
+      "cluster_id": "C029",
+      "claim": "vLLM refuses to start on a Thor node with an 'Error in memory profiling / Initial free memory' assertion because Thor's UNIFIED memory makes free-memory drift (~230 MiB) between vLLM's before/after profiling snapshots; passing `--kv-cache-memory-bytes 4G` skips that before/after comparison entirely and lets startup complete (verified: Gemma-3-4b loaded in 8.61 GiB with a 4 GiB KV cache).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01E-20260719_014249_d4954d-02"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The only mention of vLLM in the whole baseline map is one bullet in `ml-plugin-patterns.md` ('Pattern 2: Sidecar Server (vLLM)') and one line in `testing-patterns.md`. There is no vLLM-on-Thor operational content at all, and nothing anywhere in the map about unified memory breaking free-memory-delta profiling \u2014 which is a Thor/Jetson class property that will bite any memory-profiling tool, not just vLLM. `--gpu-memory-utilization 0.35` alone did NOT fix it in this episode; the kv-cache flag did.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md",
+        "sage-waggle/references/testing-patterns.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01E-20260719_014249_d4954d-02",
+          "student": "<student> / <node> (Thor)",
+          "quote": "The fixed-size cache has passed the exact assertion that previously killed startup: Gemma loaded in 8.61 GiB, vLLM reserved 4 GiB for KV cache, and reported capacity for roughly nine concurrent 4096-token requests.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 212.6,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.47
+    },
+    {
+      "cluster_id": "C042",
+      "claim": "The Hermes terminal tool on a camp Thor cannot run `sudo` \u2014 there is no tty and no askpass helper, so every `sudo pluginctl` / `sudo kubectl` call fails with `sudo: a terminal is required to read the password`; the agent must recognise this immediately and hand the student the exact commands to run in their own shell rather than retrying, and it should prefer sudo-free read paths (e.g. reading the manifest ConfigMap instead of `sudo cat /etc/waggle/node-manifest-v2.json`).",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260721_191607_dad9e9-01"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "The baseline treats `sudo pluginctl` / `sudo kubectl` as the normal camp invocation (`on-node-verification-recipe.md`, `pluginctl-camp-guide.md`, `audio-plugin-multinode-testing.md` all say 'needs sudo') without stating that the agent's own terminal tool cannot supply the password on these nodes. This bounds what the agent can verify itself and changes the shape of its answer; it recurred across two students' episodes in these batches.",
+      "baseline_files_checked": [
+        "sage-waggle/references/audio-plugin-multinode-testing.md",
+        "sage-waggle/references/node-ssh-access-and-gpsd-probe.md",
+        "sage-waggle/references/on-node-verification-recipe.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H032-20260721_191607_dad9e9-01",
+          "student": "[REDACTED]",
+          "quote": "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 3373.5,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.44
+    },
+    {
+      "cluster_id": "C045",
+      "claim": "vLLM on a Thor `nvcr.io/nvidia/pytorch` base logs `No module named 'triton_kernels.matmul_ogs'` as a non-fatal ERROR, then selects the `TRITON_ATTN` attention backend anyway and HANGS silently right after the safetensors shards finish loading \u2014 so the failure looks like a slow model load, not a crash; `FLEX_ATTENTION` is the other advertised candidate and forcing it (`VLLM_ATTENTION_BACKEND=FLEX_ATTENTION`) is the one-env-var test to run before spending more cycles on memory/runner flags.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01E-20260719_014249_d4954d-03"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "Nothing in the baseline map covers attention-backend selection, Triton kernel availability on aarch64/sm_110, or the general trap of a library logging ERROR-then-continuing into a silent hang. `ml-plugin-patterns.md` names vLLM as a pattern but carries no failure modes. The transferable half is the diagnosis (the log line that names the two candidate backends is the clue, and the stall point is immediately after weight load); the FLEX_ATTENTION fix was recommended but NOT verified in this episode, hence medium confidence.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md",
+        "sage-waggle/references/nvidia-skills-index.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01E-20260719_014249_d4954d-03",
+          "student": "<student> / <node> (Thor)",
+          "quote": "ERROR 07-24 17:22:45 [config.py:29] Failed to import Triton kernels. Please make sure your triton version is compatible. Error: No module named 'triton_kernels.matmul_ogs'",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 6760.0,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.44
+    },
+    {
+      "cluster_id": "C046",
+      "claim": "To install CUDA-13 aarch64 wheels (vllm, triton, xformers) on a Thor node you must add NVIDIA's index `https://pypi.jetson-ai-lab.io/sbsa/cu130` as `--extra-index-url` ALONGSIDE `https://pypi.org/simple`, never as `--index-url` \u2014 the jetson-ai-lab index carries no pure-Python packages (pip, setuptools, numpy, huggingface_hub), so a strict `--index-url` fails on common deps; conversely, pure-Python-on-top-of-torch stacks (transformers, accelerate, pillow, sentencepiece) need NO special index at all because they ride the base image's CUDA torch.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01E-20260719_014249_d4954d-03"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline's Thor/aarch64 packaging advice is entirely about Docker BASE IMAGE choice (`docker-build-deploy.md`, `ml-plugin-patterns.md`, `ecr-arm64-thor-deployment.md`) and about weight baking. There is no pip-index guidance anywhere in the map, and `external-project-edge-porting-review.md` only warns that external projects pin linux-64/CUDA without saying what to use instead on aarch64. The second half of the claim (skip the exotic index entirely when the deps are pure Python) is the part that saves the most time and is likewise absent.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ecr-arm64-thor-deployment.md",
+        "sage-waggle/references/external-project-edge-porting-review.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01E-20260719_014249_d4954d-03",
+          "student": "<student> / <node> (Thor)",
+          "quote": "The jetson-ai-lab index is missing common packages (pip, setuptools, numpy, huggingface_hub, \u2026) \u2014 the PyPI fallback index is required, not optional.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 6760.0,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.44
+    },
+    {
+      "cluster_id": "C023",
+      "claim": "`skill_view(\"sage-waggle\")` returns ~121.8k characters, which exceeds the tool-result cap and is truncated or spilled to a temp file after the first ~1.5k chars \u2014 so loading the whole skill is not a way to answer a Sage question; the agent must go straight to `search_files` / read the named `references/*.md` file instead, and this reproduced in five separate episodes across four students.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "<student-H01D>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260718_081505_0d26e4-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "AGENTS.md and SOUL.md both instruct 'Always use the sage-waggle skill' and 'discover via Graphify, then load the right skill', and `graphify-guide.md` says the agent must discover via the knowledge graph rather than grepping \u2014 but nothing states that a bare `skill_view` of sage-waggle is over the result cap and returns essentially nothing usable. Observed identically in cnunes ...0d26e4-00 (121,827), cnunes ...9fbbc1-00 (121,827), lehovaa ...492625-00 (121,811), gotemzzz ...deb440-01 (121,812), kylelima21 ...f3cf31-01 (121,814), and skills_list at 108,580 in cnunes ...64e40e-00. Every one of those episodes then burned turns recovering via search_files.",
+      "baseline_files_checked": [
+        "sage-waggle/references/graphify-guide.md",
+        "skills/sage-waggle/SKILL.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260718_081505_0d26e4-00",
+          "student": "<student-H01D>",
+          "quote": "[Truncated: tool response was 121,827 chars. Full output could not be saved to sandbox.]",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 76.9,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.43
+    },
+    {
+      "cluster_id": "C049",
+      "claim": "Publishing a plugin version to ECR can fail with a boto/S3 `QuotaExceeded` on `PutObject` for `sage/ecr/<user>/<app>/<user>_<app>_<version>.tgz` \u2014 this is a registry-side per-user storage quota, not a build failure, not an auth failure and not the buildkit `/proc/acpi` bug, so no Dockerfile or token change fixes it; the unblock is to free old versions under that path (or escalate) and the bypass is the pluginctl side-load path, which never touches S3.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260721_202140_e3f58b-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "The baseline catalogues ECR failure modes in detail \u2014 `ecr-build-proc-acpi-runc-bug.md` and `ecr-build-proc-acpi-failure.md` (RUN-step runc failure), `job-scheduling-and-liveness.md` ('Two ECR failure modes', QEMU arm64 crash and 'does not exist in ECR'), `sesctl-ecr-validation.md` (catalog validation) \u2014 and none of them is a storage-quota rejection at the upload stage, which happens BEFORE any of those. The only 'quota' in the map is `local-cache-ring-buffer.md`'s node-side /local-cache quota, an unrelated subsystem, so keyword-matching on 'quota' actively misroutes. Medium confidence: the QuotaExceeded response is verbatim from the student's terminal, but the per-user-allocation explanation was inferred by the agent, not confirmed against the registry.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-build-proc-acpi-failure.md",
+        "sage-waggle/references/ecr-build-proc-acpi-runc-bug.md",
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/local-cache-ring-buffer.md",
+        "sage-waggle/references/sesctl-ecr-validation.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260721_202140_e3f58b-01",
+          "student": "<student> / <node> (Thor)",
+          "quote": "Upload to S3 failed (Failed to upload /temp/ecr/<user>_liam-app_0.1.1.tgz to sage/ecr/<user>/liam-app/<user>_liam-app_0.1.1.tgz: An error occurred (QuotaExceeded) when calling the PutObject operation: None)  any idea why im getting this error?",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 597.6,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 2.05
+    },
+    {
+      "cluster_id": "C047",
+      "claim": "Sage exposes NO node-to-node primitive: plugin pods can only reach Beehive (never each other, and never a peer node \u2014 no gRPC/socket/shared filesystem across nodes), there is no live pod migration (cancel + resubmit is the only real surface), no job dependency graph, no preemption API, and no network-plane control; a camp portal token grants job submit/cancel on named VSNs and read of MCP/auth APIs, and nothing more \u2014 so any multi-node topology, chaos-injection or federation layer is client-side bookkeeping, not a Sage capability.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260724_171939_66adc2-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`architecture-detail.md` describes the three-tier system and `wes-shared-filesystem-and-cache-architecture.md` / `producer-consumer-gpu-and-shared-mounts.md` establish cross-plugin sharing on the SAME node \u2014 which is exactly what invites the wrong generalisation to cross-node. No baseline file states the absences (no peer channel, no migration, no dependency graph, no preemption, no network-plane control), and `node-access-and-job-ownership.md` covers only the owner-gating of sesctl writes, not the shape of the whole token grant. This is a capability-boundary answer that terminates a class of multi-day dead ends for research-flavoured student projects.",
+      "baseline_files_checked": [
+        "sage-waggle/references/architecture-detail.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/mcp-tools.md",
+        "sage-waggle/references/node-access-and-job-ownership.md",
+        "sage-waggle/references/producer-consumer-gpu-and-shared-mounts.md",
+        "sage-waggle/references/wes-shared-filesystem-and-cache-architecture.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H01D-20260724_171939_66adc2-01",
+          "student": "<student> / <node> (Thor)",
+          "quote": "Any direct node-to-node channel (gRPC, TCP socket, shared filesystem). Sage plugins are isolated pods; they talk to Beehive, not to each other directly. Inter-node coordination goes up to the cloud and back down, not sideways.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 342.7,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.94
+    },
+    {
+      "cluster_id": "C040",
+      "claim": "When verifying a deploy, treat the version the USER says they deployed as unverified: check the SES pod's actual `image:` and independently GET the ECR catalog entry for the claimed tag \u2014 here the pod pulled `:0.1.0` while the user asked about `:0.1.2`, and `GET /apps/<ns>/<app>/0.1.2` returned HTTP 404 (never registered) against HTTP 200 for 0.1.0, so a 'newer version' that was never in the catalog would silently keep running the old image.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "independence": 1,
+      "students": [
+        "[REDACTED]"
+      ],
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260726_201000_c89bbc-02"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`ecr-catalog-api-and-thor-deploy.md` and `sesctl-ecr-validation.md` cover the catalog-vs-registry gate at SUBMIT time (a 400 'does not exist in ECR'); this is the quieter post-deploy case where the job spec is pinned to an older tag that IS registered, so nothing errors \u2014 the mismatch only surfaces by comparing the pod's image against a per-version catalog GET. `plugin-doc-surfaces-and-versioning.md` mandates bumping tags together but does not give this two-sided verification probe.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/on-node-verification-recipe.md",
+        "sage-waggle/references/plugin-doc-surfaces-and-versioning.md",
+        "sage-waggle/references/sesctl-ecr-validation.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H03F-20260726_201000_c89bbc-02",
+          "student": "[REDACTED]",
+          "quote": "=== is 0.1.2 even registered in the ECR catalog? ===\nGET /apps/[REDACTED]/sage-bat-counter/0.1.2 -> HTTP 404\nGET /apps/[REDACTED]/sage-bat-counter/0.1.0 -> HTTP 200",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 157.3,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.87
+    },
+    {
+      "cluster_id": "C036",
+      "claim": "`curl` against `auth.sagecontinuum.org/manifests/<vsn>` without `-L` returns HTTP 301 with an EMPTY body, which reads as 'node not found / node down' \u2014 the endpoint redirects and needs `curl -sL`, so a bare curl is a false-negative generator when probing node existence.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260721_015837_deb440-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`auth-api-manifests-and-nodes.md` does show `curl -sL` in its examples and notes the trailing-slash rule for the collection URL, but it never says WHAT happens without `-L` (301 + empty body) or warns that the empty body is misread as node-absent. The stated gotcha in that file is about trailing slashes, not redirects. This cost the episode two probe rounds and an initial wrong 'both endpoints returned empty bodies \u2014 that's a strong signal' conclusion.",
+      "baseline_files_checked": [
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/timeseries-data-query-api.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260721_015837_deb440-01",
+          "student": "<student-H035>",
+          "quote": "=== W072 manifest (HTTP status) ===\\nHTTP 301\\n=== W072 nodes API (HTTP status) ===\\nHTTP 301\\n=== known-good node W088 manifest ===\\n\\n=== W088 HTTP status ===\\nHTTP 301",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 126.2,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.85
+    },
+    {
+      "cluster_id": "C037",
+      "claim": "`nvcr.io/nvidia/pytorch:25.08-py3` ships with NO cv2 at all, so the widely-copied `rm -rf /usr/local/lib/python3.*/dist-packages/cv2*` line in Sage Dockerfiles deletes nothing and is dead code; a runtime `No module named 'cv2'` from an ECR-built plugin therefore points at the broken ECR builder, not at the OpenCV-purge step.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260727_212256_d2e016-01"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`docker-build-deploy.md` has a section literally titled 'OpenCV Fix (Required in All Dockerfiles)' and 'Protecting Base Image Packages (Critical)', which is what led students to carry the purge line. This episode's live probe of the 25.08-py3 image contradicts the premise for that specific tag. `ml-plugin-patterns.md` also recommends nvcr.io PyTorch bases without noting the cv2 absence. Naming the tag makes the correction checkable.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/runtime-packaging-patterns.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260727_212256_d2e016-01",
+          "student": "<student-H035>",
+          "quote": "I ran `nvcr.io/nvidia/pytorch:25.08-py3` just now and it has **no cv2 at all** \u2014 NVIDIA cleaned it out. So the `rm -rf /usr/local/lib/python3.*/dist-packages/cv2*` line in your Dockerfile (lines 18-19) is deleting nothing.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 582.7,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.63
+    },
+    {
+      "cluster_id": "C039",
+      "claim": "The common `try: from waggle.plugin import Plugin / except ImportError:` local-test guard does NOT protect against the real on-node failure \u2014 `Plugin()` construction raises later from a pika/RabbitMQ `socket.getaddrinfo` failure inside `rabbitmq.py`, not at import \u2014 so the guard must wrap both the import AND `Plugin().__enter__()` and catch `Exception`, or the plugin crashes on any node where the broker is unreachable.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student-H035>"
+      ],
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260727_024905_596214-05"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`runtime-packaging-patterns.md` covers 'pywaggle `publish()` pitfalls (silent data loss)' and the string-meta rule; SKILL.md has a 'Local testing (no node required)' section and `testing-patterns.md` prescribes `PYWAGGLE_LOG_DIR`. None of them state that the import-guard idiom is insufficient because the broker connection is deferred past import, nor that the failure surfaces as a pika getaddrinfo traceback. The local-test-mode idiom is exactly what the baseline's local-testing guidance encourages, so this is a correction to a pattern the baseline promotes.",
+      "baseline_files_checked": [
+        "sage-waggle/references/plugin-duration-performance-telemetry.md",
+        "sage-waggle/references/runtime-packaging-patterns.md",
+        "sage-waggle/references/testing-patterns.md",
+        "skills/sage-waggle/SKILL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H035-20260727_024905_596214-05",
+          "student": "<student-H035>",
+          "quote": "File \"/usr/local/lib/python3.12/dist-packages/waggle/plugin/rabbitmq.py\", line 47, in __connect_and_flush_messages\\n    with pika.BlockingConnection(self.params) as conn, conn.channel() as ch:",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 321.4,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.55
+    },
+    {
+      "cluster_id": "C048",
+      "claim": "A `pluginctl run` that cycles `Plugin is in \"Pending\" state` \u2192 `Plugin is in \"\" state` \u2192 `Error: Failed to get plugin status pods \"<name>\" not found` is NOT a pluginctl or scheduler bug: it is an ImagePullBackOff (here, the node-local k3s registry's TLS cert) after which k8s garbage-collects the pod out from under pluginctl's status poll \u2014 the fix is to stop pulling and import the image straight into k3s containerd, then reference it by the name containerd stored (`localhost/<name>:<tag>`), not the registry path.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-04"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`pluginctl-sideload-and-node-build.md` has the 'IMAGE-NAME TRAP: what containerd STORES the image as (ImagePullBackOff)' section and `plugin-deploy-pluginctl-vs-ses.md` notes 'H00F node-local registry often DOWN' \u2014 so the underlying cause and the containerd-import workaround ARE in the baseline. What is absent is the SYMPTOM SIGNATURE that misleads: pluginctl's own error text names a missing pod, which reads as a scheduling/naming problem and sends students to `kubectl get pods`/`--selector`/node-name debugging (visible across node-H03F-20260726_224608_16175e-00 and ...269cc7-01, where the same signature drove several turns of wrong-hypothesis work). Adding the signature\u2192cause mapping to the existing section is the promotion.",
+      "baseline_files_checked": [
+        "sage-waggle/references/on-node-verification-recipe.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260725_162553_193a20-04",
+          "student": "<student> / <node> (Thor)",
+          "quote": "That's the first failed `pluginctl run` attempt from earlier \u2014 the one that hit the ImagePullBackOff on the k3s registry TLS cert issue. It exited with code 1 because the pod was GC'd after the image pull failure.",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 151.3,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.49
+    },
+    {
+      "cluster_id": "C050",
+      "claim": "A Hermes session using the NVIDIA-hosted provider (`https://integrate.api.nvidia.com/v1`, model `qwen/qwen3.5-397b-a17b`) hard-aborts with a non-retryable `HTTP 400: data did not match any variant of untagged enum ChatCompletionRequestToolMessageContent` as soon as a VISION tool result is fed back into the conversation \u2014 this is a provider-side tool-message schema mismatch, not a bug in the student's plugin or image, and the only recovery is to switch model/provider (the retry loop cannot help and says so).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H02F-20260721_184622_d33d04-00"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL",
+      "why_novel": "The baseline has no coverage of the agent's OWN model/provider layer at all \u2014 SOUL.md and AGENTS.md cover role, Graphify discovery and skill routing; `mcp-tools.md`, `github-mcp-server.md`, `huggingface-mcp-server.md` and `milvus-sdk-helper-mcp.md` cover MCP servers, not chat-completion providers. This is precisely the category a keyword-driven mining pass over Sage/Waggle terms cannot catch: the student's whole session dies and nothing in the profile tells the agent that a vision-tool loop on this provider/model pair is a dead end. Confidence medium: the error text and the non-retryable classification are verbatim, but the switch-provider remedy was recommended rather than demonstrated in-episode.",
+      "baseline_files_checked": [
+        "sage-waggle/references/graphify-guide.md",
+        "sage-waggle/references/huggingface-mcp-server.md",
+        "sage-waggle/references/mcp-tools.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H02F-20260721_184622_d33d04-00",
+          "student": "<student> / <node> (Thor)",
+          "quote": "\u26a0\ufe0f API call failed (attempt 1/3): BadRequestError [HTTP 400] \ud83d\udd0c Provider: nvidia Model: qwen/qwen3.5-397b-a17b \ud83c\udf10 Endpoint: https://integrate.api.nvidia.com/v1 \ud83d\udcdd Error: HTTP 400: data did not match any variant of untagged enum ChatCompletionRequestToolMessageContent",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 149.1,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.49
+    },
+    {
+      "cluster_id": "C044",
+      "claim": "On camp Thor nodes the NVIDIA container runtime is present as a binary but is NOT registered with the container engine, so `--runtime=nvidia` fails with `default OCI runtime nvidia not found` and `--gpus all` reports `NVIDIA Driver was not detected` with `cuda False`; registering it needs passwordless sudo that camp accounts lack, and the working syntax is the CDI form `--device nvidia.com/gpu=0` (or `=all`), which needs no daemon config.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "independence": 1,
+      "students": [
+        "<student> / <node> (Thor)"
+      ],
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H021-20260723_004314_437672-04"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference",
+      "why_novel": "`sage-waggle/references/docker-build-deploy.md` has a section titled 'Docker Runtime: --runtime=nvidia (Not --gpus all)' plus 'NVIDIA Container Toolkit Setup (One-Time, Build Machine)' \u2014 that is exactly the advice that fails here, so the baseline is actively misleading for a camp student on a Thor blade without sudo. The CDI `--device nvidia.com/gpu=...` form is not mentioned anywhere in the map, yet three independent students in these batches used it successfully (node-H03F-20260727_003225_269cc7-01 and node-H01E-20260719_014249_d4954d-02 both run `--device nvidia.com/gpu=all|0` with working CUDA). Recommend CDI first, `--runtime=nvidia` as the build-machine-only fallback.",
+      "baseline_files_checked": [
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md"
+      ],
+      "evidence": [
+        {
+          "episode_id": "node-H021-20260723_004314_437672-04",
+          "student": "<student> / <node> (Thor)",
+          "quote": "The container can't access the GPU. `--gpus all` gives a \"NVIDIA Driver was not detected\" warning and `cuda False`. `--runtime=nvidia` fails with \"default OCI runtime nvidia not found.\"",
+          "friction": {
+            "retry_depth": 0,
+            "n_tool_failures": 0,
+            "wall_seconds": 35.1,
+            "resolved": false
+          }
+        }
+      ],
+      "score": 1.45
+    }
+  ]
+}

@@ -87,6 +87,7 @@ scripts/
 setup.md
 token-economy.md
 README.md
+foundry/
 
 # Hermes files
 .skills_prompt_snapshot.json

@@ -1,0 +1,215 @@
+{
+  "batches": ["batch_08", "batch_09"],
+  "episodes_reviewed": 56,
+  "full_reads": [
+    "node-H03F-20260727_003225_269cc7-00",
+    "node-H03F-20260726_201000_c89bbc-02",
+    "node-H03F-20260722_194054_a81475-01",
+    "node-H03F-20260719_070152_95d9c2-00",
+    "node-H035-20260723_142740_b07b9d-07",
+    "node-H035-20260723_142740_b07b9d-13",
+    "node-H035-20260723_142740_b07b9d-16",
+    "node-H035-20260727_212256_d2e016-02",
+    "node-H035-20260727_024905_596214-06",
+    "node-H035-20260727_024905_596214-10",
+    "node-H035-20260727_024905_596214-12",
+    "node-H035-20260725_163838_dd9d34-02",
+    "node-H035-20260725_163838_dd9d34-10",
+    "node-H035-20260725_163838_dd9d34-21",
+    "node-H035-20260724_011258_f7a2ab-00",
+    "node-H035-20260724_011258_f7a2ab-08",
+    "node-H035-20260721_201726_f73ced-00",
+    "node-H035-20260721_160756_52c07b-00",
+    "node-H035-20260721_023010_a73167-00",
+    "node-H032-20260723_145518_ce24dc-03",
+    "node-H032-20260723_145518_ce24dc-07",
+    "node-H032-20260723_145518_ce24dc-09",
+    "node-H032-20260723_145518_ce24dc-11",
+    "node-H032-20260721_191607_dad9e9-01",
+    "node-H032-20260729_190742_1b0e68-01",
+    "node-H021-20260723_004314_437672-16",
+    "node-H021-20260723_004314_437672-00",
+    "node-H021-20260724_153151_f3cf31-05",
+    "node-H021-20260725_162553_193a20-00",
+    "node-H021-20260722_222502_2a56ed-01",
+    "node-H021-20260727_142358_6b4b35-04",
+    "node-H01D-20260725_171322_db2927-02",
+    "node-H01D-20260725_175019_07a38a-01",
+    "node-H01D-20260729_134102_c5724e-00",
+    "node-H01D-20260731_131542_56836c-00",
+    "node-H01D-20260731_141812_8a0226-00",
+    "node-H01D-20260724_164434_cd4500-00",
+    "node-H01D-20260718_080431_e75893-00",
+    "node-H01D-20260723_202250_482077-00",
+    "node-H034-20260720_122307_02ef79-00",
+    "node-H034-20260721_150412_8a326e-00",
+    "node-H034-20260728_145906_245fad-00",
+    "node-H023-20260721_192104_492625-01",
+    "node-H02F-20260721_184622_d33d04-02",
+    "node-H01E-20260719_014249_d4954d-04",
+    "node-H01E-20260719_014249_d4954d-07"
+  ],
+  "hits": [
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-07",
+      "student": "[REDACTED]",
+      "claim": "On a camp Thor (SGT-project H-series), a container launched by `pluginctl run` gets NO GPU (torch.cuda.is_available()=False, no /dev/nvidia* in the pod) because pluginctl never sets `runtimeClassName` and these nodes run no nvidia-device-plugin, so `nvidia.com/gpu` is not in the node's allocatable either; the fix is to bypass pluginctl for GPU plugins and `kubectl apply` a hand-written pod manifest with `runtimeClassName: nvidia` plus `nodeSelector: {resource.gpu: \"true\"}`, which was verified to give CUDA and ~27 ms/frame vs ~1220 ms/frame on CPU.",
+      "kind": "failure_class",
+      "evidence_quote": "`pluginctl run` does NOT set `runtimeClassName` — it creates the pod with the default runtime (crun/runc), which does not wire `/dev/nvidia*` into the container even when the node has `resource.gpu=true` / `resource.cuda110=true` labels.",
+      "why_novel": "The baseline map's `pluginctl-sideload-and-node-build.md` covers pluginctl pitfalls (image-name trap, OOMKilled default mem limit, log-attach blocking) and `docker-build-deploy.md` covers `--runtime=nvidia` for raw docker, but neither mentions runtimeClassName, the missing nvidia-device-plugin, or that a pluginctl pod silently runs CPU-only on these Thors. `pluginctl-camp-guide.md`'s troubleshooting table (as summarized in the map) lists `/dev/nvmap` host permissions as the CUDA-false cause, i.e. the opposite advice — 'run inside a pluginctl pod' — which is exactly what fails here. The word runtimeClass does not appear anywhere in the baseline map.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/direct-node-testing.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H03F-20260727_003225_269cc7-00",
+      "student": "[REDACTED]",
+      "claim": "A plugin that ignores every CLI argument passed after `--` to `pluginctl run` (argparse keeps its defaults, e.g. camera-source falls back to `bottom_camera`) is almost always a Dockerfile bug, not a pluginctl bug: a shell-form `ENTRYPOINT [\"bash\",\"-c\",\"...\"]` swallows the args k8s appends as the container's Args, so the fix is exec-form `ENTRYPOINT [\"<interp>\",\"app.py\"]` with any env exports moved to `ENV` lines.",
+      "kind": "failure_class",
+      "evidence_quote": "pluginctl run --help shows arguments should be passed after --, but my plugin still receives the default argparse value:\n\n--camera-source bottom_camera",
+      "why_novel": "The baseline map's pluginctl references cover invocation, side-loading, memory limits and image naming, and `plugin-deploy-pluginctl-vs-ses.md` covers a 'Dockerfile must COPY all modules' trap, but nothing in the map states that a `bash -c` ENTRYPOINT discards pluginctl/k8s-appended args. The `kubectl describe` in this episode confirms the args DID reach the pod spec (Args: --camera-source videos/...), which is what makes the symptom misleading — it looks like pluginctl dropped them.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/docker-build-deploy.md"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-07",
+      "student": "[REDACTED]",
+      "claim": "Camp Thor nodes are tagged to project SGT, and `auth.sagecontinuum.org/manifests/<VSN>` and `/api/v-beta/nodes/<VSN>` return EMPTY bodies for them, so 'what sensors does my node have?' must be answered on-node: read the `wes-identity` ConfigMap to map hardware serial to VSN, then read `/etc/waggle/node-manifest-v2.json` (host path, needs sudo) or its `waggle-node-manifest-v2-*` ConfigMap copy, which on a bare Thor devkit legitimately shows `\"sensors\": []`.",
+      "kind": "invariant",
+      "evidence_quote": "===wes-identity contents===\napiVersion: v1\ndata:\n  WAGGLE_NODE_ID: [REDACTED]\n  WAGGLE_NODE_VSN: H035\n... \\\"project\\\": \\\"SGT\\\", ... \\\"sensors\\\": [], \\\"resources\\\": []",
+      "why_novel": "`auth-api-manifests-and-nodes.md` presents the manifests endpoint as the camp default for looking up a node's sensors and never says it comes back empty for SGT-project camp Thors. `node-identity-and-upload-contract.md` establishes that /etc/waggle/ is host-only and not in pods, but no baseline file names the `wes-identity` ConfigMap as the serial-to-VSN mapping, nor the `waggle-node-manifest-v2-*` ConfigMap as a sudo-free read path for the manifest. Both strings are absent from the baseline map.",
+      "baseline_files_checked": [
+        "sage-waggle/references/auth-api-manifests-and-nodes.md",
+        "sage-waggle/references/node-identity-and-upload-contract.md",
+        "sage-waggle/references/node-gps-location-resolution.md",
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H032-20260723_145518_ce24dc-07",
+      "student": "[REDACTED]",
+      "claim": "Do not infer camera audio capability from the vendor/model — probe it: on the camp camera set, the Reolink RTSP main stream (presumed video-only) carried an AAC-LC 16 kHz mono audio stream alongside HEVC video, while the Hanwha `profile1/media.smp` (presumed audio-capable) exposed only MJPEG video plus an unknown `codec_type=data` stream; the one-shot check is `ffprobe -v error -rtsp_transport tcp -show_streams '<rtsp url>'`.",
+      "kind": "procedure",
+      "evidence_quote": "Camera 1 (Reolink, [REDACTED]) — HAS audio\n  Stream 0: video, hevc (H.265), 3840x2160, 25 fps, yuv420p\n  Stream 1: audio, aac (LC profile), sample_rate=16000, channels=1 (mono)\n... Camera 5 (Hanwha, [REDACTED]) — NO audio",
+      "why_novel": "`camera-audio-capabilities.md` is a static per-model capability table and `reolink-audio-capture.md` documents Reolink audio only over the HTTP FLV/BCS endpoint (explicitly framed as 'no RTSP port needed'); neither states that this Reolink also carries AAC 16 kHz mono ON the RTSP stream — a simpler path that needs no FLV auth dance. `hanwha-xnp6400rw-audio.md` covers a different Hanwha model. No baseline file prescribes ffprobe -show_streams as the pre-build capability check, and the 16 kHz native rate matters because it is YAMNet/BirdNET's input rate with no resample needed.",
+      "baseline_files_checked": [
+        "sage-waggle/references/camera-audio-capabilities.md",
+        "sage-waggle/references/reolink-audio-capture.md",
+        "sage-waggle/references/hanwha-xnp6400rw-audio.md",
+        "sage-waggle/references/camera-rtsp-patterns.md",
+        "sage-waggle/references/rtsp-vs-still-metadata-acquisition.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H03F-20260726_201000_c89bbc-02",
+      "student": "[REDACTED]",
+      "claim": "When verifying a deploy, treat the version the USER says they deployed as unverified: check the SES pod's actual `image:` and independently GET the ECR catalog entry for the claimed tag — here the pod pulled `:0.1.0` while the user asked about `:0.1.2`, and `GET /apps/<ns>/<app>/0.1.2` returned HTTP 404 (never registered) against HTTP 200 for 0.1.0, so a 'newer version' that was never in the catalog would silently keep running the old image.",
+      "kind": "procedure",
+      "evidence_quote": "=== is 0.1.2 even registered in the ECR catalog? ===\nGET /apps/[REDACTED]/sage-bat-counter/0.1.2 -> HTTP 404\nGET /apps/[REDACTED]/sage-bat-counter/0.1.0 -> HTTP 200",
+      "why_novel": "`ecr-catalog-api-and-thor-deploy.md` and `sesctl-ecr-validation.md` cover the catalog-vs-registry gate at SUBMIT time (a 400 'does not exist in ECR'); this is the quieter post-deploy case where the job spec is pinned to an older tag that IS registered, so nothing errors — the mismatch only surfaces by comparing the pod's image against a per-version catalog GET. `plugin-doc-surfaces-and-versioning.md` mandates bumping tags together but does not give this two-sided verification probe.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md",
+        "sage-waggle/references/sesctl-ecr-validation.md",
+        "sage-waggle/references/plugin-doc-surfaces-and-versioning.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/on-node-verification-recipe.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H032-20260721_191607_dad9e9-01",
+      "student": "[REDACTED]",
+      "claim": "Two distinct ECR failures get conflated at camp and need different responses: (a) the portal's Create-App form rejects a repo whose `sage.yaml` lacks `source.url` and `source.branch` (`homepage` is display-only and does not satisfy it), and (b) `Upload to S3 failed ... (QuotaExceeded) when calling the UploadPart operation` is a Sage-side S3 quota on the shared build-artifact bucket — the build itself succeeded, nothing in the plugin repo can fix it, and the only student-side path is the local-build + pluginctl side-load route.",
+      "kind": "failure_class",
+      "evidence_quote": "Upload to S3 failed (Failed to upload /temp/ecr/[REDACTED]_app-tutorial_0.1.0.tgz to sage/ecr/[REDACTED]/app-tutorial/[REDACTED]_app-tutorial_0.1.0.tgz: An error occurred (QuotaExceeded) when calling the UploadPart operation: None)",
+      "why_novel": "The baseline's ECR failure catalog (`ecr-build-proc-acpi-failure.md`, `ecr-builder-proc-acpi-runc-bug.md`, `job-scheduling-and-liveness.md`'s 'Two ECR failure modes', `ecr-build-to-ses-cutover.md`) enumerates the /proc/acpi runc bug, the ARM64 QEMU crash, 'does not exist in ECR', and ErrImagePull — but not a QuotaExceeded S3 upload failure, and not the sage.yaml `source.url`/`source.branch` registration-form requirement. Neither string appears in the baseline map. Because the acpi bug is so heavily documented, an agent is primed to misdiagnose this as that bug.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-build-proc-acpi-failure.md",
+        "sage-waggle/references/ecr-builder-proc-acpi-runc-bug.md",
+        "sage-waggle/references/ecr-build-to-ses-cutover.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H032-20260721_191607_dad9e9-01",
+      "student": "[REDACTED]",
+      "claim": "The Hermes terminal tool on a camp Thor cannot run `sudo` — there is no tty and no askpass helper, so every `sudo pluginctl` / `sudo kubectl` call fails with `sudo: a terminal is required to read the password`; the agent must recognise this immediately and hand the student the exact commands to run in their own shell rather than retrying, and it should prefer sudo-free read paths (e.g. reading the manifest ConfigMap instead of `sudo cat /etc/waggle/node-manifest-v2.json`).",
+      "kind": "invariant",
+      "evidence_quote": "sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required",
+      "why_novel": "The baseline treats `sudo pluginctl` / `sudo kubectl` as the normal camp invocation (`on-node-verification-recipe.md`, `pluginctl-camp-guide.md`, `audio-plugin-multinode-testing.md` all say 'needs sudo') without stating that the agent's own terminal tool cannot supply the password on these nodes. This bounds what the agent can verify itself and changes the shape of its answer; it recurred across two students' episodes in these batches.",
+      "baseline_files_checked": [
+        "sage-waggle/references/on-node-verification-recipe.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/audio-plugin-multinode-testing.md",
+        "sage-waggle/references/node-ssh-access-and-gpsd-probe.md",
+        "summer-camp-2026/hermes-profile/SOUL.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL"
+    }
+  ],
+  "near_misses": [
+    {
+      "episode_id": "node-H035-20260727_024905_596214-12",
+      "note": "Plugin repeatedly crashed with pywaggle rabbitmq `socket.gaierror: [Errno -2] Name or service not known` resolving `wes-rabbitmq.default.svc.cluster.local` — a real and generalisable symptom (pywaggle Plugin() outside a WES pod, e.g. under plain docker run, cannot resolve the cluster DNS name, so publish dies in a background thread while the app keeps running). The episode never reaches a diagnosis or fix, so the cause is my inference, not the transcript's. Worth a targeted re-mine of the surrounding session before promoting."
+    },
+    {
+      "episode_id": "node-H035-20260727_212256_d2e016-02",
+      "note": "Clean explanation that a file-source plugin exits at EOF while an RTSP/WES-camera source loops forever (so the SES job legitimately shows 'running' indefinitely), plus the observation that a portal data filter on `<node-local-registry>:5000/local/plugin.*` proves the data came from the node-local side-loaded image rather than the ECR-built one scheduled in the job spec. The second half is a genuinely useful 'which image is actually publishing?' tell, but `portal-and-cutover.md` already covers 'query-browser filters by EXACT plugin version tag' and `ecr-build-to-ses-cutover.md` covers 'verifying WHICH job publishes', so the novel margin is thin."
+    },
+    {
+      "episode_id": "node-H021-20260724_153151_f3cf31-05",
+      "note": "Mentions in passing that on this Thor a host-venv PyPI torch imports fine but hangs indefinitely on any CUDA call (no Blackwell sm_110 kernels) — a good misleading-symptom failure class, but the actual diagnosis lives in episodes outside these two batches (the -02/-06/-07 shards of the same session), so I cannot claim it on what I read here. `docker-build-deploy.md` already states the sm_110 base-image requirement; the novel part is the silent HANG (not an error) on the host, which a future pass should confirm from the source episodes."
+    },
+    {
+      "episode_id": "node-H035-20260724_011258_f7a2ab-08",
+      "note": "Measured that an inline 30-frame sliding-median background subtraction costs ~75 ms/frame on CPU and dominates a ~26 ms GPU inference (10 FPS vs 32 FPS with it off), i.e. the CPU pre-processing, not the model, is the edge bottleneck. Real and well-measured, but it is one project's preprocessing choice rather than a platform/toolchain fact."
+    },
+    {
+      "episode_id": "node-H01D-20260725_175019_07a38a-01",
+      "note": "Student pasted an OpenSSH private key into the chat asking the agent to install it; the agent refused, told them to treat it as compromised and rotate, and declined to write it to ~/.ssh. Exemplary handling and a recurring camp hazard (a second episode in these batches has a student pasting camera credentials inline), but SOUL.md already has a Security section and this is agent-behaviour policy rather than a checkable platform claim."
+    },
+    {
+      "episode_id": "node-H035-20260725_163838_dd9d34-10",
+      "note": "Two consecutive container SyntaxErrors from agent-authored code: an em-dash (U+2014) in a comment, then prose left outside the docstring quotes ('invalid decimal literal' pointing at line 356 when the real damage started at 345). The generalisable lesson — run `python -m py_compile` before every image rebuild, and distrust the reported line number when a docstring is unterminated — is sound but is generic Python knowledge, and the harness's own verification nudge already pushes toward a compile check."
+    },
+    {
+      "episode_id": "node-H01D-20260725_171322_db2927-02",
+      "note": "Shows `scripts/setup-graphify.sh` on the installed profile restoring the graph from a prebuilt baseline tarball (17.8 MB graph.json) with no LLM extraction step. `graphify-guide.md` says 'There is no camp setup shell script' and 'prefer the tarball' — so this is arguably a small correction to that file, but a single log line naming a script is thin evidence that the script is a supported part of the profile rather than that student's own addition."
+    },
+    {
+      "episode_id": "node-H03F-20260726_201000_c89bbc-02",
+      "note": "Same episode as a hit above; separately shows an SES pod sitting in PodInitializing/Pending for 18+ polls (~90 s) purely pulling a large NVIDIA-base image, with a leftover Failed pluginctl pod from an earlier test still present in the default namespace. The 'do not call a slow first pull a failure, and clean up prior pluginctl pods before re-running' pairing is useful operational advice but is largely implied by existing pluginctl and job-liveness references."
+    },
+    {
+      "episode_id": "node-H034-20260728_145906_245fad-00",
+      "note": "Agent force-pushed a feature branch over `main` (`git push origin +branch:main`) on the student's one-line request with no confirmation and no note about the discarded commits, then the student was left on a local main '3 commits behind'. A real safety lesson about destructive git on student repos, but it is general git practice, not Sage platform or toolchain knowledge."
+    }
+  ]
+}

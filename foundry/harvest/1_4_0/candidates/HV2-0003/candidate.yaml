@@ -1,0 +1,16 @@
+id: HV2-0003
+title: "pluginctl GPU requires runtimeClassName"
+action: modify_guidance
+placement: "skills/sage-waggle/references/pluginctl-gpu-runtimeclass.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T03]
+independence: 2
+students_in_evidence: [node-H035, node-H03F]
+episodes_n: 6
+is_correction: true
+baseline_conflict: |
+  runtimeClassName appears nowhere in the baseline; runtime-packaging-patterns.md:106 asserts the opposite - 'GPU available via NVIDIA device plugin'.
+claims:
+  - On a Thor node with NO nvidia-device-plugin pod, `pluginctl run` silently produces a CPU-only pod (torch.cuda.is_available()=False) because pluginctl never sets `runtimeClassName` and the node advertises no `nvidia.com/gpu` allocatable resource; the fix is to bypass pluginctl and `kubectl apply` a hand-written pod manifest with `runtimeClassName: nvidia` + `nodeSelector: resource.gpu="true"`, which restores GPU (verified 27ms/frame YOLO vs ~1.4s on CPU).

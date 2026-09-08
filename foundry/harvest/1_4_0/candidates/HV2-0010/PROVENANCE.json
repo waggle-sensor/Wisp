@@ -1,0 +1,95 @@
+{
+  "id": "HV2-0010",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T10",
+      "title": "Node-local registry x509 trust failure",
+      "merged_from": [
+        "C004",
+        "C048"
+      ],
+      "canonical_claim": "`pluginctl build` can succeed and hand back a 10.31.81.1:5000/local/... ref that `pluginctl run` can never pull: kubelet rejects the node-local registry with x509 'certificate signed by unknown authority' even though /etc/rancher/k3s/registries.yaml names the CA and `openssl verify` of the serving cert against that CA returns 0 \u2014 i.e. containerd has not loaded the registries.yaml, and the diagnosis is that a build-succeeds/run-ImagePullBackOff pair is a registry-trust fault, not a build or image-name fault.",
+      "alt_phrasings": [
+        "A `pluginctl run` that cycles `Plugin is in \"Pending\" state` \u2192 `Plugin is in \"\" state` \u2192 `Error: Failed to get plugin status pods \"<name>\" not found` is NOT a pluginctl or scheduler bug: it is an ImagePullBackOff (here, the node-local k3s registry's TLS cert) after which k8s garbage-collects the pod out from under pluginctl's status poll \u2014 the fix is to stop pulling and import the image straight into k3s containerd, then reference it by the name containerd stored (`localhost/<name>:<tag>`), not the registry path."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H021"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-03",
+        "node-H021-20260725_162553_193a20-04"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "Baseline documents reachability and image-name causes for ImagePullBackOff; x509 appears only in control-plane diagnosis contexts, not the registry pull path.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "pluginctl build succeeds and hands back a ref that pluginctl run can never pull. Includes the confusing surface form: Pending -> '' -> 'pods not found' cycling.",
+      "notes": null
+    }
+  ],
+  "students": [
+    "node-H021"
+  ],
+  "episodes": [
+    "node-H021-20260725_162553_193a20-03",
+    "node-H021-20260725_162553_193a20-04"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T10-registry-x509",
+      "candidate": "HV2-0010",
+      "split": "targeted",
+      "query": "pluginctl build succeeded and gave me a node-local registry tag, but pluginctl run gets ImagePullBackOff with certificate signed by unknown authority.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/ecr-build-to-ses-cutover.md",
+          "references/sesctl-ecr-validation.md"
+        ],
+        "top_scores": [
+          20.13,
+          18.65,
+          17.68
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": [
+          "x509",
+          "certificate signed by unknown authority"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/node-registry-x509-trust.md",
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/ecr-build-to-ses-cutover.md"
+        ],
+        "top_scores": [
+          37.52,
+          19.74,
+          18.31
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

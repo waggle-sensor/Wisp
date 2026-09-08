@@ -1,0 +1,95 @@
+{
+  "id": "HV2-0005",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T05",
+      "title": "Host PyPI torch hangs forever in D-state",
+      "merged_from": [
+        "C001",
+        "C008"
+      ],
+      "canonical_claim": "On a camp Thor (JetPack R38.2.1 / L4T 38.2.1), a generic PyPI aarch64 torch wheel (torch 2.13.0+cu130) imports fine but every CUDA entry point \u2014 torch.cuda.is_available(), .cuda(), even nvidia-smi on the host \u2014 HANGS FOREVER rather than returning False or raising; the misleading symptom is a series of tool timeouts that look like 'slow first import', and the fix is to stop probing on the host and do all GPU work inside nvcr.io/nvidia/pytorch:25.08-py3.",
+      "alt_phrasings": [
+        "On a camp Thor (JetPack R38.2.1, driver 580.00), PyPI torch 2.13.0+cu130 installed into a host venv imports fine but HANGS INDEFINITELY with no error and no timeout on `torch.cuda.is_available()` or any CUDA call (it lacks Blackwell sm_110 kernels) \u2014 the fix is an NGC container (nvcr.io/nvidia/pytorch:25.08-py3) or `CUDA_VISIBLE_DEVICES=''` for CPU-only dev."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H021"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json",
+        "triage_02_03.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260723_004314_437672-02",
+        "node-H021-20260723_004314_437672-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "Corrects v1's own thor-host-cpu-dev-first.md, shipped in 1.2.0, which prescribes CUDA_VISIBLE_DEVICES= before importing torch as the fix.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "v1's fix is insufficient: `import torch` ITSELF enters uninterruptible D-state even with CUDA_VISIBLE_DEVICES=''. D-state processes survive SIGKILL. Working fix is a subprocess probe with timeout plus function-body-local torch imports.",
+      "notes": "The sharpest argument for transcripts over artifacts: v1 mined a student artifact frozen 2026-07-23; the same student superseded it on 07-24. Mining artifacts froze a claim the cohort had already outgrown."
+    }
+  ],
+  "students": [
+    "node-H021"
+  ],
+  "episodes": [
+    "node-H021-20260723_004314_437672-02",
+    "node-H021-20260723_004314_437672-07"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T05-host-torch-hang",
+      "candidate": "HV2-0005",
+      "split": "targeted",
+      "query": "torch.cuda.is_available() never returns on the Thor host venv, no error, and the python process cannot be killed with SIGKILL.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/thor-host-cpu-dev-first.md",
+          "references/ecr-build-proc-acpi-failure.md",
+          "SKILL.md"
+        ],
+        "top_scores": [
+          21.9,
+          12.49,
+          12.49
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "D-state",
+          "module level"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/thor-host-torch-hang.md",
+          "references/thor-host-cpu-dev-first.md",
+          "references/thor-conda-forge-no-sm110.md"
+        ],
+        "top_scores": [
+          35.91,
+          20.12,
+          13.32
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

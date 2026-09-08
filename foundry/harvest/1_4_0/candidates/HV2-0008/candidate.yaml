@@ -1,0 +1,18 @@
+id: HV2-0008
+title: "Camera offline development"
+action: modify_guidance
+placement: "skills/sage-waggle/references/pywaggle-camera-offline-dev.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T08, T12]
+independence: 1
+students_in_evidence: [node-H035, node-H032]
+episodes_n: 4
+is_correction: true
+baseline_conflict: |
+  camera-rtsp-patterns.md documents the device-routing chain but not that the zero-arg default crashes with a type error rather than a graceful device-open failure.
+  auth-api-manifests-and-nodes.md presents the manifest endpoint as the camp default and never says it returns empty for SGT-project nodes.
+claims:
+  - Calling pywaggle's `Camera()` with no argument raises `TypeError: expected string or bytes-like object, got 'int'` (not a missing-camera error) because the default `device=0` is an int that `Camera.__init__` feeds straight into `re.match`; always pass a device STRING (`"file://example.jpg"`, an RTSP URL, or a data-shim name).
+  - Camp Thor blades ship with NO camera attached — no `/dev/video*`, empty `v4l2-ctl --list-devices`, no `/run/waggle/data-config.json`, an empty `"sensors": []` in the node manifest, and no port-554 host on either node subnet — so `Camera()`, `Camera("bottom_camera")` and any RTSP plugin will fail until hardware is physically added and registered; probe those five things before writing camera code.

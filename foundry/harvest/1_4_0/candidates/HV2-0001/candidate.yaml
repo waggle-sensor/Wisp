@@ -1,0 +1,15 @@
+id: HV2-0001
+title: "Agent HOME rewrite on camp Thor nodes"
+action: add
+placement: "skills/sage-waggle/references/agent-shell-environment.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T01]
+independence: 9
+independence_source: corpus-wide grep: 9/11 students, 52 episodes
+students_in_evidence: [node-H01D, node-H035]
+episodes_n: 3
+is_correction: false
+claims:
+  - In the camp Hermes terminal tool, $HOME is rewritten to <profile>/home, so any command using ~ or $HOME silently resolves under /home/<user>/.hermes/profiles/sage/home/ instead of the real /home/<user>/ — producing bogus 'No such file or directory' for files that plainly exist and making installed tools look missing (which pixi -> not found while /home/<user>/.pixi/bin/pixi exists); fix: always use absolute /home/<user>/... paths in terminal commands and never rely on ~ or a login-shell PATH.

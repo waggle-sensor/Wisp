@@ -2,7 +2,7 @@
 
 Hermes **`sage` profile** for Sage / Waggle edge computing on NVIDIA Jetson AGX Thor + Ollama. This repo *is* the profile distribution — clone it, then `hermes profile install .`.
 
-Setup guide: **[setup.md](setup.md)**. Token / context etiquette: **[token-economy.md](token-economy.md)**. Manifest: [`distribution.yaml`](distribution.yaml) (`name: sage`, **version 1.4.0**).
+Setup guide: **[setup.md](setup.md)**. Token / context etiquette: **[token-economy.md](token-economy.md)**. Manifest: [`distribution.yaml`](distribution.yaml) (`name: sage`, **version 1.4.0**). Instructor scrape → mine → merge loop: **[foundry/README.md](foundry/README.md)** (`foundry/` is not part of the Hermes distribution or Graphify corpus).
 
 The profile and agent docs were split out of [`waggle-sensor/summer-camp-2026`](https://github.com/waggle-sensor/summer-camp-2026) so we can keep improving the agent. Camp agenda, sensors, and EdgeRunner stay there.
 
@@ -28,6 +28,7 @@ Wisp/
 ├── skills/_vendor/      # Upstream LICENSE + SOURCE pins (HF + NVIDIA + Graphify)
 ├── docs/                # pywaggle2 design docs + project status
 ├── scripts/             # Graphify baseline rebuild + sanitize
+├── foundry/             # instructor harvest/mine loop (not installed, not graphed)
 ├── .graphifyignore      # Exclude evals/fixtures from the graph
 └── README.md
 ```

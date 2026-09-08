@@ -1,0 +1,16 @@
+id: HV2-0002
+title: "sudo NOPASSWD allowlist and image import"
+action: modify_guidance
+placement: "skills/sage-waggle/references/sudo-allowlist-and-image-import.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T02]
+independence: 2
+students_in_evidence: [node-H021, node-H032]
+episodes_n: 2
+is_correction: true
+baseline_conflict: |
+  SKILL.md instructs `sudo k3s ctr images import` in six places (655,656,657,677,680,681), calling it CRITICAL and required for local testing. `k3s` is not on the sudoers allowlist.
+claims:
+  - Camp Thor student accounts have NOPASSWD sudo for an explicit binary allowlist only (kubectl, docker, docker-compose, runplugin, pluginctl) and the Hermes terminal has no TTY, so every other sudo command fails with 'a terminal is required to read the password' — this makes the documented side-load step `sudo k3s ctr images import` impossible (/usr/local/bin/ctr is a symlink to k3s, so it inherits the block); the working substitute is to apply a privileged pod with `sudo kubectl` that mounts the containerd socket and runs the import from inside.

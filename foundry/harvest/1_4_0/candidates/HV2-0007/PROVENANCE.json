@@ -1,0 +1,88 @@
+{
+  "id": "HV2-0007",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T07",
+      "title": "snapshot.data is RGB, not BGR",
+      "merged_from": [
+        "C020"
+      ],
+      "canonical_claim": "pywaggle's `Camera` defaults to `format=RGB` and `ImageSample.__init__` applies `cv2.cvtColor(data, COLOR_BGR2RGB)` on construction, so `snapshot.data[...,0]` is RED \u2014 a plugin that reasons about `snapshot.data` as if it were raw cv2 BGR publishes silently swapped R/B channels.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260721_202140_e3f58b-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "reolink-http-snapshot.md:54 states 'Returns BGR numpy array, same format as Camera.snapshot().data'.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Silent failure with no error message at all - the class most likely to reach production. A plugin following the baseline publishes colour-swapped images.",
+      "notes": "Student measured it rather than asserting it: snapshot.data channel means [70.8, 116.5, 43.2] vs raw cv2 BGR [42.9, 115.9, 70.9] - channels 0 and 2 demonstrably swapped. Strongest evidence quality in the corpus."
+    }
+  ],
+  "students": [
+    "node-H035"
+  ],
+  "episodes": [
+    "node-H035-20260721_202140_e3f58b-00"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T07-snapshot-rgb",
+      "candidate": "HV2-0007",
+      "split": "targeted",
+      "query": "My plugin publishes images with the red and blue channels swapped. I am reading Camera snapshot data and passing it straight to cv2.imwrite.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/pywaggle2-nodeinfo-gps-design.md",
+          "references/node-gps-location-resolution.md",
+          "references/wes-pod-config-and-manifest-exposure.md"
+        ],
+        "top_scores": [
+          16.24,
+          15.73,
+          14.03
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "RGB"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pywaggle-snapshot-channel-order.md",
+          "references/pywaggle2-nodeinfo-gps-design.md",
+          "references/node-gps-location-resolution.md"
+        ],
+        "top_scores": [
+          29.68,
+          16.08,
+          15.7
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

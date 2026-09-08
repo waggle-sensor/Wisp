@@ -1,0 +1,16 @@
+id: HV2-0009
+title: "Off-node Plugin() thread failure"
+action: modify_guidance
+placement: "skills/sage-waggle/references/pywaggle-offnode-local-testing.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T09]
+independence: 1
+students_in_evidence: [node-H035]
+episodes_n: 2
+is_correction: true
+baseline_conflict: |
+  SKILL.md has a 'Local testing (no node required)' section but does not state that Plugin() raises from a daemon thread and therefore escapes try/except.
+claims:
+  - Wrapping `Plugin()` construction in try/except does NOT make a plugin safe to run off-node: pywaggle's RabbitMQ publisher runs on a background thread, so the `socket.gaierror: [Errno -2] Name or service not known` surfaces as an unhandled traceback from `rabbitmq.py` after the constructor already returned — gate plugin init on a Sage env var (e.g. WAGGLE_PLUGIN_NAME / WAGGLE_NODE_ID) instead of on exception handling.

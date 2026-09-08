@@ -1,0 +1,33 @@
+{
+  "baseline": "hermes-profile 1.2.0 (origin/hermes-profile-1.2.0-foundry-uptake)",
+  "runs": [
+    {
+      "k": 1,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "both_pass": 5
+    },
+    {
+      "k": 2,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "both_pass": 5
+    },
+    {
+      "k": 3,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "both_pass": 5
+    },
+    {
+      "k": 5,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "both_pass": 5
+    }
+  ]
+}
