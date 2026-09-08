@@ -1,0 +1,26 @@
+# index -> group. Block 48 is an exact duplicate of 10 and is dropped.
+GROUPS = [
+ ("pitfalls-pywaggle-publishing", "pywaggle publish/upload contracts and node location",
+  [12,13,41,46,84,70,74]),
+ ("pitfalls-pluginctl-k3s-thor", "pluginctl, k3s image import, sudo, and Thor GPU access",
+  [11,53,54,55,56,73,76,77]),
+ ("pitfalls-ecr-submission", "ECR build/submit model and version rules",
+  [1,2,3,58,59]),
+ ("pitfalls-data-and-storage", "Sage data/manifest APIs, portal auth, NRP storage and the upload agent",
+  [4,5,6,7,9,10,44,45,47]),
+ ("pitfalls-docker-nvidia-images", "Docker/NVIDIA base images, runtimes, and pinning",
+  [8,30,32,33,52,60,61,62,63,64,65,66]),
+ ("pitfalls-ml-models-inference", "BioCLIP/YOLO/vLLM model behavior, thresholds and memory",
+  [17,18,19,20,21,22,23,24,28,29]),
+ ("pitfalls-cameras-and-audio", "Reolink/M16 capture, BirdNET behavior and audio test data",
+  [27,67,68,69,71,75,78,79,80,81,82]),
+ ("pitfalls-testing-and-local-dev", "pytest layout, CLI mode coverage, and local/dev-machine traps",
+  [14,15,16,25,26,38,39,40,49,83]),
+ ("pitfalls-doc-surfaces", "documentation surfaces that must stay in sync with code",
+  [31,34,35,36,37]),
+ ("pitfalls-dev-workflow-and-access", "SSH/tmux session handling, MCP setup, and node network reach",
+  [0,43,51,57]),
+ ("pitfalls-secrets-and-notifications", "credential hygiene, cron safety, and Slack notification delivery",
+  [42,50,72]),
+]
+DROP = {48}

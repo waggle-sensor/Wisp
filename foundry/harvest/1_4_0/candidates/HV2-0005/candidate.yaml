@@ -1,0 +1,16 @@
+id: HV2-0005
+title: "Host PyPI torch D-state hang"
+action: modify_guidance
+placement: "skills/sage-waggle/references/thor-host-torch-hang.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T05]
+independence: 1
+students_in_evidence: [node-H021]
+episodes_n: 2
+is_correction: true
+baseline_conflict: |
+  Corrects v1's own thor-host-cpu-dev-first.md, shipped in 1.2.0, which prescribes CUDA_VISIBLE_DEVICES= before importing torch as the fix.
+claims:
+  - On a camp Thor (JetPack R38.2.1 / L4T 38.2.1), a generic PyPI aarch64 torch wheel (torch 2.13.0+cu130) imports fine but every CUDA entry point — torch.cuda.is_available(), .cuda(), even nvidia-smi on the host — HANGS FOREVER rather than returning False or raising; the misleading symptom is a series of tool timeouts that look like 'slow first import', and the fix is to stop probing on the host and do all GPU work inside nvcr.io/nvidia/pytorch:25.08-py3.

@@ -1,0 +1,40 @@
+{
+  "baseline": "hermes-profile 1.2.0 (origin/hermes-profile-1.2.0-foundry-uptake)",
+  "treatment": "hermes-profile 1.3.0 RELEASED tree (skills/sage-waggle on hermes-profile-1.3.0-release)",
+  "note": "Graded against the actual released tree, including the SKILL.md index edit - not the staged treatment copy.",
+  "control_fingerprint": "971479c99bb63355",
+  "runs": [
+    {
+      "k": 1,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "REGRESSION": 0,
+      "both_pass": 5
+    },
+    {
+      "k": 2,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "REGRESSION": 0,
+      "both_pass": 5
+    },
+    {
+      "k": 3,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "REGRESSION": 0,
+      "both_pass": 5
+    },
+    {
+      "k": 5,
+      "control_files": 112,
+      "treatment_files": 122,
+      "IMPROVED": 10,
+      "REGRESSION": 0,
+      "both_pass": 5
+    }
+  ]
+}

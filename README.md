@@ -1,194 +1,198 @@
- # Summer-Camp-2026
+# Wisp
 
-Welcome! This guide gets you set up for **Sage Grande: Summer of AI — Hack and Build AI@Edge**.
+Hermes **`sage` profile** for Sage hackathons, camps, and other Sage / Waggle events — edge computing on NVIDIA Jetson AGX Thor + Ollama. This repo *is* the profile distribution — clone it, then `hermes profile install .`.
 
-**Dates:** Monday, July 20 – Tuesday, July 28, 2026 \
-**Location:** UIC Electronic Visualization Laboratory (EVL), Chicago, IL \
-**Format:** In-person, hands-on lab sessions
+Setup guide: **[setup.md](setup.md)**. Token / context etiquette: **[token-economy.md](token-economy.md)**. Manifest: [`distribution.yaml`](distribution.yaml) (`name: sage`, **version 1.4.0**). Instructor scrape → mine → merge loop: **[foundry/README.md](foundry/README.md)** (`foundry/` is not part of the Hermes distribution or Graphify corpus).
 
-## Program Overview
+The profile and agent docs were split out of [`waggle-sensor/summer-camp-2026`](https://github.com/waggle-sensor/summer-camp-2026) so we can keep improving the agent. Camp agenda, sensors, and EdgeRunner stay there.
 
-This seven-day camp is a hands-on deep dive into building and deploying AI systems at the edge using the Sage platform. You'll work directly with real Sage nodes — moving past textbook concepts to build, test, and deploy working AI pipelines on live infrastructure.
+Install on your Thor following [setup.md — Step 3A](setup.md#step-3a--install-sage-profile-recommended). Use `hermes profile install` on new machines and `hermes profile update sage` to pull changes — not `export`/`import` or `hermes backup`.
 
-The week moves from platform fundamentals through AI model deployment, data integration, sensor expansion, and autonomous agent design. By the end, you'll have shipped real code to real nodes, including new sensors, new AI models, and new automated workflows. Bring your own research ideas, sensors, and questions — you're encouraged to take an active role in expanding the Sage platform throughout the week.
+## What's inside
 
-## Prerequisite Skills
+```text
+Wisp/
+├── distribution.yaml    # manifest (name: sage, version 1.4.0)
+├── SOUL.md              # agent personality + Graphify-first discovery rules
+├── AGENTS.md            # always-on: query graphify-out/ before grepping skills
+├── config.yaml          # Ollama default + NRP provider pre-wired (minimax-m2)
+├── mcp.json             # Sage + Milvus SDK helper enabled; GitHub + Hugging Face MCP listed (disabled until tokens)
+├── graphify-baseline.tar.gz  # Prebuilt graph — unpack if present (skips multi-hour extract)
+├── setup.md             # Thor install, providers, Graphify, brain export
+├── token-economy.md     # context, cost, Thor Ollama etiquette
+├── skills/graphify/     # Required Graphify skill (/graphify <profile>)
+├── skills/sage-waggle/  # Sage/Waggle skill + doc indexes (Sage, Thor, DuckDB, …)
+├── skills/hf-*/         # Vendored Hugging Face skills (hf-cli, Gradio, Spaces, …)
+├── skills/huggingface-*/# More HF workflow skills
+├── skills/jetson-*/     # Vendored NVIDIA skills (Jetson Thor device/BSP, …) + TAO/DeepStream/cuOpt/…
+├── skills/_vendor/      # Upstream LICENSE + SOURCE pins (HF + NVIDIA + Graphify)
+├── docs/                # pywaggle2 design docs + project status
+├── scripts/             # Graphify baseline rebuild + sanitize
+├── foundry/             # instructor harvest/mine loop (not installed, not graphed)
+├── .graphifyignore      # Exclude evals/fixtures from the graph
+└── README.md
+```
 
-To get the most out of the week, come prepared with:
+| Shipped (distribution-owned) | Never shipped (user-owned) |
+| --- | --- |
+| SOUL.md, AGENTS.md, config.yaml, skills/, docs/, mcp.json, graphify-baseline.tar.gz | `memories/`, `sessions/`, `auth.json`, `.env`, `.venv-graphify/`, `graphify-out/` |
+| Updated via `hermes profile update sage` | Preserved across updates; refresh graph via `/graphify … --update` after skill/doc changes |
 
-- General comfort with SSH and basic Linux command-line tools (navigating the filesystem, managing files, checking processes, etc.)
-- Some hands-on experience running AI models locally (tools like Ollama or LM Studio are good starting points, but anything similar works)
-- Working familiarity with Python, including writing simple scripts, using virtual environments, and installing packages
-- Basic familiarity with containers (Docker or similar) is helpful but not required
+## Prerequisites
 
-Bring a laptop set up for local Python development — some exercises require running models and tools on your own machine in addition to the provided nodes.
+- Hermes Agent installed on your Thor ([Part 1, Step 2](setup.md#step-2--install-hermes-cli)) — choose **Blank Slate**
+- Ollama running on the Thor with at least one model (e.g. `gemma4:31b`) — also required to **build** the Graphify skills/docs graph
+- Your own Linux account on the assigned Thor blade
+- **Graphify** — required after profile install. Create/use **`.venv-graphify`** and `graphify-out/` under **`~/.hermes/profiles/sage`** (not the git clone). Unpack **`graphify-baseline.tar.gz`** if present, otherwise `/graphify ~/.hermes/profiles/sage`. Ongoing → skill **`graphify`**. Guide: `skills/sage-waggle/references/graphify-guide.md`
 
-## Daily Schedule
+### Thor tips
 
-| Time | Activity |
-|---|---|
-| 8:00 AM – 9:15 AM | Open hacking / independent work |
-| 9:15 AM - 9:30 AM | In seats, Q&A |
-| 9:30 AM – 12:30 PM | Morning session (3 hrs) |
-| 12:30 PM – 1:30 PM | Lunch (on your own) |
-| 1:30 PM – 4:30 PM | Afternoon session (3 hrs) |
-| 4:30 PM – 6:00 PM | Open hacking / independent work |
-| Evening | Dinner on your own; team hacking; optional after-hours activities |
+- **First response slow?** Default `gemma4:31b` uses the full Ollama context (~262K) — first turn can take 3+ minutes. See [Step 4B — Cap Ollama context](setup.md#step-4b--cap-ollama-context-recommended).
+- **Terminal backend is `local` by design** on Thors — avoids Docker/Podman sandbox exit 125 (`catatonit` not installed). See [Troubleshooting (Thor)](setup.md#troubleshooting-thor).
+- **Build plugins with `sudo pluginctl build`** for on-node development — not raw `podman build` for first tests. See [pluginctl workflow](setup.md#first-plugin-build-on-thor--use-pluginctl).
 
-## Agenda
+## Install
 
-- **Sun, Jul 19 — Check-in:** Informal welcome dinner.
-- **Mon, Jul 20 — Sage Foundations & System Software:** Tour of the Sage stack (node architecture, Kubernetes orchestration, the `pluginctl` scheduler, data pipeline). Set up your dev environment, submit AI prompts to Sage nodes, and run a job against an existing inference service.
-- **Tue AM, Jul 21 — Finalize Setup:** Configure your AI development toolchain (Cursor, Claude Code, MCP servers for Sage APIs) and complete the foundational Sage skill checkpoints. Start drafting your project plan.
-- **Tue PM, Jul 21 — AI+Sage (Part 1):** Survey of models deployed across the fleet — BioClip2, YOLO variants, flood detection, cloud motion vectors, wildfire/smoke detection.
-- **Wed, Jul 22 — AI+Sage (Parts 2 & 3):** Test model performance on real datasets, identify failure modes, adapt new models from Hugging Face, apply quantization for edge deployment, and submit models to the Edge Code Repository (ECR).
-- **Thu AM, Jul 23 — AI+Sage (Part 4):** Wrap up AI exploration; advance your project with an AI coding agent.
-- **Thu PM, Jul 23 — NRP/NDP and NSF Resources:** Connect Sage data and compute to NSF cyberinfrastructure (NDP, NRP, TACC, SDSC, NCSA) — querying Beehive data, integrating with NEON/NOAA/satellite data, publishing with DOIs/FAIR principles, and using the Pelican data federation.
-- **Fri, Jul 24 — Sensors, Hardware & Physical Integration:** Hands-on sensor integration (infrasound, seismic, hyperspectral, HaLow cameras, LoRaWAN, actuators/robotics). Bring your own hardware. Goal: deploy at least one new sensor to a nearby node.
-- **Sat, Jul 25 — Community Day:** Chicago River architecture tour, pizza, networking, and team hacking.
-- **Sun, Jul 26 — Free Day:** Self-directed project work or rest.
-- **Mon AM, Jul 27 — The Future:** AI agents and autonomous systems on Sage; finalize project plans.
-- **Mon PM, Jul 27 — Hack Time:** Project work.
-- **Tue AM, Jul 28 — Development, Testing & Prep**
-- **Tue PM, Jul 28 — Project Presentations & Demos:** Show off your project, then dinner and farewell.
+```bash
+git clone https://github.com/waggle-sensor/Wisp.git
+cd Wisp
+hermes profile install . --name sage --alias
+hermes profile use sage
 
-## Baseline Deliverables
+# --alias installs the wrapper at ~/.local/bin/sage, which is not on PATH on
+# every host (e.g. root on the Thor node images). If `sage` is not found:
+#   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && . ~/.bashrc
+# `hermes -p sage ...` always works without the wrapper.
+cp ~/.hermes/profiles/sage/.env.EXAMPLE ~/.hermes/profiles/sage/.env
 
-By the end of the week, every participant should have:
+# Required — Graphify (venv + optional baseline tarball; then skill graphify)
+cd ~/.hermes/profiles/sage
+if [ ! -x .venv-graphify/bin/python ]; then
+  python3 -m venv .venv-graphify
+  .venv-graphify/bin/pip install -U pip
+  .venv-graphify/bin/pip install -U 'graphifyy[ollama]'
+fi
+if [ ! -f graphify-out/graph.json ] && [ -f graphify-baseline.tar.gz ]; then
+  tar -xzf graphify-baseline.tar.gz
+fi
+# Required: pin the scan root to an ABSOLUTE path. The tarball cannot carry one
+# (it would be the packager's path), and without this marker `graphify update`
+# falls back to the CWD and walks your entire home directory.
+printf '%s\n' "$HOME/.hermes/profiles/sage" > graphify-out/.graphify_root
+test -f graphify-out/graph.json && echo "graph ok"
+# If still missing: in Hermes run  /graphify ~/.hermes/profiles/sage
+# After skill/doc changes:         /graphify ~/.hermes/profiles/sage --update
+hermes profile info sage
+hermes doctor
+```
 
-- Written up their Challenge Problem
-- Maintained a classroom-notes.md file that can be processed by AI
-- Created a five-minute presentation for July 27/28
-- Created a project.md overview of your work for the Sage website
-- Created an ECR app (if applicable)
-- Created a poster of your work
-- A simple review of the course.. The good, the bad, the exciting
-- Contributed your Hermes agent brain — contributed your knowledge to [`hermes-profile/`](hermes-profile/) so the shared Sage agent can be updated for future users ([details](hermes-agent.md#end-of-camp--contribute-your-brain-required))
+Launch with `sage` or `hermes -p sage`. The agent follows `AGENTS.md`: **query Graphify before grepping skills**.
+
+### Optional env vars
+
+| Variable | When needed |
+| --- | --- |
+| `NVIDIA_API_KEY` | Part 2 — NVIDIA Build inference ([setup.md](setup.md#part-2-nvidia-hosted-apis)) |
+| `NRP_LLM_API_KEY` | Part 2B — NRP Managed LLMs (`minimax-m2`) ([setup.md](setup.md#part-2b-nrp-managed-llms)) |
+| `SAGE_PORTAL_TOKEN` | Sage MCP job-submission tools only — read-only MCP works without it |
+| `GITHUB_MCP_PAT` / `GITHUB_PERSONAL_ACCESS_TOKEN` | Optional GitHub MCP (`https://api.githubcopilot.com/mcp/`) — see `skills/sage-waggle/references/github-mcp-server.md` |
+| `HF_TOKEN` / `HUGGINGFACE_HUB_TOKEN` | Optional Hugging Face MCP (`https://huggingface.co/mcp`) — see `skills/sage-waggle/references/huggingface-mcp-server.md` |
+
+## Sage access setup
+
+The skill knows *how* Sage works, but you need your own access to touch nodes and data:
+
+1. **Sage portal account** — sign in at <https://portal.sagecontinuum.org> (Globus / institutional login).
+2. **Portal access token** (for protected data downloads) — generate at <https://portal.sagecontinuum.org/account/access>. Keep in a file you control (e.g. `~/.sage/token.txt`) — never commit it.
+3. **Node SSH access** — granted per-node by event staff; ask for the exact `ssh` route and credentials.
+4. **Sage MCP** — pre-wired in `mcp.json`. Read-only tools need no token. For job-submission tools, set `SAGE_PORTAL_TOKEN` in your profile `.env` with Bearer header configured post-install.
+5. **GitHub MCP** (optional) — endpoint `https://api.githubcopilot.com/mcp/` ([registry](https://github.com/mcp/github/github-mcp-server)). In `mcp.json` as `github` with `enabled: false` until you add a PAT via `hermes mcp add` — details in `skills/sage-waggle/references/github-mcp-server.md`.
+6. **Hugging Face MCP** (optional) — endpoint `https://huggingface.co/mcp` ([docs](https://huggingface.co/docs/hub/en/agents-mcp)). In `mcp.json` as `huggingface` with `enabled: false` until you add an HF token; configure tools at [settings/mcp](https://huggingface.co/settings/mcp) — details in `skills/sage-waggle/references/huggingface-mcp-server.md`.
+7. **Hugging Face skills** — vendored from [huggingface/skills](https://github.com/huggingface/skills) into `skills/` (`hf-cli`, `huggingface-*`, `trl-training`, …). Start with `/skill hf-cli`. Full list: `skills/sage-waggle/references/huggingface-skills-index.md`.
+8. **NVIDIA skills** — vendored from [NVIDIA/skills](https://github.com/NVIDIA/skills) (~230 skills: Jetson, DeepStream, TAO, cuOpt, NeMo, …). Discover via Graphify; Thor often uses `jetson-*`. Catalog: `skills/sage-waggle/references/nvidia-skills-index.md`. Docs: [docs.nvidia.com/skills](https://docs.nvidia.com/skills). Also `/skill nvidia-skill-finder`.
+9. **Graphify (required)** — knowledge graph over `skills/` + `docs/` on the **installed** profile `~/.hermes/profiles/sage/` (not under the Wisp git clone). Bundled skill `skills/graphify/` + `AGENTS.md`. Ships `graphify-baseline.tar.gz`; create/use `.venv-graphify`, unpack the tarball if present, else `/graphify ~/.hermes/profiles/sage`. Ongoing → `/graphify ~/.hermes/profiles/sage --update`. Guide: `skills/sage-waggle/references/graphify-guide.md`. Upstream: [Graphify-Labs/graphify](https://github.com/Graphify-Labs/graphify).
+10. **Milvus SDK Code Helper** — `https://sdk.milvus.io/mcp/` ([docs](https://milvus.io/docs/milvus-sdk-helper-mcp.md)), pre-enabled as `sdk-code-helper`. Default runtime: **[Milvus Lite](https://milvus.io/docs/milvus_lite.md)** (local `.db`), not a full Milvus server. See `skills/sage-waggle/references/milvus-sdk-helper-mcp.md`.
+
+See `skills/sage-waggle/references/mcp-tools.md` (Sage), `github-mcp-server.md` (GitHub), `huggingface-mcp-server.md` + `huggingface-skills-index.md` (Hugging Face), `nvidia-skills-index.md` (NVIDIA), `graphify-guide.md` (Graphify), and `milvus-sdk-helper-mcp.md` (Milvus).
+
+## Verify (smoke test)
+
+```bash
+test -f ~/.hermes/profiles/sage/graphify-out/graph.json && echo "graph ok"
+hermes skills list | grep -E 'graphify|sage-waggle|hf-cli|jetson-'
+hermes mcp list                              # 'sage' should show connected
+sage                                         # or: hermes -p sage
+```
+
+Ask: **"Using the graphify graph, which skill and references cover the Sage ECR /proc/acpi build failure and the workaround?"**
+
+The agent should `graphify query` (or read `GRAPH_REPORT.md`), then land on **`sage-waggle`** / ECR refs — not invent answers by grepping randomly. If the graph is missing, unpack `graphify-baseline.tar.gz` under `~/.hermes/profiles/sage` or run `/graphify ~/.hermes/profiles/sage`. If the graph exists and skills/docs changed, use `/graphify ~/.hermes/profiles/sage --update`.
+
+## Your first task (guided walkthrough)
+
+Run these as prompts inside `hermes -p sage` (with the sage-waggle skill active):
+
+1. **Orient.** *"Give me a 5-bullet overview of what a Sage/Waggle plugin is and the lifecycle from code to running on a node."*
+2. **Explore live data (needs Sage MCP).** *"List a few available Sage nodes and show the latest temperature readings from one of them."*
+3. **Read a real design.** *"Summarize `docs/pywaggle2-design.md` — specifically how a plugin should get its node's VSN and GPS location."*
+4. **Build something small.** *"Help me scaffold a minimal plugin that captures one camera snapshot and prints its size — using placeholder camera credentials I'll fill in from event staff."*
+5. **Learn the pitfalls.** *"What are the top 5 mistakes people make deploying Sage plugins, from the sage-waggle skill?"*
+
+## Use the skill
+
+```bash
+hermes -p sage -s sage-waggle
+# or, inside a running session:
+/skill sage-waggle
+```
+
+## Design docs
+
+`docs/` are plain Markdown for context:
+
+- `pywaggle2-design.md` — node identity, GPS resolution, camera acquisition
+- `local-cache-design.md` — shared `/local-cache` design
+- `project-status.txt` — current project status
+- `Infra-problems-to-fix.md` — running infra issues list
+
+## Contribute your brain
+
+Contribute what you learned back to this distribution so the shared Sage agent improves for everyone. See **[setup.md — End of event](setup.md#end-of-event--contribute-your-brain)** for the full checklist.
+
+## Updates
+
+```bash
+hermes profile update sage
+cd ~/.hermes/profiles/sage
+# After skill/doc updates with an existing graph:
+# /graphify ~/.hermes/profiles/sage --update
+# Start-from-scratch (rare): /graphify ~/.hermes/profiles/sage
+# Instructor: refresh shipped baseline after rebuilding on the installed profile,
+# then copy graphify-out/ into the distribution checkout before packing:
+# tar -czf graphify-baseline.tar.gz graphify-out
+```
+
+Replaces distribution-owned files (SOUL, AGENTS, skills, mcp.json, docs). **Preserves** your `config.yaml` tweaks and all user data (memories, sessions, `.env`). Pass `--force-config` only to reset config to the distribution default. Refresh the **installed** profile graph with `/graphify ~/.hermes/profiles/sage --update` after updates (not the git clone).
+
+## Author / versioning
+
+- Manifest: `distribution.yaml` (`name: sage`, `version: 1.4.0`)
+- Tag releases in git (`git tag v1.4.0`) for version tracking
+- See the [Profile Distributions author guide](https://hermes-agent.nousresearch.com/docs/user-guide/profile-distributions#for-authors-publishing-a-distribution)
+
+### Thor fleet prep (optional)
+
+| Action | Why |
+| --- | --- |
+| Pre-create `gemma4-64k` on each Thor | Participants skip [Step 4B](setup.md#step-4b--cap-ollama-context-recommended) |
+| Ship `graphify-baseline.tar.gz` (participants unpack + create `.venv-graphify`) | Warm graph in seconds (no multi-hour extract) |
+| `apt install catatonit` | Enables Hermes Docker sandbox later |
+| Pre-pull `docker.io/nikolaik/python-nodejs:python3.11-nodejs20` | Podman short-name fix |
+
+### Reserved profile names
+
+Do not use: `hermes`, `test`, `tmp`, `root`, `sudo`
 
 ---
 
-## Creating a Sage Account
-
-1. Go to [sagecontinuum.org](https://sagecontinuum.org/) and click **Portal** in the top-right corner.
-
-   <img width="1435" height="524" alt="Screenshot 2026-06-18 at 2 20 48 PM" src="https://github.com/user-attachments/assets/80f2d165-67bb-4158-b6f5-1be574e35f7f" />
-
-2. You'll land on the Sage node status page. Click **Sign In** in the top-right corner, then create an account using your school credentials and fill out the remaining account details.
-
-   <img width="1267" height="550" alt="Screenshot 2026-06-18 at 2 25 18 PM" src="https://github.com/user-attachments/assets/f4c8daab-fd94-4dce-a903-dbf97e8e050c" />
-
-   Once your account is created, you'll be redirected to the Node Status page.
-
-   <img width="1436" height="728" alt="Screenshot 2026-06-18 at 2 33 22 PM" src="https://github.com/user-attachments/assets/990d817e-b9b1-4190-8218-8c6987ec2435" />
-
-3. Before you can access any nodes, you'll need to request access to the relevant devices:
-   - Click your profile dropdown and select **Request Access**.
-   - Choose **Request access to specific nodes or projects**.
-
-   - On Step 2 of the Sage Access Request form, open the **Projects** dropdown and search for **Summer-Camp-2026** and select all of the following permissions. This will covers all the devices you'll need for the hackathon.
-
-   <img width="1177" height="539" alt="image" src="https://github.com/user-attachments/assets/17ecda17-ce7f-4b76-889a-475d7b1593bf" />
-
-   - Fill in Section 3 **Project Information** based on your own and your PI's knowledge of the project.
-
-4. Submit the request and allow up to 48 hours for it to be processed. Once approved, you'll be able to view your nodes under **My Nodes → My Nodes**.
-
-   <img width="1433" height="733" alt="Screenshot 2026-06-18 at 2 53 31 PM" src="https://github.com/user-attachments/assets/804884f7-1c5f-44e0-9b3b-c6feac3c87d2" />
-
-   You can now move on to **Sage Access Credentials** below.
-
----
-
-## Sage Access Credentials
-
-> You'll need a Sage account with approved node access (from the steps above) before starting this section. This walks you through generating SSH credentials so you can connect directly to nodes.
-
-1. Go to your profile dropdown and click **Access Credentials**. Follow the prompts to generate an SSH key pair on your machine and upload the public key.
-
-   <img width="1423" height="626" alt="Screenshot 2026-06-18 at 3 07 06 PM" src="https://github.com/user-attachments/assets/3e8a4f5f-85b8-4b01-aea2-088b9808cbdf" />
-
-2. Once that's complete, follow the steps under **Finish Setup for Node Access**.
-
-   <img width="1425" height="720" alt="Screenshot 2026-06-18 at 3 13 39 PM" src="https://github.com/user-attachments/assets/121013f6-1dd5-4525-b044-3f5146dba23d" />
-
-3. Once your account is approved, you'll be ready to SSH into a node:
-
-   ```
-   ssh waggle-dev-node-NODE_OF_CHOICE
-   ```
-
----
-
-## Setting up your Agent
-
-To set up your personal agent, follow the instructions in the [Hermes Agent Setup Guide](hermes-agent.md).
-
----
-
-## Sage Remote Sensors
-
-A total of 4 devices act as remote sensors that are connected to Sage nodes via WireGuard.
-
-## UIC / Sage Blades
-
-| Device Name | Location | Sensors |
-|---|---|---|
-| ANLT1 / H00F | Lemont | TBD |
-| H02A | Sage Blade Room | TBD |
-| H02C | Sage Blade Room | TBD |
-| H02D | Sage Blade Room | TBD |
-| H02E | Lemont | TBD |
-| H02F | Lemont | TBD |
-| H030 | Lemont | TBD |
-| H031 | Lemont | TBD |
-| H032 | Lemont | TBD |
-| H033 | Lemont | TBD |
-| H034 | Lemont | TBD |
-| H035 | Sage Blade Room | TBD |
-| H037 | Lemont | TBD |
-| H038 | Sage Blade Room | TBD |
-| H039 | UIC Blade Room | TBD |
-| H03A | Sage Blade Room | TBD |
-| H03B | Sage Blade Room | TBD |
-| H03C | Sage Blade Room | TBD |
-| H03D | Sage Blade Room | TBD |
-| H03E | Sage Blade Room | TBD |
-| H03F | Sage Blade Room | TBD |
-| H040 | Sage Blade Room | TBD |
-| H041 | UIC Blade Room | TBD |
-| H042 | Sage Blade Room | TBD |
-| H043 | UIC Blade Room | TBD |
-| UIC01 / H014 | UIC Blade Room | TBD |
-| UIC02 / H01D | UIC Blade Room | TBD |
-| UIC03 / H01E | UIC Blade Room | TBD |
-| UIC04 / H01F | UIC Blade Room | TBD |
-| UIC05 / H020 | UIC Blade Room | TBD |
-| UIC06 / H021 | UIC Blade Room | TBD |
-| UIC07 / H022 | UIC Blade Room | TBD |
-| UIC08 / H023 | UIC Blade Room | TBD |
-| UICTT / H00B | Sage Blade Room | TBD |
-
-
-
-
-*(Access instructions TBD — likely handled through Sage.)*
-
-## Tools / Devices
-
-#### EdgeRunner
-[Edgerunner](EdgeRunner-Setup.md)
-
-#### Industrial Raspberry Pi Setup 
-[RPi set up](RPi-and-Sensors-Setup.md)
-
-#### RPi Weather Station
-[Weather station set up](RPi-and-Sensors-Setup.md)
-
-#### RPi USB Sensor
-[RPi USB sensors set up](RPi-and-Sensors-Setup.md)
-
-#### WireGuard Remote Cameras
-[camera + WireGaurd Setup Guide](RPi-and-Sensors-Setup.md)
-
-#### 3D Printing
-Fan / air circulation.
+*Everything here is knowledge, not secrets. Bring your own keys, node access, and credentials.*

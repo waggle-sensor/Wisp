@@ -1,0 +1,97 @@
+# Graphify ignore — CURATED overview (agent-knowledge-graph.html).
+# Same syntax as .gitignore. Merged with .gitignore — this only excludes more.
+# Upstream: https://github.com/Graphify-Labs/graphify
+#
+# Scope: skill cards / SKILL.md + camp docs. Deep references/ and skill
+# implementation trees are excluded (they explode node/community count).
+# Select with: ./scripts/update_hermes_profile_graphify.sh --scope curated
+# Sibling: .graphifyignore.full for whole-codebase graphs.
+
+# Generated graph artifacts (rebuild with `graphify extract`)
+graphify-out/
+**/graphify-out/
+agent-knowledge-graph.html
+graphify-baseline.tar.gz
+
+# Vendor license blobs (not useful as graph nodes)
+skills/_vendor/**
+
+# Eval / fixture / implementation trees (AST community noise)
+**/evals/**
+**/eval/**
+**/scripts/**
+**/validators/**
+**/fixtures/**
+**/tests/**
+**/test/**
+**/examples/**
+**/schemas/**
+**/templates/**
+**/assets/**
+**/prompts/**
+**/references/**
+**/__pycache__/**
+**/*.pyc
+**/.pytest_cache/**
+**/.claude-plugin/**
+
+# Code / config under skills — keep SKILL.md / skill-card.md / camp docs instead
+skills/**/*.py
+skills/**/*.sh
+skills/**/*.ts
+skills/**/*.js
+skills/**/*.jsx
+skills/**/*.tsx
+skills/**/*.go
+skills/**/*.java
+skills/**/*.cu
+skills/**/*.cpp
+skills/**/*.c
+skills/**/*.h
+skills/**/*.hpp
+skills/**/*.yaml
+skills/**/*.yml
+skills/**/*.json
+skills/**/*.toml
+skills/**/*.xml
+skills/**/*.onnx
+skills/**/*.pt
+skills/**/*.engine
+
+# Large / low-signal media
+**/*.mp4
+**/*.mkv
+**/*.wav
+**/*.flac
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.webp
+
+# Non-skill/doc noise from profile root / agent home
+home/
+pastes/
+*.lock
+*.db
+*.db-shm
+*.db-wal
+*.sig
+*.tar.gz
+cron/
+logs/
+sessions/
+
+# Repo-only (not shipped into the agent corpus)
+scripts/
+setup.md
+token-economy.md
+README.md
+foundry/
+
+# Hermes files
+.skills_prompt_snapshot.json
+
+# macOS system files
+._*
+.DS_Store

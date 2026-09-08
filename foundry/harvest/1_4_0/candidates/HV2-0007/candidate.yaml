@@ -1,0 +1,16 @@
+id: HV2-0007
+title: "snapshot.data is RGB not BGR"
+action: modify_guidance
+placement: "skills/sage-waggle/references/pywaggle-snapshot-channel-order.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T07]
+independence: 1
+students_in_evidence: [node-H035]
+episodes_n: 1
+is_correction: true
+baseline_conflict: |
+  reolink-http-snapshot.md:54 states 'Returns BGR numpy array, same format as Camera.snapshot().data'.
+claims:
+  - pywaggle's `Camera` defaults to `format=RGB` and `ImageSample.__init__` applies `cv2.cvtColor(data, COLOR_BGR2RGB)` on construction, so `snapshot.data[...,0]` is RED — a plugin that reasons about `snapshot.data` as if it were raw cv2 BGR publishes silently swapped R/B channels.

@@ -1,0 +1,16 @@
+id: HV2-0006
+title: "conda-forge/pixi torch has no sm_110"
+action: modify_guidance
+placement: "skills/sage-waggle/references/thor-conda-forge-no-sm110.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T06]
+independence: 1
+students_in_evidence: [node-H035]
+episodes_n: 3
+is_correction: true
+baseline_conflict: |
+  docker-build-deploy.md covers sm_110 for container tags only, never host-side envs. 'pixi' appears nowhere in the baseline.
+claims:
+  - conda-forge publishes no sm_110 PyTorch for linux-aarch64 (only cuda129 builds; the pytorch and nvidia channels have no aarch64 pytorch at all), so a pixi/conda env on a Thor reports torch.cuda.is_available()=True and then dies at the FIRST kernel launch with 'CUDA error: no kernel image is available for execution on the device' — a GPU-capability mismatch masquerading as a model/ultralytics bug; there is no conda pin that fixes it, the only path is the CUDA-13 container base.

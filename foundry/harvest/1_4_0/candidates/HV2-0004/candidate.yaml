@@ -1,0 +1,16 @@
+id: HV2-0004
+title: "Podman/CDI GPU passthrough"
+action: modify_guidance
+placement: "skills/sage-waggle/references/podman-cdi-gpu-passthrough.md"
+status: proposed
+source_pass: foundry-v2
+baseline: sage 1.2.0
+themes: [T04]
+independence: 2
+students_in_evidence: [node-H035, node-H021]
+episodes_n: 2
+is_correction: true
+baseline_conflict: |
+  SKILL.md:660 says 'Always use --runtime=nvidia'; docker-build-deploy.md:73 has a section titled 'Docker Runtime: --runtime=nvidia (Not --gpus all)'.
+claims:
+  - On camp Thor blades the working docker/podman GPU flag is CDI `--device=nvidia.com/gpu=all`, not `--gpus all` and not `--runtime=nvidia` — `--runtime=nvidia` needs nvidia-container-runtime registered in /etc/docker/daemon.json (root-only, which camp accounts lack), so the baseline's `--runtime=nvidia (Not --gpus all)` guidance is stale for these nodes.

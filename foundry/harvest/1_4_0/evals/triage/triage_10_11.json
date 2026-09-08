@@ -1,0 +1,263 @@
+{
+  "batches": [
+    "batch_10",
+    "batch_11"
+  ],
+  "episodes_reviewed": 51,
+  "notes": "Both batch files read in full (28 + 23 digest entries). baseline_map.md read in full (444 lines / ~91k chars). episode_id values are kept verbatim wherever they appear (the `episode_id` field, `full_reads`, and cross-references inside `why_novel`/`note` prose) because they are the corpus join key and cannot be redacted without breaking traceability; every OTHER identifier — usernames, /home/<name>/ paths, node hostnames, registry namespaces — is redacted inside claims, quotes and prose.",
+  "full_reads": [
+    "node-H01D-20260723_214340_43c816-00",
+    "node-H01D-20260724_171939_66adc2-01",
+    "node-H01D-20260731_131542_56836c-03",
+    "node-H01D-20260731_141812_8a0226-03",
+    "node-H02F-20260721_142910_732265-01",
+    "node-H02F-20260721_184622_d33d04-00",
+    "node-H035-20260721_015837_deb440-00",
+    "node-H035-20260721_202140_e3f58b-01",
+    "node-H035-20260723_142740_b07b9d-01",
+    "node-H035-20260723_142740_b07b9d-02",
+    "node-H035-20260723_142740_b07b9d-15",
+    "node-H035-20260724_011258_f7a2ab-10",
+    "node-H034-20260727_172728_3dee45-05",
+    "node-H021-20260723_004314_437672-04",
+    "node-H021-20260723_004314_437672-12",
+    "node-H021-20260723_004314_437672-14",
+    "node-H021-20260723_140703_556fcc-00",
+    "node-H021-20260723_152058_d572ea-01",
+    "node-H021-20260724_153151_f3cf31-08",
+    "node-H021-20260725_162553_193a20-04",
+    "node-H021-20260725_162553_193a20-09",
+    "node-H021-20260727_142358_6b4b35-06",
+    "node-H032-20260721_145114_cfcfa0-00",
+    "node-H032-20260723_145518_ce24dc-05",
+    "node-H03F-20260726_201000_c89bbc-04",
+    "node-H03F-20260726_220648_568b47-00",
+    "node-H03F-20260726_222637_af4966-00",
+    "node-H03F-20260726_224608_16175e-00",
+    "node-H03F-20260727_003225_269cc7-01",
+    "node-H03F-20260727_003225_269cc7-02",
+    "node-H03F-20260728_174946_2fc5f6-00",
+    "node-H01E-20260719_014249_d4954d-02",
+    "node-H01E-20260719_014249_d4954d-03"
+  ],
+  "hits": [
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-15",
+      "student": "<student> / <node> (Thor)",
+      "claim": "On a Thor node, PyTorch installed into a HOST environment (pixi/conda-forge `linux-aarch64 + cuda129`, or a PyPI venv wheel) reports `torch.cuda.is_available()==True` but dies at the FIRST kernel launch with `no kernel image is available for execution on the device` (PyPI builds instead hang forever on the first CUDA call) — cause is that no host-installable aarch64 PyTorch build ships sm_110/Blackwell kernels; the only fix is to run inside an NVIDIA container (`nvcr.io/nvidia/pytorch:25.08-py3`), not to edit pixi.toml or pin a different CUDA.",
+      "kind": "failure_class",
+      "evidence_quote": "the PyTorch wheel conda-forge shipped for `linux-aarch64 + cuda129` was compiled without `sm_110` kernels (Blackwell), so the first kernel launch on this Thor's GPU fails with `no kernel image is available for execution on the device`",
+      "why_novel": "`sage-waggle/references/docker-build-deploy.md` states Thor is sm_110 and gives a base-image table, and `ml-plugin-patterns.md` recommends the nvcr base — but neither names the HOST-environment failure mode, and neither warns that the symptom is deferred (import and `cuda.is_available()` both succeed, so students conclude the GPU works and hunt in their own code). The pixi/conda-forge variant and the PyPI-hang variant are both absent. Corroborated in this batch by node-H021-20260723_004314_437672-04 ('the host venv torch (2.13.0+cu130 from PyPI) will never give us GPU — it lacks Blackwell sm_110 kernels. That CUDA-call hang you saw is permanent') and by node-H02F-20260721_142910_732265-01, where a plain `pip install ultralytics` on the node pulls exactly that torch 2.13.0 + cu13 aarch64 stack.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H03F-20260727_003225_269cc7-01",
+      "student": "<student> / <node> (Thor)",
+      "claim": "On a camp Thor node the k3s cluster does not advertise `nvidia.com/gpu` capacity (no NVIDIA device-plugin DaemonSet), so a `pluginctl run` WITHOUT `--resource nvidia.com/gpu=1` starts and silently runs CPU-only (`torch.cuda.is_available()=False`) while the SAME container gets a working GPU under `podman run --device=nvidia.com/gpu=0`, and WITH the flag the pod stays `Pending` forever — the discriminating check is `kubectl describe node | grep nvidia` plus `kubectl get pods -n kube-system | grep nvidia`, and no plugin-side manifest, label or annotation can fix it.",
+      "kind": "failure_class",
+      "evidence_quote": "The Thor node has working NVIDIA GPU access through Podman (--device=nvidia.com/gpu=0), but Kubernetes does not advertise nvidia.com/gpu capacity. kubectl describe node shows no NVIDIA resources and there is no NVIDIA device plugin pod.",
+      "why_novel": "The baseline treats GPU-on-node as a solved thing: `pluginctl-sideload-and-node-build.md` documents a GPU consumer being OOMKilled by pluginctl's default MEM limit, `producer-consumer-gpu-and-shared-mounts.md` and `scheduling-continuous-vs-oneshot-and-gpu-contention.md` reason about single-GPU CONTENTION (i.e. assume the GPU is schedulable), and `direct-node-testing.md` only covers `/dev/nvmap` permissions for direct-Python runs. Nothing in the map says the k3s GPU resource may not be advertised at all, or gives the two-sided symptom (runs-but-CPU vs Pending-forever) that distinguishes it from contention. Confidence is medium because the observation is per-node and may have been fixed later in camp; the two symptoms and the check are still the reusable part.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/producer-consumer-gpu-and-shared-mounts.md",
+        "sage-waggle/references/scheduling-continuous-vs-oneshot-and-gpu-contention.md",
+        "sage-waggle/references/direct-node-testing.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H021-20260723_004314_437672-04",
+      "student": "<student> / <node> (Thor)",
+      "claim": "On camp Thor nodes the NVIDIA container runtime is present as a binary but is NOT registered with the container engine, so `--runtime=nvidia` fails with `default OCI runtime nvidia not found` and `--gpus all` reports `NVIDIA Driver was not detected` with `cuda False`; registering it needs passwordless sudo that camp accounts lack, and the working syntax is the CDI form `--device nvidia.com/gpu=0` (or `=all`), which needs no daemon config.",
+      "kind": "correction",
+      "evidence_quote": "The container can't access the GPU. `--gpus all` gives a \"NVIDIA Driver was not detected\" warning and `cuda False`. `--runtime=nvidia` fails with \"default OCI runtime nvidia not found.\"",
+      "why_novel": "`sage-waggle/references/docker-build-deploy.md` has a section titled 'Docker Runtime: --runtime=nvidia (Not --gpus all)' plus 'NVIDIA Container Toolkit Setup (One-Time, Build Machine)' — that is exactly the advice that fails here, so the baseline is actively misleading for a camp student on a Thor blade without sudo. The CDI `--device nvidia.com/gpu=...` form is not mentioned anywhere in the map, yet three independent students in these batches used it successfully (node-H03F-20260727_003225_269cc7-01 and node-H01E-20260719_014249_d4954d-02 both run `--device nvidia.com/gpu=all|0` with working CUDA). Recommend CDI first, `--runtime=nvidia` as the build-machine-only fallback.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/direct-node-testing.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H01E-20260719_014249_d4954d-02",
+      "student": "<student> / <node> (Thor)",
+      "claim": "vLLM refuses to start on a Thor node with an 'Error in memory profiling / Initial free memory' assertion because Thor's UNIFIED memory makes free-memory drift (~230 MiB) between vLLM's before/after profiling snapshots; passing `--kv-cache-memory-bytes 4G` skips that before/after comparison entirely and lets startup complete (verified: Gemma-3-4b loaded in 8.61 GiB with a 4 GiB KV cache).",
+      "kind": "failure_class",
+      "evidence_quote": "The fixed-size cache has passed the exact assertion that previously killed startup: Gemma loaded in 8.61 GiB, vLLM reserved 4 GiB for KV cache, and reported capacity for roughly nine concurrent 4096-token requests.",
+      "why_novel": "The only mention of vLLM in the whole baseline map is one bullet in `ml-plugin-patterns.md` ('Pattern 2: Sidecar Server (vLLM)') and one line in `testing-patterns.md`. There is no vLLM-on-Thor operational content at all, and nothing anywhere in the map about unified memory breaking free-memory-delta profiling — which is a Thor/Jetson class property that will bite any memory-profiling tool, not just vLLM. `--gpu-memory-utilization 0.35` alone did NOT fix it in this episode; the kv-cache flag did.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md",
+        "sage-waggle/references/testing-patterns.md"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H01E-20260719_014249_d4954d-03",
+      "student": "<student> / <node> (Thor)",
+      "claim": "vLLM on a Thor `nvcr.io/nvidia/pytorch` base logs `No module named 'triton_kernels.matmul_ogs'` as a non-fatal ERROR, then selects the `TRITON_ATTN` attention backend anyway and HANGS silently right after the safetensors shards finish loading — so the failure looks like a slow model load, not a crash; `FLEX_ATTENTION` is the other advertised candidate and forcing it (`VLLM_ATTENTION_BACKEND=FLEX_ATTENTION`) is the one-env-var test to run before spending more cycles on memory/runner flags.",
+      "kind": "failure_class",
+      "evidence_quote": "ERROR 07-24 17:22:45 [config.py:29] Failed to import Triton kernels. Please make sure your triton version is compatible. Error: No module named 'triton_kernels.matmul_ogs'",
+      "why_novel": "Nothing in the baseline map covers attention-backend selection, Triton kernel availability on aarch64/sm_110, or the general trap of a library logging ERROR-then-continuing into a silent hang. `ml-plugin-patterns.md` names vLLM as a pattern but carries no failure modes. The transferable half is the diagnosis (the log line that names the two candidate backends is the clue, and the stall point is immediately after weight load); the FLEX_ATTENTION fix was recommended but NOT verified in this episode, hence medium confidence.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/nvidia-skills-index.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H01E-20260719_014249_d4954d-03",
+      "student": "<student> / <node> (Thor)",
+      "claim": "To install CUDA-13 aarch64 wheels (vllm, triton, xformers) on a Thor node you must add NVIDIA's index `https://pypi.jetson-ai-lab.io/sbsa/cu130` as `--extra-index-url` ALONGSIDE `https://pypi.org/simple`, never as `--index-url` — the jetson-ai-lab index carries no pure-Python packages (pip, setuptools, numpy, huggingface_hub), so a strict `--index-url` fails on common deps; conversely, pure-Python-on-top-of-torch stacks (transformers, accelerate, pillow, sentencepiece) need NO special index at all because they ride the base image's CUDA torch.",
+      "kind": "procedure",
+      "evidence_quote": "The jetson-ai-lab index is missing common packages (pip, setuptools, numpy, huggingface_hub, …) — the PyPI fallback index is required, not optional.",
+      "why_novel": "The baseline's Thor/aarch64 packaging advice is entirely about Docker BASE IMAGE choice (`docker-build-deploy.md`, `ml-plugin-patterns.md`, `ecr-arm64-thor-deployment.md`) and about weight baking. There is no pip-index guidance anywhere in the map, and `external-project-edge-porting-review.md` only warns that external projects pin linux-64/CUDA without saying what to use instead on aarch64. The second half of the claim (skip the exotic index entirely when the deps are pure Python) is the part that saves the most time and is likewise absent.",
+      "baseline_files_checked": [
+        "sage-waggle/references/docker-build-deploy.md",
+        "sage-waggle/references/ml-plugin-patterns.md",
+        "sage-waggle/references/ecr-arm64-thor-deployment.md",
+        "sage-waggle/references/external-project-edge-porting-review.md",
+        "sage-waggle/references/nvidia-jetson-thor-docs-index.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H01D-20260724_171939_66adc2-01",
+      "student": "<student> / <node> (Thor)",
+      "claim": "Sage exposes NO node-to-node primitive: plugin pods can only reach Beehive (never each other, and never a peer node — no gRPC/socket/shared filesystem across nodes), there is no live pod migration (cancel + resubmit is the only real surface), no job dependency graph, no preemption API, and no network-plane control; a camp portal token grants job submit/cancel on named VSNs and read of MCP/auth APIs, and nothing more — so any multi-node topology, chaos-injection or federation layer is client-side bookkeeping, not a Sage capability.",
+      "kind": "invariant",
+      "evidence_quote": "Any direct node-to-node channel (gRPC, TCP socket, shared filesystem). Sage plugins are isolated pods; they talk to Beehive, not to each other directly. Inter-node coordination goes up to the cloud and back down, not sideways.",
+      "why_novel": "`architecture-detail.md` describes the three-tier system and `wes-shared-filesystem-and-cache-architecture.md` / `producer-consumer-gpu-and-shared-mounts.md` establish cross-plugin sharing on the SAME node — which is exactly what invites the wrong generalisation to cross-node. No baseline file states the absences (no peer channel, no migration, no dependency graph, no preemption, no network-plane control), and `node-access-and-job-ownership.md` covers only the owner-gating of sesctl writes, not the shape of the whole token grant. This is a capability-boundary answer that terminates a class of multi-day dead ends for research-flavoured student projects.",
+      "baseline_files_checked": [
+        "sage-waggle/references/architecture-detail.md",
+        "sage-waggle/references/wes-shared-filesystem-and-cache-architecture.md",
+        "sage-waggle/references/producer-consumer-gpu-and-shared-mounts.md",
+        "sage-waggle/references/node-access-and-job-ownership.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/mcp-tools.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H021-20260725_162553_193a20-04",
+      "student": "<student> / <node> (Thor)",
+      "claim": "A `pluginctl run` that cycles `Plugin is in \"Pending\" state` → `Plugin is in \"\" state` → `Error: Failed to get plugin status pods \"<name>\" not found` is NOT a pluginctl or scheduler bug: it is an ImagePullBackOff (here, the node-local k3s registry's TLS cert) after which k8s garbage-collects the pod out from under pluginctl's status poll — the fix is to stop pulling and import the image straight into k3s containerd, then reference it by the name containerd stored (`localhost/<name>:<tag>`), not the registry path.",
+      "kind": "failure_class",
+      "evidence_quote": "That's the first failed `pluginctl run` attempt from earlier — the one that hit the ImagePullBackOff on the k3s registry TLS cert issue. It exited with code 1 because the pod was GC'd after the image pull failure.",
+      "why_novel": "`pluginctl-sideload-and-node-build.md` has the 'IMAGE-NAME TRAP: what containerd STORES the image as (ImagePullBackOff)' section and `plugin-deploy-pluginctl-vs-ses.md` notes 'H00F node-local registry often DOWN' — so the underlying cause and the containerd-import workaround ARE in the baseline. What is absent is the SYMPTOM SIGNATURE that misleads: pluginctl's own error text names a missing pod, which reads as a scheduling/naming problem and sends students to `kubectl get pods`/`--selector`/node-name debugging (visible across node-H03F-20260726_224608_16175e-00 and ...269cc7-01, where the same signature drove several turns of wrong-hypothesis work). Adding the signature→cause mapping to the existing section is the promotion.",
+      "baseline_files_checked": [
+        "sage-waggle/references/pluginctl-sideload-and-node-build.md",
+        "sage-waggle/references/plugin-deploy-pluginctl-vs-ses.md",
+        "sage-waggle/references/pluginctl-camp-guide.md",
+        "sage-waggle/references/on-node-verification-recipe.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H035-20260721_202140_e3f58b-01",
+      "student": "<student> / <node> (Thor)",
+      "claim": "Publishing a plugin version to ECR can fail with a boto/S3 `QuotaExceeded` on `PutObject` for `sage/ecr/<user>/<app>/<user>_<app>_<version>.tgz` — this is a registry-side per-user storage quota, not a build failure, not an auth failure and not the buildkit `/proc/acpi` bug, so no Dockerfile or token change fixes it; the unblock is to free old versions under that path (or escalate) and the bypass is the pluginctl side-load path, which never touches S3.",
+      "kind": "failure_class",
+      "evidence_quote": "Upload to S3 failed (Failed to upload /temp/ecr/<user>_liam-app_0.1.1.tgz to sage/ecr/<user>/liam-app/<user>_liam-app_0.1.1.tgz: An error occurred (QuotaExceeded) when calling the PutObject operation: None)  any idea why im getting this error?",
+      "why_novel": "The baseline catalogues ECR failure modes in detail — `ecr-build-proc-acpi-runc-bug.md` and `ecr-build-proc-acpi-failure.md` (RUN-step runc failure), `job-scheduling-and-liveness.md` ('Two ECR failure modes', QEMU arm64 crash and 'does not exist in ECR'), `sesctl-ecr-validation.md` (catalog validation) — and none of them is a storage-quota rejection at the upload stage, which happens BEFORE any of those. The only 'quota' in the map is `local-cache-ring-buffer.md`'s node-side /local-cache quota, an unrelated subsystem, so keyword-matching on 'quota' actively misroutes. Medium confidence: the QuotaExceeded response is verbatim from the student's terminal, but the per-user-allocation explanation was inferred by the agent, not confirmed against the registry.",
+      "baseline_files_checked": [
+        "sage-waggle/references/ecr-build-proc-acpi-runc-bug.md",
+        "sage-waggle/references/ecr-build-proc-acpi-failure.md",
+        "sage-waggle/references/ecr-catalog-api-and-thor-deploy.md",
+        "sage-waggle/references/sesctl-ecr-validation.md",
+        "sage-waggle/references/job-scheduling-and-liveness.md",
+        "sage-waggle/references/local-cache-ring-buffer.md"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "suggested_placement": "sage-waggle reference"
+    },
+    {
+      "episode_id": "node-H02F-20260721_184622_d33d04-00",
+      "student": "<student> / <node> (Thor)",
+      "claim": "A Hermes session using the NVIDIA-hosted provider (`https://integrate.api.nvidia.com/v1`, model `qwen/qwen3.5-397b-a17b`) hard-aborts with a non-retryable `HTTP 400: data did not match any variant of untagged enum ChatCompletionRequestToolMessageContent` as soon as a VISION tool result is fed back into the conversation — this is a provider-side tool-message schema mismatch, not a bug in the student's plugin or image, and the only recovery is to switch model/provider (the retry loop cannot help and says so).",
+      "kind": "failure_class",
+      "evidence_quote": "⚠️ API call failed (attempt 1/3): BadRequestError [HTTP 400] 🔌 Provider: nvidia Model: qwen/qwen3.5-397b-a17b 🌐 Endpoint: https://integrate.api.nvidia.com/v1 📝 Error: HTTP 400: data did not match any variant of untagged enum ChatCompletionRequestToolMessageContent",
+      "why_novel": "The baseline has no coverage of the agent's OWN model/provider layer at all — SOUL.md and AGENTS.md cover role, Graphify discovery and skill routing; `mcp-tools.md`, `github-mcp-server.md`, `huggingface-mcp-server.md` and `milvus-sdk-helper-mcp.md` cover MCP servers, not chat-completion providers. This is precisely the category a keyword-driven mining pass over Sage/Waggle terms cannot catch: the student's whole session dies and nothing in the profile tells the agent that a vision-tool loop on this provider/model pair is a dead end. Confidence medium: the error text and the non-retryable classification are verbatim, but the switch-provider remedy was recommended rather than demonstrated in-episode.",
+      "baseline_files_checked": [
+        "summer-camp-2026/hermes-profile/SOUL.md",
+        "summer-camp-2026/hermes-profile/AGENTS.md",
+        "sage-waggle/references/mcp-tools.md",
+        "sage-waggle/references/graphify-guide.md",
+        "sage-waggle/references/huggingface-mcp-server.md"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "suggested_placement": "SOUL"
+    }
+  ],
+  "near_misses": [
+    {
+      "episode_id": "node-H03F-20260726_220648_568b47-00",
+      "note": "Real and repeated symptom for pixi-based plugin images: `crun: executable file /root/.pixi/envs/default/bin/python not found in $PATH`, with `ls /root/.pixi/envs` returning No such file — i.e. the Dockerfile ENTRYPOINT hardcodes a pixi env path that `pixi install` never materialised during the build. Would be a strong invariant ('verify the pixi env exists in the built image before setting ENTRYPOINT to a path inside it'), but this episode and its three duplicates (…201000_c89bbc-04) contain USER turns only — no assistant response and no confirmed root cause or fix. Worth a targeted re-read of later episodes from the two bat-counter students in other batches before promoting; pixi is clearly the default dep manager for those projects."
+    },
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-02",
+      "note": "INVERSE finding, worth flagging to the foundry rather than promoting: the agent asserted 'Edge nodes do not have a disk… there's no persistent local filesystem for save-a-clip-then-process' and reasoned a whole architecture decision on it. The baseline already contradicts this — `wes-shared-filesystem-and-cache-architecture.md`, `local-cache-ring-buffer.md` and `producer-consumer-gpu-and-shared-mounts.md` document `/local-cache` as a real persistent cross-pod mount, which is exactly the record-then-batch-process substrate the student was asking for. Evidence that the baseline's cache material is not being retrieved when the question is phrased as an architecture trade-off rather than by keyword."
+    },
+    {
+      "episode_id": "node-H035-20260723_142740_b07b9d-02",
+      "note": "Adjacent design claim, not promoted: a tracker-based counting plugin (SORT/Kalman/IoU) cannot use the usual sampled-capture cadence — at `--interval 1s` the IoU association breaks and unique counts drift, and a rolling background-subtractor needs a ~30-frame warm-up during which YOLO sees raw frames. `scheduling-continuous-vs-oneshot-and-gpu-contention.md` already says 'Sampling rate is a first-class design decision — it broke detection once', and the tracker half is close to generic CV knowledge. Reasoned, not measured, in-episode."
+    },
+    {
+      "episode_id": "node-H035-20260721_202140_e3f58b-01",
+      "note": "Staleness signal: on 2026-07-21 the agent told the student 'the Sage ECR pipeline has been broken fleet-wide due to a runc CVE issue' and steered to side-loading — but `ecr-build-to-ses-cutover.md` records the buildkit `/proc/acpi` bug as FIXED for CPU-base plugins on 2026-07-10, with ECR 'Register and Build' restored as the PRIMARY path. The baseline carries both the blocker file and the cutover file, and the blocker won. Suggests the fixed-status needs to be stated inside `ecr-build-proc-acpi-runc-bug.md` / `ecr-build-proc-acpi-failure.md` themselves, not only in the cutover file."
+    },
+    {
+      "episode_id": "node-H03F-20260727_003225_269cc7-02",
+      "note": "Agent-error episode with a latent lesson I could not confirm from the text: the student offered 'the wes-upload-agent shows: uploaded all files found' as evidence that `plugin.publish('env.count.bat', …)` reached Beehive, and the agent accepted that framing (and earlier told them to grep upload-agent logs as THE diagnostic for missing measurements). The upload agent handles FILE uploads, a different path from publish→RabbitMQ→Beehive, so its logs are not evidence for measurements — but the episode never establishes this, so I am reporting it as an observation rather than a hit. Same episode also has the agent inventing a data-API call against `https://mcp.sagecontinuum.org/api/v1/data?...`, which `timeseries-data-query-api.md` already contradicts (`POST https://data.sagecontinuum.org/api/v1/query`)."
+    },
+    {
+      "episode_id": "node-H021-20260725_162553_193a20-04",
+      "note": "Capacity gotcha, too thin to promote alone: baking BioCLIP 2.5 Huge into an nvcr-based plugin produced a 26.4 GB image, and the `podman save` → `docker load` round-trip needed a 25 GB tar in /tmp before the containerd import. Anyone following the side-load path with a large foundation model needs that headroom on the node. Real numbers, but a single data point and arguably arithmetic."
+    },
+    {
+      "episode_id": "node-H01E-20260719_014249_d4954d-02",
+      "note": "Borderline-generic: `nvcr.io/nvidia/pytorch:26.06-py3` ships torch and transformers but NOT `accelerate`, so any `from_pretrained(..., device_map='cuda')` fails with the accelerate ValueError. Useful as a one-line preflight for the camp's default GPU base image, but close to ordinary missing-dependency knowledge, so left out of hits."
+    },
+    {
+      "episode_id": "node-H01E-20260719_014249_d4954d-03",
+      "note": "Small toolchain fact, low value on its own: `waggle-sensor/plugin-template` does not resolve; the live scaffold is `waggle-sensor/cookiecutter-sage-app`, whose template directory is `{{cookiecutter.name}}` (the agent first guessed `{{cookiecutter.directory_name}}`). Also observed: the official Sage 'Creating an edge app' tutorial assumes a laptop/webcam and older Jetson images, which does not match a Thor node — the same tutorial mismatch drove node-H032-20260721_145114_cfcfa0-00, where a student pasted the whole tutorial page asking why their main.py would not run."
+    },
+    {
+      "episode_id": "node-H01D-20260723_214340_43c816-00",
+      "note": "Well-reasoned theoretical feasibility analysis of running V-JEPA / V-JEPA 2 encoders on a Thor node (memory is not the constraint at 128 GB unified; duty cycle and thermals are), with a plausible Sage plugin shape (clip → encoder → publish embeddings). Interesting and reusable as camp guidance, but it is an unverified capability estimate with no measurement, so not a checkable claim."
+    },
+    {
+      "episode_id": "node-H03F-20260728_174946_2fc5f6-00",
+      "note": "Graphify invoked with `~/.hermes/profiles/sage --update` but the agent ran detection against the CURRENT directory instead of the supplied path, found 0 files, and still printed the full success epilogue ('Graph complete. Outputs in …'). A path-argument-ignored + false-success failure of the required discovery tool, which `graphify-guide.md` and AGENTS.md make non-negotiable. Only one occurrence here, and it reads as agent-execution error rather than a tool invariant, so not promoted — but if it recurs in other batches it is worth a hard rule ('an empty detect result is a FAILURE, not a completed run')."
+    }
+  ]
+}

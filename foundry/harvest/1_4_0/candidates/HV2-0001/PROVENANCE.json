@@ -1,0 +1,102 @@
+{
+  "id": "HV2-0001",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T01",
+      "title": "Agent HOME is rewritten to the profile dir",
+      "merged_from": [
+        "C000",
+        "C010",
+        "C019"
+      ],
+      "canonical_claim": "In the camp Hermes terminal tool, $HOME is rewritten to <profile>/home, so any command using ~ or $HOME silently resolves under /home/<user>/.hermes/profiles/sage/home/ instead of the real /home/<user>/ \u2014 producing bogus 'No such file or directory' for files that plainly exist and making installed tools look missing (which pixi -> not found while /home/<user>/.pixi/bin/pixi exists); fix: always use absolute /home/<user>/... paths in terminal commands and never rely on ~ or a login-shell PATH.",
+      "alt_phrasings": [
+        "The Hermes agent shell runs with `HOME=/home/<user>/.hermes/profiles/sage/home` while the passwd home is `/home/<user>`, so `~` in agent-issued commands (and any tool that expands it) writes to a profile-scoped directory that ssh, the user's own shell, and the project tree never read \u2014 always use absolute paths, or resolve the real home, for anything the user will touch.",
+        "The agent's shell on camp Thors runs with HOME rewritten to `/home/<user>/.hermes/profiles/sage/home`, so any `cd ~/project` or `$HOME`-relative path resolves under the profile dir and fails with 'No such file or directory' even though the project exists at `/home/<user>/project` \u2014 use absolute real-home paths in every terminal call, and expect a separate (empty) container/model cache from the user's interactive shell."
+      ],
+      "kind": "invariant",
+      "students": [
+        "node-H01D",
+        "node-H035"
+      ],
+      "independence": 9,
+      "shards": [
+        "triage_00_01.json",
+        "triage_02_03.json",
+        "triage_04_05.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H01D-20260724_140109_2d7d81-00",
+        "node-H01D-20260725_173920_3bddee-00",
+        "node-H035-20260723_142740_b07b9d-04"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "SOUL",
+      "promote": true,
+      "promote_rationale": "Highest-independence finding in the corpus: 9/11 students, 52 episodes, 18 explicit cd failures. Symptom is a generic ENOENT indistinguishable from a typo, so no keyword list would surface it and no student wrote a skill about it.",
+      "notes": "Corpus-wide grep supersedes cluster metadata for independence. Affected paths include .ssh, .cache, .local, .venvs, .config, not just project dirs. One episode shows a cold podman store under the profile HOME forcing a ~5.5GB base-image re-pull.",
+      "independence_source": "corpus-wide grep: 9/11 students, 52 episodes"
+    }
+  ],
+  "students": [
+    "node-H01D",
+    "node-H035"
+  ],
+  "episodes": [
+    "node-H01D-20260724_140109_2d7d81-00",
+    "node-H01D-20260725_173920_3bddee-00",
+    "node-H035-20260723_142740_b07b9d-04"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T01-agent-home-rewrite",
+      "candidate": "HV2-0001",
+      "split": "targeted",
+      "query": "cd into my project directory failed: No such file or directory, but the folder exists in my home directory. The agent shell path shows .hermes/profiles/sage/home in it.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/direct-node-testing.md",
+          "SKILL.md",
+          "references/pluginctl-sideload-and-node-build.md"
+        ],
+        "top_scores": [
+          21.51,
+          20.99,
+          19.5
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "absolute"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/agent-shell-environment.md",
+          "references/direct-node-testing.md",
+          "SKILL.md"
+        ],
+        "top_scores": [
+          38.81,
+          21.42,
+          20.7
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

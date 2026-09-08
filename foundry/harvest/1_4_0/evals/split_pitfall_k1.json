@@ -1,0 +1,543 @@
+{
+  "k": 1,
+  "control_fingerprint": "b0f0eb830b7c287e",
+  "control_root": "../../.work/released_130",
+  "control_files": 122,
+  "treatment_files": 133,
+  "summary": {
+    "both_fail": 5,
+    "IMPROVED": 8,
+    "both_pass": 2
+  },
+  "tasks": [
+    {
+      "id": "P01-meta-must-be-str",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "plugin.publish raised ValueError when I passed confidence as a float in the meta dict. What is wrong with my meta values?",
+      "verdict": "both_fail",
+      "control": {
+        "top_k": [
+          "references/birdnet-audio-debugging-and-geofilter.md"
+        ],
+        "top_scores": [
+          24.32
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "valid_meta"
+        ],
+        "missing_any_of": [
+          "isinstance",
+          "ValueError"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/birdnet-audio-debugging-and-geofilter.md"
+        ],
+        "top_scores": [
+          24.03
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "valid_meta"
+        ],
+        "missing_any_of": [
+          "isinstance",
+          "ValueError"
+        ]
+      }
+    },
+    {
+      "id": "P02-topic-name-invalid",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "publish name invalid error when publishing YOLO COCO class names like dining table and traffic light as topics",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/testing-patterns.md"
+        ],
+        "top_scores": [
+          26.98
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-pywaggle-publishing.md"
+        ],
+        "top_scores": [
+          32.55
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P03-pod-forbidden-patch",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "pluginctl deploy fails with Forbidden: pod updates may not change fields other than image after I changed the camera arg",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/scheduling-and-cameras.md"
+        ],
+        "top_scores": [
+          25.12
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-pluginctl-k3s-thor.md"
+        ],
+        "top_scores": [
+          33.22
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P04-k3s-reimport",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "I rebuilt my docker image on the node but pluginctl still runs the old code and errors on my new CLI flag",
+      "verdict": "both_fail",
+      "control": {
+        "top_k": [
+          "references/sesctl-ecr-validation.md"
+        ],
+        "top_scores": [
+          22.76
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "k3s ctr images import"
+        ],
+        "missing_any_of": [
+          "docker save",
+          "reimport",
+          "after every rebuild"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/sesctl-ecr-validation.md"
+        ],
+        "top_scores": [
+          22.09
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "k3s ctr images import"
+        ],
+        "missing_any_of": [
+          "docker save",
+          "reimport",
+          "after every rebuild"
+        ]
+      }
+    },
+    {
+      "id": "P05-oomkilled-137",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "my YOLO plugin pod keeps getting OOMKilled with exit code 137 when deployed with pluginctl",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/on-node-verification-recipe.md"
+        ],
+        "top_scores": [
+          18.25
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-pluginctl-k3s-thor.md"
+        ],
+        "top_scores": [
+          18.67
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P06-pip-clobbers-base",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "after pip install ultralytics in my NVIDIA base image the GPU stopped working and cv2 import fails",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/docker-build-deploy.md"
+        ],
+        "top_scores": [
+          28.26
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-docker-nvidia-images.md"
+        ],
+        "top_scores": [
+          28.65
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P07-ecr-not-a-registry",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "docker push to registry.sagecontinuum.org is being refused, how do I get my image into ECR",
+      "verdict": "both_fail",
+      "control": {
+        "top_k": [
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          21.84
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": [
+          "builds the image",
+          "do NOT",
+          "pulls source"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          21.59
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": [
+          "builds the image",
+          "do NOT",
+          "pulls source"
+        ]
+      }
+    },
+    {
+      "id": "P08-nrp-404",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "the Sage data API lists my upload with a URL but downloading it returns 404 unable to open no such file",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/storage-upload-health-verification.md"
+        ],
+        "top_scores": [
+          18.0
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-data-and-storage.md"
+        ],
+        "top_scores": [
+          28.99
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P09-curl-empty-file",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "curl downloading protected Sage storage data writes a 0-byte file",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/cloud-trigger-patterns.md"
+        ],
+        "top_scores": [
+          11.89
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": [
+          "302",
+          "redirect",
+          "follow redirects"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-data-and-storage.md"
+        ],
+        "top_scores": [
+          25.84
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P10-bioclip-always-predicts",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "BioCLIP reports a bird species even for an empty nighttime image with no animal present",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/vision-detect-then-classify-pipeline.md"
+        ],
+        "top_scores": [
+          18.37
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-ml-models-inference.md"
+        ],
+        "top_scores": [
+          22.65
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P11-pytest-harness-collision",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "pytest picks up the wrong test_harness module across two plugin directories and tests fail mysteriously",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/testing-patterns.md"
+        ],
+        "top_scores": [
+          19.1
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-testing-and-local-dev.md"
+        ],
+        "top_scores": [
+          22.22
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P12-cv2-imread-none",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "cv2.imread returns None for some test images copied from a Mac and the test suite asserts",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "SKILL.md"
+        ],
+        "top_scores": [
+          14.47
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-testing-and-local-dev.md"
+        ],
+        "top_scores": [
+          21.61
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P13-ffmpeg-187",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "ffmpeg exits 187 End of file opening the Reolink flv bcs stream with user and password in the URL",
+      "verdict": "both_fail",
+      "control": {
+        "top_k": [
+          "references/reolink-audio-capture.md"
+        ],
+        "top_scores": [
+          42.08
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/reolink-audio-capture.md"
+        ],
+        "top_scores": [
+          41.86
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P14-birdnet-faint",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "BirdNET gives very low confidence on quiet recordings from the camera microphone",
+      "verdict": "both_fail",
+      "control": {
+        "top_k": [
+          "references/reolink-audio-capture.md"
+        ],
+        "top_scores": [
+          19.66
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/reolink-audio-capture.md"
+        ],
+        "top_scores": [
+          19.39
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "P15-camera-file-path-docker",
+      "candidate": null,
+      "split": "pitfall",
+      "query": "Camera with a plain image path inside Docker raises FileNotFoundError for /run/waggle/data-config.json",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "SKILL.md"
+        ],
+        "top_scores": [
+          11.45
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pitfalls-pywaggle-publishing.md"
+        ],
+        "top_scores": [
+          19.63
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

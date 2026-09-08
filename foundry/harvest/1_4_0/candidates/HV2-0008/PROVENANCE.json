@@ -1,0 +1,130 @@
+{
+  "id": "HV2-0008",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T08",
+      "title": "pywaggle Camera() zero-arg raises a misleading TypeError",
+      "merged_from": [
+        "C016"
+      ],
+      "canonical_claim": "Calling pywaggle's `Camera()` with no argument raises `TypeError: expected string or bytes-like object, got 'int'` (not a missing-camera error) because the default `device=0` is an int that `Camera.__init__` feeds straight into `re.match`; always pass a device STRING (`\"file://example.jpg\"`, an RTSP URL, or a data-shim name).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "students": [
+        "node-H032"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260720_205548_b91283-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "camera-rtsp-patterns.md documents the device-routing chain but not that the zero-arg default crashes with a type error rather than a graceful device-open failure.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Most common first-plugin stumble; the symptom points at `re`, not at the camera.",
+      "notes": "Pairs naturally with T09 and the no-camera-attached invariant on one offline-dev page."
+    },
+    {
+      "theme_id": "T12",
+      "title": "Camp blades ship with no camera and are SGT-scoped",
+      "merged_from": [
+        "C013",
+        "C026",
+        "C036",
+        "C022"
+      ],
+      "canonical_claim": "Camp Thor blades ship with NO camera attached \u2014 no `/dev/video*`, empty `v4l2-ctl --list-devices`, no `/run/waggle/data-config.json`, an empty `\"sensors\": []` in the node manifest, and no port-554 host on either node subnet \u2014 so `Camera()`, `Camera(\"bottom_camera\")` and any RTSP plugin will fail until hardware is physically added and registered; probe those five things before writing camera code.",
+      "alt_phrasings": [
+        "Camp Thor nodes are tagged to project SGT, and `auth.sagecontinuum.org/manifests/<VSN>` and `/api/v-beta/nodes/<VSN>` return EMPTY bodies for them, so 'what sensors does my node have?' must be answered on-node: read the `wes-identity` ConfigMap to map hardware serial to VSN, then read `/etc/waggle/node-manifest-v2.json` (host path, needs sudo) or its `waggle-node-manifest-v2-*` ConfigMap copy, which on a bare Thor devkit legitimately shows `\"sensors\": []`.",
+        "`curl` against `auth.sagecontinuum.org/manifests/<vsn>` without `-L` returns HTTP 301 with an EMPTY body, which reads as 'node not found / node down' \u2014 the endpoint redirects and needs `curl -sL`, so a bare curl is a false-negative generator when probing node existence.",
+        "A node that is missing from the portal's 'all nodes' list is usually not broken but filtered out by project scope \u2014 the fleet catalog carries six distinct `project` values (SAGE, SGT, APIARY, VTO, DAWN, Wildebeest) plus ~11 untagged nodes, and the portal defaults to SAGE-scoped; confirm with `GET /manifests/<vsn>` (HTTP 200 + a phase/project) and a `-30d` data-API query before treating it as an outage."
+      ],
+      "kind": "invariant",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_02_03.json",
+        "triage_06_07.json",
+        "triage_08_09.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260721_015837_deb440-01",
+        "node-H035-20260723_142740_b07b9d-07",
+        "node-H035-20260724_011258_f7a2ab-09"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "auth-api-manifests-and-nodes.md presents the manifest endpoint as the camp default and never says it returns empty for SGT-project nodes.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "All baseline camera guidance assumes an attached Reolink. Confirmed independently on three nodes. Includes the curl -L 301-empty-body false negative and project-scoped portal visibility (a healthy node in another project reads as an outage).",
+      "notes": null
+    }
+  ],
+  "students": [
+    "node-H035",
+    "node-H032"
+  ],
+  "episodes": [
+    "node-H035-20260721_015837_deb440-01",
+    "node-H035-20260723_142740_b07b9d-07",
+    "node-H035-20260724_011258_f7a2ab-09",
+    "node-H032-20260720_205548_b91283-00"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T08-camera-zero-arg",
+      "candidate": "HV2-0008",
+      "split": "targeted",
+      "query": "Camera() raises TypeError: expected string or bytes-like object, got 'int' when I follow the tutorial app.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/runtime-packaging-patterns.md",
+          "SKILL.md",
+          "references/scheduling-and-cameras.md"
+        ],
+        "top_scores": [
+          13.69,
+          12.64,
+          11.16
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pywaggle-camera-offline-dev.md",
+          "references/runtime-packaging-patterns.md",
+          "SKILL.md"
+        ],
+        "top_scores": [
+          38.45,
+          13.4,
+          12.55
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

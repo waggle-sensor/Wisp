@@ -1,0 +1,366 @@
+{
+  "totals": {
+    "students": 14,
+    "students_with_transcripts": 11,
+    "sessions": 140,
+    "messages": 9077,
+    "user_messages": 635,
+    "tool_calls": 4424,
+    "transcript_chars": 13474809,
+    "agent_created_skills": 19,
+    "episodes": 331,
+    "episodes_with_failures": 174,
+    "resolved_arcs": 138,
+    "episodes_retry_depth_ge2": 60,
+    "total_tool_failures": 529,
+    "total_wall_hours": 237.8
+  },
+  "per_student": {
+    "node-H01D": {
+      "student": "node-H01D",
+      "has_state_db": true,
+      "sessions": 42,
+      "messages": 1275,
+      "user_messages": 96,
+      "tool_calls": 724,
+      "chars": 3732572,
+      "models": [
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 2133,
+      "agent_created_skills": [
+        "agent-bus-onboarding"
+      ],
+      "episodes": 64,
+      "episodes_with_failures": 29,
+      "resolved_arcs": 21
+    },
+    "node-H037a": {
+      "student": "node-H037a",
+      "has_state_db": true,
+      "sessions": 0,
+      "messages": 0,
+      "user_messages": 0,
+      "tool_calls": 0,
+      "chars": 0,
+      "models": [],
+      "memory_bytes": 0,
+      "agent_created_skills": [],
+      "episodes": 0,
+      "episodes_with_failures": 0,
+      "resolved_arcs": 0
+    },
+    "node-H01F": {
+      "student": "node-H01F",
+      "has_state_db": false,
+      "sessions": 0,
+      "messages": 0,
+      "user_messages": 0,
+      "tool_calls": 0,
+      "chars": 0,
+      "models": [],
+      "memory_bytes": 0,
+      "agent_created_skills": [],
+      "episodes": 0,
+      "episodes_with_failures": 0,
+      "resolved_arcs": 0
+    },
+    "node-H02F": {
+      "student": "node-H02F",
+      "has_state_db": true,
+      "sessions": 15,
+      "messages": 681,
+      "user_messages": 31,
+      "tool_calls": 367,
+      "chars": 973603,
+      "models": [
+        "gemma4:31b",
+        "minimaxai/minimax-m3",
+        "openai/gpt-oss-120b",
+        "qwen/qwen3-coder-480b-a35b-instruct",
+        "qwen/qwen3.5-397b-a17b",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 621,
+      "agent_created_skills": [
+        "multimodal-edge-detection",
+        "multimodal-fusion-detection"
+      ],
+      "episodes": 19,
+      "episodes_with_failures": 11,
+      "resolved_arcs": 9
+    },
+    "node-H035": {
+      "student": "node-H035",
+      "has_state_db": true,
+      "sessions": 21,
+      "messages": 3493,
+      "user_messages": 200,
+      "tool_calls": 1628,
+      "chars": 3864180,
+      "models": [
+        "gemma4:31b",
+        "minimax-m2",
+        "nvidia/nemotron-3-ultra-550b-a55b",
+        "qwen/qwen3-coder-480b-a35b-instruct",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 2017,
+      "agent_created_skills": [
+        "bat-counting-plugin",
+        "batch-to-edge-ml-port",
+        "classify_transit_test_cases",
+        "edge-traffic-vision-design",
+        "sage-bat-plugin",
+        "sage-vision-observation-plugins",
+        "sage-waggle-plugin-dev"
+      ],
+      "episodes": 98,
+      "episodes_with_failures": 53,
+      "resolved_arcs": 39
+    },
+    "node-H034": {
+      "student": "node-H034",
+      "has_state_db": true,
+      "sessions": 9,
+      "messages": 528,
+      "user_messages": 35,
+      "tool_calls": 230,
+      "chars": 691041,
+      "models": [
+        "nvidia/nemotron-3-super-120b-a12b"
+      ],
+      "memory_bytes": 0,
+      "agent_created_skills": [
+        "audio-event-detection",
+        "audio-feature-extraction-bat"
+      ],
+      "episodes": 21,
+      "episodes_with_failures": 15,
+      "resolved_arcs": 11
+    },
+    "node-H021": {
+      "student": "node-H021",
+      "has_state_db": true,
+      "sessions": 11,
+      "messages": 1892,
+      "user_messages": 116,
+      "tool_calls": 910,
+      "chars": 2156629,
+      "models": [
+        "gemma4:31b",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 2101,
+      "agent_created_skills": [
+        "bioclip-embedding-classifiers",
+        "jetson-thor-torch-cuda",
+        "thor-gpu-dev-setup",
+        "thor-ml-dev",
+        "thor-ml-plugin-dev"
+      ],
+      "episodes": 61,
+      "episodes_with_failures": 35,
+      "resolved_arcs": 32
+    },
+    "node-H023": {
+      "student": "node-H023",
+      "has_state_db": true,
+      "sessions": 8,
+      "messages": 84,
+      "user_messages": 20,
+      "tool_calls": 33,
+      "chars": 60013,
+      "models": [
+        "gemma4:31b",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 0,
+      "agent_created_skills": [],
+      "episodes": 6,
+      "episodes_with_failures": 1,
+      "resolved_arcs": 1
+    },
+    "node-H032": {
+      "student": "node-H032",
+      "has_state_db": true,
+      "sessions": 12,
+      "messages": 584,
+      "user_messages": 56,
+      "tool_calls": 289,
+      "chars": 851854,
+      "models": [
+        "gemma4:31b",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 1538,
+      "agent_created_skills": [],
+      "episodes": 29,
+      "episodes_with_failures": 16,
+      "resolved_arcs": 13
+    },
+    "node-H02E": {
+      "student": "node-H02E",
+      "has_state_db": true,
+      "sessions": 4,
+      "messages": 24,
+      "user_messages": 7,
+      "tool_calls": 6,
+      "chars": 18144,
+      "models": [
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 0,
+      "agent_created_skills": [],
+      "episodes": 4,
+      "episodes_with_failures": 1,
+      "resolved_arcs": 1
+    },
+    "node-H03F": {
+      "student": "node-H03F",
+      "has_state_db": true,
+      "sessions": 15,
+      "messages": 307,
+      "user_messages": 36,
+      "tool_calls": 149,
+      "chars": 750991,
+      "models": [
+        "gemma4-64k:latest",
+        "gemma4:31b",
+        "gemma4:e2b",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 1336,
+      "agent_created_skills": [],
+      "episodes": 17,
+      "episodes_with_failures": 6,
+      "resolved_arcs": 5
+    },
+    "node-H01E": {
+      "student": "node-H01E",
+      "has_state_db": true,
+      "sessions": 1,
+      "messages": 161,
+      "user_messages": 24,
+      "tool_calls": 76,
+      "chars": 358034,
+      "models": [
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 1705,
+      "agent_created_skills": [
+        "sage-thor-vlm-serving"
+      ],
+      "episodes": 11,
+      "episodes_with_failures": 6,
+      "resolved_arcs": 5
+    },
+    "node-H03A": {
+      "student": "node-H03A",
+      "has_state_db": false,
+      "sessions": 0,
+      "messages": 0,
+      "user_messages": 0,
+      "tool_calls": 0,
+      "chars": 0,
+      "models": [],
+      "memory_bytes": 1798,
+      "agent_created_skills": [
+        "sageair-multimodal-training"
+      ],
+      "episodes": 0,
+      "episodes_with_failures": 0,
+      "resolved_arcs": 0
+    },
+    "node-H037b": {
+      "student": "node-H037b",
+      "has_state_db": true,
+      "sessions": 2,
+      "messages": 48,
+      "user_messages": 14,
+      "tool_calls": 12,
+      "chars": 17748,
+      "models": [
+        "gemma4:31b",
+        "z-ai/glm-5.2"
+      ],
+      "memory_bytes": 0,
+      "agent_created_skills": [],
+      "episodes": 1,
+      "episodes_with_failures": 1,
+      "resolved_arcs": 1
+    }
+  },
+  "tarballs": {
+    "node-H01D": {
+      "file": "node-H01D_public_sage.tar.gz",
+      "bytes": 35389748,
+      "sha256": "941c622c6775126f0b13dd2d7938c715d22b75b55b5e12d764aeee314bfb7583"
+    },
+    "node-H037a": {
+      "file": "node-H037a_public_sage.tar.gz",
+      "bytes": 17026282,
+      "sha256": "be4d3498556a24e0b5d99b1c2bc5606bd1e66bf22d03fae03a65b8636f859518"
+    },
+    "node-H01F": {
+      "file": "node-H01F_public_sage.tar.gz",
+      "bytes": 14491551,
+      "sha256": "4d87aae092019e30da9f9dff979401d36f47f6bdb3902afa00808ac68c9c9180"
+    },
+    "node-H02F": {
+      "file": "node-H02F_public_sage.tar.gz",
+      "bytes": 26142529,
+      "sha256": "6dc1e2ae1dba5fa8d52594cb49abc95833cdb9e4c69025f18b4e652ae6adb8a2"
+    },
+    "node-H035": {
+      "file": "node-H035_public_sage.tar.gz",
+      "bytes": 61572810,
+      "sha256": "dacebf211e0a7613f18085d43b3b2e966fdd7d5341a3a561cd8d86cd50675762"
+    },
+    "node-H034": {
+      "file": "node-H034_public_sage.tar.gz",
+      "bytes": 33265907,
+      "sha256": "9f8d36da617ad8aa591021eac67f23b7930fea9867382330663d09625c10e09a"
+    },
+    "node-H021": {
+      "file": "node-H021_public_sage.tar.gz",
+      "bytes": 46769204,
+      "sha256": "9cac45a5c2ee84d3e8524137152a04736df45f96351a3551c9fca9b7a26a68cd"
+    },
+    "node-H023": {
+      "file": "node-H023_public_sage.tar.gz",
+      "bytes": 18944849,
+      "sha256": "8c6d30441416ad4f161b6d20bcf69a87dbc53252895a6271d97bc365cc68daea"
+    },
+    "node-H032": {
+      "file": "node-H032_public_sage.tar.gz",
+      "bytes": 36928028,
+      "sha256": "cbb3d47ca04c9789545c15a9b1ffce4d9fc8c4b866887879fc1393c8efff871f"
+    },
+    "node-H02E": {
+      "file": "node-H02E_public_sage.tar.gz",
+      "bytes": 17403341,
+      "sha256": "720d216915843d6ede39c169a6870f336c8d5867d5a7d5d6e165b45f2bba12f2"
+    },
+    "node-H03F": {
+      "file": "node-H03F_public_sage.tar.gz",
+      "bytes": 33245742,
+      "sha256": "5bdaf8ea94bf4f776a758721b2adceca70a0e97c7e25d2dc53dbe50de1e29fd6"
+    },
+    "node-H01E": {
+      "file": "node-H01E_public_sage.tar.gz",
+      "bytes": 21540725,
+      "sha256": "b06fca2e88fcfedce2a14d97b2ed01c2424909e6a4177d0468192dbaea88b684"
+    },
+    "node-H03A": {
+      "file": "node-H03A_public_sage.tar.gz",
+      "bytes": 29179280,
+      "sha256": "da7dd614f44db64a36af65e264e0e0035de49ba1fb0b37cafeb866d867b7669d"
+    },
+    "node-H037b": {
+      "file": "node-H037b_public_sage.tar.gz",
+      "bytes": 19546023,
+      "sha256": "49d9b167d5ece16e7d0ada2d857b9aac2b48fac506e8d41e252afe78b9037a59"
+    }
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "id": "HV2-0009",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T09",
+      "title": "Off-node Plugin() raises from a background thread",
+      "merged_from": [
+        "C017",
+        "C039"
+      ],
+      "canonical_claim": "Wrapping `Plugin()` construction in try/except does NOT make a plugin safe to run off-node: pywaggle's RabbitMQ publisher runs on a background thread, so the `socket.gaierror: [Errno -2] Name or service not known` surfaces as an unhandled traceback from `rabbitmq.py` after the constructor already returned \u2014 gate plugin init on a Sage env var (e.g. WAGGLE_PLUGIN_NAME / WAGGLE_NODE_ID) instead of on exception handling.",
+      "alt_phrasings": [
+        "The common `try: from waggle.plugin import Plugin / except ImportError:` local-test guard does NOT protect against the real on-node failure \u2014 `Plugin()` construction raises later from a pika/RabbitMQ `socket.getaddrinfo` failure inside `rabbitmq.py`, not at import \u2014 so the guard must wrap both the import AND `Plugin().__enter__()` and catch `Exception`, or the plugin crashes on any node where the broker is unreachable."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json",
+        "triage_06_07.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260727_024905_596214-05",
+        "node-H035-20260727_024905_596214-13"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md has a 'Local testing (no node required)' section but does not state that Plugin() raises from a daemon thread and therefore escapes try/except.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "The `try: Plugin() except: local-test mode` idiom is the natural thing to write and it silently does not work - students shipped it twice. Gate on a WAGGLE_* env var instead.",
+      "notes": "Two miners found this independently via different symptoms (gaierror vs ImportError guard)."
+    }
+  ],
+  "students": [
+    "node-H035"
+  ],
+  "episodes": [
+    "node-H035-20260727_024905_596214-05",
+    "node-H035-20260727_024905_596214-13"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T09-plugin-offnode-thread",
+      "candidate": "HV2-0009",
+      "split": "targeted",
+      "query": "I wrapped Plugin() in try/except so my plugin can run off-node, but it still crashes with socket.gaierror from rabbitmq.py after the constructor returned.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/continuous-producer-patterns.md",
+          "references/image-metadata-naming-and-eventlog-linking.md",
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          14.47,
+          12.57,
+          12.45
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pywaggle-offnode-local-testing.md",
+          "references/continuous-producer-patterns.md",
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          26.17,
+          14.8,
+          13.01
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

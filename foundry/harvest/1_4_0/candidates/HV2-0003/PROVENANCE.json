@@ -1,0 +1,115 @@
+{
+  "id": "HV2-0003",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T03",
+      "title": "pluginctl pods get no GPU without runtimeClassName",
+      "merged_from": [
+        "C014",
+        "C005",
+        "C021",
+        "C043"
+      ],
+      "canonical_claim": "On a Thor node with NO nvidia-device-plugin pod, `pluginctl run` silently produces a CPU-only pod (torch.cuda.is_available()=False) because pluginctl never sets `runtimeClassName` and the node advertises no `nvidia.com/gpu` allocatable resource; the fix is to bypass pluginctl and `kubectl apply` a hand-written pod manifest with `runtimeClassName: nvidia` + `nodeSelector: resource.gpu=\"true\"`, which restores GPU (verified 27ms/frame YOLO vs ~1.4s on CPU).",
+      "alt_phrasings": [
+        "`pluginctl run --privileged` is NOT a substitute for runtimeClassName: nvidia on a Thor \u2014 even with --privileged --selector resource.gpu=true the pod still reports torch.cuda.is_available()=False and /dev/nvidia* is absent, because on Tegra the devices are wired by the NVIDIA runtime hook, not by the privileged securityContext; `pluginctl deploy --dry-run` is the cheap proof (it prints the full generated pod spec, which never contains runtimeClassName no matter which flags you pass).",
+        "The diagnostic that distinguishes 'GPU not attached' from 'GPU attached but code is wrong' on a Thor is that the node advertises NO `nvidia.com/gpu` in `kubectl describe node` allocatable and there is no nvidia-device-plugin/gpu-operator pod, so resource-based GPU requests are silently no-ops \u2014 GPU node labels (`resource.gpu=true`, `resource.cuda110=true`) are present and are NOT evidence that pods get the GPU.",
+        "On a camp Thor node the k3s cluster does not advertise `nvidia.com/gpu` capacity (no NVIDIA device-plugin DaemonSet), so a `pluginctl run` WITHOUT `--resource nvidia.com/gpu=1` starts and silently runs CPU-only (`torch.cuda.is_available()=False`) while the SAME container gets a working GPU under `podman run --device=nvidia.com/gpu=0`, and WITH the flag the pod stays `Pending` forever \u2014 the discriminating check is `kubectl describe node | grep nvidia` plus `kubectl get pods -n kube-system | grep nvidia`, and no plugin-side manifest, label or annotation can fix it."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H035",
+        "node-H03F"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_00_01.json",
+        "triage_04_05.json",
+        "triage_06_07.json",
+        "triage_08_09.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-06",
+        "node-H035-20260723_142740_b07b9d-07",
+        "node-H035-20260723_142740_b07b9d-11",
+        "node-H035-20260723_142740_b07b9d-12",
+        "node-H035-20260724_011258_f7a2ab-06",
+        "node-H03F-20260727_003225_269cc7-01"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "runtimeClassName appears nowhere in the baseline; runtime-packaging-patterns.md:106 asserts the opposite - 'GPU available via NVIDIA device plugin'.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Measured cost in-episode: 27ms/frame GPU vs ~1.4s/frame CPU (~50x). Silent failure - the pod runs, publishes, and succeeds, just 50x slower with no error.",
+      "notes": "Cross-shard: found independently by 4 miners. Includes the negative result that `--privileged` is NOT a substitute (a plausible workaround a student disproved live), and the one-command preflight: the node advertises no nvidia.com/gpu allocatable and the resource.gpu=true label is not evidence the GPU reaches pods."
+    }
+  ],
+  "students": [
+    "node-H035",
+    "node-H03F"
+  ],
+  "episodes": [
+    "node-H035-20260723_142740_b07b9d-06",
+    "node-H035-20260723_142740_b07b9d-07",
+    "node-H035-20260723_142740_b07b9d-11",
+    "node-H035-20260723_142740_b07b9d-12",
+    "node-H035-20260724_011258_f7a2ab-06",
+    "node-H03F-20260727_003225_269cc7-01"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T03-runtimeclass-gpu",
+      "candidate": "HV2-0003",
+      "split": "targeted",
+      "query": "My plugin pod runs but torch.cuda.is_available() is False and there is no /dev/nvidia in the pod. pluginctl run started it fine and the node has resource.gpu=true.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/thor-host-cpu-dev-first.md",
+          "references/pluginctl-camp-guide.md"
+        ],
+        "top_scores": [
+          21.17,
+          19.32,
+          18.74
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "runtimeClassName"
+        ],
+        "missing_any_of": [
+          "device-plugin",
+          "device plugin",
+          "nvidia.com/gpu"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/pluginctl-gpu-runtimeclass.md",
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/scheduling-and-cameras.md"
+        ],
+        "top_scores": [
+          31.94,
+          20.75,
+          18.0
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

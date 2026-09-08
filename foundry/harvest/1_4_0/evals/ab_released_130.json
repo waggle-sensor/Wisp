@@ -1,0 +1,655 @@
+{
+  "k": 3,
+  "control_fingerprint": "971479c99bb63355",
+  "control_root": ".work/control_120",
+  "control_files": 112,
+  "treatment_files": 122,
+  "summary": {
+    "IMPROVED": 10,
+    "both_pass": 5
+  },
+  "tasks": [
+    {
+      "id": "V2-T01-agent-home-rewrite",
+      "candidate": "HV2-0001",
+      "split": "targeted",
+      "query": "cd into my project directory failed: No such file or directory, but the folder exists in my home directory. The agent shell path shows .hermes/profiles/sage/home in it.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/direct-node-testing.md",
+          "SKILL.md",
+          "references/pluginctl-sideload-and-node-build.md"
+        ],
+        "top_scores": [
+          21.51,
+          20.99,
+          19.5
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "absolute"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/agent-shell-environment.md",
+          "SKILL.md",
+          "references/direct-node-testing.md"
+        ],
+        "top_scores": [
+          38.63,
+          22.22,
+          21.29
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T02-sudo-allowlist",
+      "candidate": "HV2-0002",
+      "split": "targeted",
+      "query": "sudo k3s ctr images import fails with sudo: a terminal is required to read the password. How do I import my image into k3s?",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/ecr-arm64-thor-deployment.md",
+          "references/pluginctl-camp-guide.md",
+          "references/pluginctl-sideload-and-node-build.md"
+        ],
+        "top_scores": [
+          28.87,
+          28.15,
+          27.09
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "allowlist"
+        ],
+        "missing_any_of": [
+          "NOPASSWD",
+          "terminal is required"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/sudo-allowlist-and-image-import.md",
+          "references/ecr-arm64-thor-deployment.md",
+          "references/pluginctl-camp-guide.md"
+        ],
+        "top_scores": [
+          37.57,
+          28.68,
+          27.55
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T03-runtimeclass-gpu",
+      "candidate": "HV2-0003",
+      "split": "targeted",
+      "query": "My plugin pod runs but torch.cuda.is_available() is False and there is no /dev/nvidia in the pod. pluginctl run started it fine and the node has resource.gpu=true.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/thor-host-cpu-dev-first.md",
+          "references/pluginctl-camp-guide.md"
+        ],
+        "top_scores": [
+          21.17,
+          19.32,
+          18.74
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "runtimeClassName"
+        ],
+        "missing_any_of": [
+          "device-plugin",
+          "device plugin",
+          "nvidia.com/gpu"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/pluginctl-gpu-runtimeclass.md",
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/scheduling-and-cameras.md"
+        ],
+        "top_scores": [
+          31.74,
+          20.67,
+          18.01
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T04-cdi-gpu-flag",
+      "candidate": "HV2-0004",
+      "split": "targeted",
+      "query": "docker run --runtime=nvidia fails on my node with default OCI runtime nvidia not found. How do I pass the GPU to a container?",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/docker-build-deploy.md",
+          "SKILL.md",
+          "references/thor-host-cpu-dev-first.md"
+        ],
+        "top_scores": [
+          30.4,
+          25.24,
+          23.24
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "nvidia.com/gpu"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/podman-cdi-gpu-passthrough.md",
+          "references/docker-build-deploy.md",
+          "SKILL.md"
+        ],
+        "top_scores": [
+          33.76,
+          29.76,
+          25.03
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T05-host-torch-hang",
+      "candidate": "HV2-0005",
+      "split": "targeted",
+      "query": "torch.cuda.is_available() never returns on the Thor host venv, no error, and the python process cannot be killed with SIGKILL.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/thor-host-cpu-dev-first.md",
+          "references/ecr-build-proc-acpi-failure.md",
+          "SKILL.md"
+        ],
+        "top_scores": [
+          21.9,
+          12.49,
+          12.49
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "D-state",
+          "module level"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/thor-host-torch-hang.md",
+          "references/thor-host-cpu-dev-first.md",
+          "references/thor-conda-forge-no-sm110.md"
+        ],
+        "top_scores": [
+          35.92,
+          20.12,
+          13.32
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T06-conda-forge-no-sm110",
+      "candidate": "HV2-0006",
+      "split": "targeted",
+      "query": "My pixi conda-forge pytorch env says cuda is available but the first matmul dies with no kernel image is available for execution on the device.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/nvidia-jetson-thor-docs-index.md",
+          "references/docker-build-deploy.md",
+          "references/runtime-packaging-patterns.md"
+        ],
+        "top_scores": [
+          22.08,
+          18.24,
+          17.97
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": [
+          "conda-forge",
+          "pixi",
+          "no kernel image"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/thor-conda-forge-no-sm110.md",
+          "references/thor-host-torch-hang.md",
+          "references/nvidia-jetson-thor-docs-index.md"
+        ],
+        "top_scores": [
+          50.69,
+          23.62,
+          20.44
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T07-snapshot-rgb",
+      "candidate": "HV2-0007",
+      "split": "targeted",
+      "query": "My plugin publishes images with the red and blue channels swapped. I am reading Camera snapshot data and passing it straight to cv2.imwrite.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/pywaggle2-nodeinfo-gps-design.md",
+          "references/node-gps-location-resolution.md",
+          "references/wes-pod-config-and-manifest-exposure.md"
+        ],
+        "top_scores": [
+          16.24,
+          15.73,
+          14.03
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "RGB"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pywaggle-snapshot-channel-order.md",
+          "references/pywaggle2-nodeinfo-gps-design.md",
+          "references/node-gps-location-resolution.md"
+        ],
+        "top_scores": [
+          29.69,
+          16.09,
+          15.71
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T08-camera-zero-arg",
+      "candidate": "HV2-0008",
+      "split": "targeted",
+      "query": "Camera() raises TypeError: expected string or bytes-like object, got 'int' when I follow the tutorial app.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/runtime-packaging-patterns.md",
+          "SKILL.md",
+          "references/scheduling-and-cameras.md"
+        ],
+        "top_scores": [
+          13.69,
+          12.64,
+          11.16
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pywaggle-camera-offline-dev.md",
+          "SKILL.md",
+          "references/runtime-packaging-patterns.md"
+        ],
+        "top_scores": [
+          37.01,
+          15.4,
+          13.01
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T09-plugin-offnode-thread",
+      "candidate": "HV2-0009",
+      "split": "targeted",
+      "query": "I wrapped Plugin() in try/except so my plugin can run off-node, but it still crashes with socket.gaierror from rabbitmq.py after the constructor returned.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/continuous-producer-patterns.md",
+          "references/image-metadata-naming-and-eventlog-linking.md",
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          14.47,
+          12.57,
+          12.45
+        ],
+        "retrieval_hit": false,
+        "actionable": true,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pywaggle-offnode-local-testing.md",
+          "references/continuous-producer-patterns.md",
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          24.53,
+          14.8,
+          13.02
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-T10-registry-x509",
+      "candidate": "HV2-0010",
+      "split": "targeted",
+      "query": "pluginctl build succeeded and gave me a node-local registry tag, but pluginctl run gets ImagePullBackOff with certificate signed by unknown authority.",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/ecr-build-to-ses-cutover.md",
+          "references/sesctl-ecr-validation.md"
+        ],
+        "top_scores": [
+          20.13,
+          18.65,
+          17.68
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [],
+        "missing_any_of": [
+          "x509",
+          "certificate signed by unknown authority"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/node-registry-x509-trust.md",
+          "references/pluginctl-sideload-and-node-build.md",
+          "references/ecr-build-to-ses-cutover.md"
+        ],
+        "top_scores": [
+          37.1,
+          19.59,
+          17.94
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-R01-nvmap-regression",
+      "candidate": "regression",
+      "split": "regression",
+      "query": "torch.cuda.is_available() returns False immediately with NvRmMemInitNvmap Permission denied on the Thor host.",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "references/thor-host-cpu-dev-first.md",
+          "references/direct-node-testing.md",
+          "references/pluginctl-camp-guide.md"
+        ],
+        "top_scores": [
+          31.01,
+          20.27,
+          17.28
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/thor-host-cpu-dev-first.md",
+          "references/direct-node-testing.md",
+          "references/thor-conda-forge-no-sm110.md"
+        ],
+        "top_scores": [
+          29.86,
+          19.12,
+          16.38
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-R02-pluginctl-camp-regression",
+      "candidate": "regression",
+      "split": "regression",
+      "query": "How do I build and run a plugin on my Thor node with pluginctl for the camp workflow?",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "references/pluginctl-camp-guide.md",
+          "references/ecr-arm64-thor-deployment.md",
+          "references/sage-docs-index.md"
+        ],
+        "top_scores": [
+          15.81,
+          14.82,
+          13.31
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/pluginctl-camp-guide.md",
+          "references/ecr-arm64-thor-deployment.md",
+          "references/sage-docs-index.md"
+        ],
+        "top_scores": [
+          15.29,
+          14.9,
+          13.23
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-R03-ecr-acpi-regression",
+      "candidate": "regression",
+      "split": "regression",
+      "query": "Every RUN step in my ECR build fails at runc init with can't mask dir /proc/acpi.",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "references/ecr-build-proc-acpi-failure.md",
+          "references/ecr-builder-proc-acpi-runc-bug.md",
+          "references/thor-arm64-deploy-pipeline.md"
+        ],
+        "top_scores": [
+          35.83,
+          27.93,
+          19.57
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/ecr-build-proc-acpi-failure.md",
+          "references/ecr-builder-proc-acpi-runc-bug.md",
+          "references/thor-arm64-deploy-pipeline.md"
+        ],
+        "top_scores": [
+          36.86,
+          28.84,
+          20.03
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-R04-ses-not-pod-regression",
+      "candidate": "regression",
+      "split": "regression",
+      "query": "sesctl says my job is Running so the plugin must be healthy, right?",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "references/job-scheduling-and-liveness.md",
+          "references/thor-arm64-deploy-pipeline.md",
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          14.41,
+          12.83,
+          12.38
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/job-scheduling-and-liveness.md",
+          "references/thor-arm64-deploy-pipeline.md",
+          "references/ecr-arm64-thor-deployment.md"
+        ],
+        "top_scores": [
+          14.65,
+          13.0,
+          12.93
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    },
+    {
+      "id": "V2-R05-local-cache-regression",
+      "candidate": "regression",
+      "split": "regression",
+      "query": "Can a plugin write files to local disk on an edge node and read them back later?",
+      "verdict": "both_pass",
+      "control": {
+        "top_k": [
+          "references/local-cache-ring-buffer.md",
+          "references/plugin-design-doc-workflow.md",
+          "references/wes-shared-filesystem-and-cache-architecture.md"
+        ],
+        "top_scores": [
+          17.2,
+          15.9,
+          14.26
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/local-cache-ring-buffer.md",
+          "references/plugin-design-doc-workflow.md",
+          "references/wes-shared-filesystem-and-cache-architecture.md"
+        ],
+        "top_scores": [
+          17.79,
+          16.42,
+          14.91
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

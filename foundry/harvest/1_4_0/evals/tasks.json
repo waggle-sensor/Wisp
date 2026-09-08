@@ -1,0 +1,152 @@
+[
+  {
+    "id": "V2-T01-agent-home-rewrite",
+    "candidate": "HV2-0001",
+    "split": "targeted",
+    "query": "cd into my project directory failed: No such file or directory, but the folder exists in my home directory. The agent shell path shows .hermes/profiles/sage/home in it.",
+    "answer_files": ["agent-shell-environment"],
+    "must_contain_all": ["HOME", "absolute"],
+    "must_contain_any": ["profiles/sage/home", "tilde", "~"],
+    "notes": "Highest-independence theme: 9/11 students, 52 episodes. Symptom is a generic ENOENT, so the page must be retrievable from the doubled-path shape."
+  },
+  {
+    "id": "V2-T02-sudo-allowlist",
+    "candidate": "HV2-0002",
+    "split": "targeted",
+    "query": "sudo k3s ctr images import fails with sudo: a terminal is required to read the password. How do I import my image into k3s?",
+    "answer_files": ["sudo-allowlist-and-image-import"],
+    "must_contain_all": ["pluginctl", "allowlist"],
+    "must_contain_any": ["NOPASSWD", "terminal is required"],
+    "notes": "Baseline instructs sudo k3s ctr images import in six places; k3s is not on the sudoers allowlist. Must route to pluginctl build / kubectl apply."
+  },
+  {
+    "id": "V2-T03-runtimeclass-gpu",
+    "candidate": "HV2-0003",
+    "split": "targeted",
+    "query": "My plugin pod runs but torch.cuda.is_available() is False and there is no /dev/nvidia in the pod. pluginctl run started it fine and the node has resource.gpu=true.",
+    "answer_files": ["pluginctl-gpu-runtimeclass"],
+    "must_contain_all": ["runtimeClassName", "pluginctl"],
+    "must_contain_any": ["device-plugin", "device plugin", "nvidia.com/gpu"],
+    "notes": "Baseline runtime-packaging-patterns.md:106 claims GPU is automatic via the device plugin; measured cost 27ms vs 1.4s per frame."
+  },
+  {
+    "id": "V2-T04-cdi-gpu-flag",
+    "candidate": "HV2-0004",
+    "split": "targeted",
+    "query": "docker run --runtime=nvidia fails on my node with default OCI runtime nvidia not found. How do I pass the GPU to a container?",
+    "answer_files": ["podman-cdi-gpu-passthrough"],
+    "must_contain_all": ["nvidia.com/gpu"],
+    "must_contain_any": ["CDI", "Podman", "podman"],
+    "notes": "Corrects SKILL.md:660 'always use --runtime=nvidia' and docker-build-deploy.md:73 for the Podman/CDI node class."
+  },
+  {
+    "id": "V2-T05-host-torch-hang",
+    "candidate": "HV2-0005",
+    "split": "targeted",
+    "query": "torch.cuda.is_available() never returns on the Thor host venv, no error, and the python process cannot be killed with SIGKILL.",
+    "answer_files": ["thor-host-torch-hang"],
+    "must_contain_all": ["D-state", "module level"],
+    "must_contain_any": ["subprocess", "lazy", "SIGKILL"],
+    "notes": "Corrects v1's own thor-host-cpu-dev-first.md: CUDA_VISIBLE_DEVICES= is NOT sufficient; import torch itself hangs."
+  },
+  {
+    "id": "V2-T06-conda-forge-no-sm110",
+    "candidate": "HV2-0006",
+    "split": "targeted",
+    "query": "My pixi conda-forge pytorch env says cuda is available but the first matmul dies with no kernel image is available for execution on the device.",
+    "answer_files": ["thor-host-torch-hang", "conda-forge"],
+    "must_contain_all": ["sm_110"],
+    "must_contain_any": ["conda-forge", "pixi", "no kernel image"],
+    "notes": "Distinct failure class from V2-T05: fails fast at kernel launch rather than hanging. Different diagnostic."
+  },
+  {
+    "id": "V2-T07-snapshot-rgb",
+    "candidate": "HV2-0007",
+    "split": "targeted",
+    "query": "My plugin publishes images with the red and blue channels swapped. I am reading Camera snapshot data and passing it straight to cv2.imwrite.",
+    "answer_files": ["pywaggle-snapshot-channel-order"],
+    "must_contain_all": ["RGB"],
+    "must_contain_any": ["BGR2RGB", "cvtColor", "channel"],
+    "notes": "Corrects reolink-http-snapshot.md:54 which states snapshot.data is BGR. Silent failure, no error message."
+  },
+  {
+    "id": "V2-T08-camera-zero-arg",
+    "candidate": "HV2-0008",
+    "split": "targeted",
+    "query": "Camera() raises TypeError: expected string or bytes-like object, got 'int' when I follow the tutorial app.",
+    "answer_files": ["pywaggle-camera-offline-dev"],
+    "must_contain_all": ["file://"],
+    "must_contain_any": ["device=0", "re.match", "string"],
+    "notes": "Misleading symptom: points at re, not at the camera. Most common first-plugin stumble."
+  },
+  {
+    "id": "V2-T09-plugin-offnode-thread",
+    "candidate": "HV2-0009",
+    "split": "targeted",
+    "query": "I wrapped Plugin() in try/except so my plugin can run off-node, but it still crashes with socket.gaierror from rabbitmq.py after the constructor returned.",
+    "answer_files": ["pywaggle-offnode-local-testing"],
+    "must_contain_all": ["thread"],
+    "must_contain_any": ["WAGGLE_", "env var", "environment variable"],
+    "notes": "try/except cannot catch a background-thread raise. Gate on a Sage env var instead."
+  },
+  {
+    "id": "V2-T10-registry-x509",
+    "candidate": "HV2-0010",
+    "split": "targeted",
+    "query": "pluginctl build succeeded and gave me a node-local registry tag, but pluginctl run gets ImagePullBackOff with certificate signed by unknown authority.",
+    "answer_files": ["node-registry-x509-trust"],
+    "must_contain_any": ["x509", "certificate signed by unknown authority"],
+    "must_contain_all": ["registry"],
+    "notes": "Baseline documents reachability and image-name causes for ImagePullBackOff, not the trust path."
+  },
+  {
+    "id": "V2-R01-nvmap-regression",
+    "candidate": "regression",
+    "split": "regression",
+    "query": "torch.cuda.is_available() returns False immediately with NvRmMemInitNvmap Permission denied on the Thor host.",
+    "answer_files": ["SKILL.md", "direct-node-testing", "thor-host-cpu-dev-first"],
+    "must_contain_any": ["nvmap", "/dev/nvmap"],
+    "must_contain_all": [],
+    "notes": "REGRESSION GUARD: the pre-existing fast-False nvmap pitfall must stay retrievable after we add several new GPU pages."
+  },
+  {
+    "id": "V2-R02-pluginctl-camp-regression",
+    "candidate": "regression",
+    "split": "regression",
+    "query": "How do I build and run a plugin on my Thor node with pluginctl for the camp workflow?",
+    "answer_files": ["pluginctl-camp-guide"],
+    "must_contain_any": ["pluginctl build", "pluginctl run"],
+    "must_contain_all": [],
+    "notes": "REGRESSION GUARD: the camp's primary workflow page must not be demoted by new GPU/registry pages."
+  },
+  {
+    "id": "V2-R03-ecr-acpi-regression",
+    "candidate": "regression",
+    "split": "regression",
+    "query": "Every RUN step in my ECR build fails at runc init with can't mask dir /proc/acpi.",
+    "answer_files": ["ecr-build-proc-acpi-failure", "ecr-builder-proc-acpi-runc-bug"],
+    "must_contain_any": ["acpi", "runc"],
+    "must_contain_all": [],
+    "notes": "REGRESSION GUARD: existing well-documented ECR failure must stay findable."
+  },
+  {
+    "id": "V2-R04-ses-not-pod-regression",
+    "candidate": "regression",
+    "split": "regression",
+    "query": "sesctl says my job is Running so the plugin must be healthy, right?",
+    "answer_files": ["SKILL.md", "job-scheduling", "plugin-deploy-pluginctl-vs-ses"],
+    "must_contain_any": ["SES", "pod"],
+    "must_contain_all": [],
+    "notes": "REGRESSION GUARD: v1 shipped SES-is-not-pod-liveness; must survive v2."
+  },
+  {
+    "id": "V2-R05-local-cache-regression",
+    "candidate": "regression",
+    "split": "regression",
+    "query": "Can a plugin write files to local disk on an edge node and read them back later?",
+    "answer_files": ["local-cache-ring-buffer", "local-cache"],
+    "must_contain_any": ["cache", "ring buffer"],
+    "must_contain_all": [],
+    "notes": "REGRESSION GUARD: a miner observed an agent asserting 'edge nodes do not have a disk', contradicting three baseline files. Tests whether the right page is retrievable."
+  }
+]

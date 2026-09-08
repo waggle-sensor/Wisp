@@ -3,7 +3,7 @@
 # Repacked artifacts must not carry the packager's home directory.
 #
 # .graphify_root is DELETED, and the installer must rewrite it with a real
-# absolute path (see README / hermes-agent.md).
+# absolute path (see README / setup.md).
 #
 # Why not just rewrite it here: graphify reads the marker with Path(text) and
 # does no shell expansion, so a literal "$HOME/..." resolves to a bogus nested
@@ -35,7 +35,7 @@ rm -f "$DIR/.graphify_root"
 # Everything else (GRAPH_REPORT.md, graph.html <title>, dated backups): these
 # are display strings only, so a literal $HOME placeholder is fine here.
 while IFS= read -r f; do
-  INSTALL_ROOT="$INSTALL_ROOT" perl -pi -e 's{(?:/Users|/home)/[^/\s"]+/[^\s"]*?hermes-profile}{$ENV{INSTALL_ROOT}}g' "$f"
+  INSTALL_ROOT="$INSTALL_ROOT" perl -pi -e 's{(?:/Users|/home)/[^/\s"]+/[^\s"]*?(?:hermes-profile|/Wisp)}{$ENV{INSTALL_ROOT}}g' "$f"
 done < <(grep -rlE '(/Users|/home)/[^/[:space:]"]+/' "$DIR" 2>/dev/null || true)
 
 remaining="$( { grep -rlE '(/Users|/home)/[^/[:space:]"]+/' "$DIR" 2>/dev/null || true; } | wc -l | tr -d ' ')"

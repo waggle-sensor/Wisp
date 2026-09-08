@@ -1,0 +1,985 @@
+{
+  "themes": [
+    {
+      "theme_id": "T01",
+      "title": "Agent HOME is rewritten to the profile dir",
+      "merged_from": [
+        "C000",
+        "C010",
+        "C019"
+      ],
+      "canonical_claim": "In the camp Hermes terminal tool, $HOME is rewritten to <profile>/home, so any command using ~ or $HOME silently resolves under /home/<user>/.hermes/profiles/sage/home/ instead of the real /home/<user>/ \u2014 producing bogus 'No such file or directory' for files that plainly exist and making installed tools look missing (which pixi -> not found while /home/<user>/.pixi/bin/pixi exists); fix: always use absolute /home/<user>/... paths in terminal commands and never rely on ~ or a login-shell PATH.",
+      "alt_phrasings": [
+        "The Hermes agent shell runs with `HOME=/home/<user>/.hermes/profiles/sage/home` while the passwd home is `/home/<user>`, so `~` in agent-issued commands (and any tool that expands it) writes to a profile-scoped directory that ssh, the user's own shell, and the project tree never read \u2014 always use absolute paths, or resolve the real home, for anything the user will touch.",
+        "The agent's shell on camp Thors runs with HOME rewritten to `/home/<user>/.hermes/profiles/sage/home`, so any `cd ~/project` or `$HOME`-relative path resolves under the profile dir and fails with 'No such file or directory' even though the project exists at `/home/<user>/project` \u2014 use absolute real-home paths in every terminal call, and expect a separate (empty) container/model cache from the user's interactive shell."
+      ],
+      "kind": "invariant",
+      "students": [
+        "node-H01D",
+        "node-H035"
+      ],
+      "independence": 9,
+      "shards": [
+        "triage_00_01.json",
+        "triage_02_03.json",
+        "triage_04_05.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H01D-20260724_140109_2d7d81-00",
+        "node-H01D-20260725_173920_3bddee-00",
+        "node-H035-20260723_142740_b07b9d-04"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "SOUL",
+      "promote": true,
+      "promote_rationale": "Highest-independence finding in the corpus: 9/11 students, 52 episodes, 18 explicit cd failures. Symptom is a generic ENOENT indistinguishable from a typo, so no keyword list would surface it and no student wrote a skill about it.",
+      "notes": "Corpus-wide grep supersedes cluster metadata for independence. Affected paths include .ssh, .cache, .local, .venvs, .config, not just project dirs. One episode shows a cold podman store under the profile HOME forcing a ~5.5GB base-image re-pull.",
+      "independence_source": "corpus-wide grep: 9/11 students, 52 episodes"
+    },
+    {
+      "theme_id": "T02",
+      "title": "sudo works only for the NOPASSWD allowlist",
+      "merged_from": [
+        "C003",
+        "C042"
+      ],
+      "canonical_claim": "Camp Thor student accounts have NOPASSWD sudo for an explicit binary allowlist only (kubectl, docker, docker-compose, runplugin, pluginctl) and the Hermes terminal has no TTY, so every other sudo command fails with 'a terminal is required to read the password' \u2014 this makes the documented side-load step `sudo k3s ctr images import` impossible (/usr/local/bin/ctr is a symlink to k3s, so it inherits the block); the working substitute is to apply a privileged pod with `sudo kubectl` that mounts the containerd socket and runs the import from inside.",
+      "alt_phrasings": [
+        "The Hermes terminal tool on a camp Thor cannot run `sudo` \u2014 there is no tty and no askpass helper, so every `sudo pluginctl` / `sudo kubectl` call fails with `sudo: a terminal is required to read the password`; the agent must recognise this immediately and hand the student the exact commands to run in their own shell rather than retrying, and it should prefer sudo-free read paths (e.g. reading the manifest ConfigMap instead of `sudo cat /etc/waggle/node-manifest-v2.json`)."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H021",
+        "node-H032"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_00_01.json",
+        "triage_08_09.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-03",
+        "node-H032-20260721_191607_dad9e9-01"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md instructs `sudo k3s ctr images import` in six places (655,656,657,677,680,681), calling it CRITICAL and required for local testing. `k3s` is not on the sudoers allowlist.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "The baseline's canonical side-load procedure cannot execute on camp accounts. A bag-of-words A/B scores this topic as thoroughly covered - the keywords appear six times.",
+      "notes": "MINER DISAGREEMENT, adjudicated against the corpus: one shard claimed a NOPASSWD allowlist, another claimed sudo never works. 92 episodes across 8 students contain a successful sudo call; 9 episodes across 5 students hit the TTY error, and every command near those failures is a non-allowlisted binary (k3s, apt-get, nvidia-ctk, systemctl, usermod, cat). The shipped claim is the conjunction. The 'sudo never works' phrasing is over-general and would teach the next agent to abandon a capability that works 92 times."
+    },
+    {
+      "theme_id": "T03",
+      "title": "pluginctl pods get no GPU without runtimeClassName",
+      "merged_from": [
+        "C014",
+        "C005",
+        "C021",
+        "C043"
+      ],
+      "canonical_claim": "On a Thor node with NO nvidia-device-plugin pod, `pluginctl run` silently produces a CPU-only pod (torch.cuda.is_available()=False) because pluginctl never sets `runtimeClassName` and the node advertises no `nvidia.com/gpu` allocatable resource; the fix is to bypass pluginctl and `kubectl apply` a hand-written pod manifest with `runtimeClassName: nvidia` + `nodeSelector: resource.gpu=\"true\"`, which restores GPU (verified 27ms/frame YOLO vs ~1.4s on CPU).",
+      "alt_phrasings": [
+        "`pluginctl run --privileged` is NOT a substitute for runtimeClassName: nvidia on a Thor \u2014 even with --privileged --selector resource.gpu=true the pod still reports torch.cuda.is_available()=False and /dev/nvidia* is absent, because on Tegra the devices are wired by the NVIDIA runtime hook, not by the privileged securityContext; `pluginctl deploy --dry-run` is the cheap proof (it prints the full generated pod spec, which never contains runtimeClassName no matter which flags you pass).",
+        "The diagnostic that distinguishes 'GPU not attached' from 'GPU attached but code is wrong' on a Thor is that the node advertises NO `nvidia.com/gpu` in `kubectl describe node` allocatable and there is no nvidia-device-plugin/gpu-operator pod, so resource-based GPU requests are silently no-ops \u2014 GPU node labels (`resource.gpu=true`, `resource.cuda110=true`) are present and are NOT evidence that pods get the GPU.",
+        "On a camp Thor node the k3s cluster does not advertise `nvidia.com/gpu` capacity (no NVIDIA device-plugin DaemonSet), so a `pluginctl run` WITHOUT `--resource nvidia.com/gpu=1` starts and silently runs CPU-only (`torch.cuda.is_available()=False`) while the SAME container gets a working GPU under `podman run --device=nvidia.com/gpu=0`, and WITH the flag the pod stays `Pending` forever \u2014 the discriminating check is `kubectl describe node | grep nvidia` plus `kubectl get pods -n kube-system | grep nvidia`, and no plugin-side manifest, label or annotation can fix it."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H035",
+        "node-H03F"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_00_01.json",
+        "triage_04_05.json",
+        "triage_06_07.json",
+        "triage_08_09.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-06",
+        "node-H035-20260723_142740_b07b9d-07",
+        "node-H035-20260723_142740_b07b9d-11",
+        "node-H035-20260723_142740_b07b9d-12",
+        "node-H035-20260724_011258_f7a2ab-06",
+        "node-H03F-20260727_003225_269cc7-01"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "runtimeClassName appears nowhere in the baseline; runtime-packaging-patterns.md:106 asserts the opposite - 'GPU available via NVIDIA device plugin'.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Measured cost in-episode: 27ms/frame GPU vs ~1.4s/frame CPU (~50x). Silent failure - the pod runs, publishes, and succeeds, just 50x slower with no error.",
+      "notes": "Cross-shard: found independently by 4 miners. Includes the negative result that `--privileged` is NOT a substitute (a plausible workaround a student disproved live), and the one-command preflight: the node advertises no nvidia.com/gpu allocatable and the resource.gpu=true label is not evidence the GPU reaches pods."
+    },
+    {
+      "theme_id": "T04",
+      "title": "Podman/CDI is the working GPU passthrough, not --runtime=nvidia",
+      "merged_from": [
+        "C009",
+        "C044"
+      ],
+      "canonical_claim": "On camp Thor blades the working docker/podman GPU flag is CDI `--device=nvidia.com/gpu=all`, not `--gpus all` and not `--runtime=nvidia` \u2014 `--runtime=nvidia` needs nvidia-container-runtime registered in /etc/docker/daemon.json (root-only, which camp accounts lack), so the baseline's `--runtime=nvidia (Not --gpus all)` guidance is stale for these nodes.",
+      "alt_phrasings": [
+        "On camp Thor nodes the NVIDIA container runtime is present as a binary but is NOT registered with the container engine, so `--runtime=nvidia` fails with `default OCI runtime nvidia not found` and `--gpus all` reports `NVIDIA Driver was not detected` with `cuda False`; registering it needs passwordless sudo that camp accounts lack, and the working syntax is the CDI form `--device nvidia.com/gpu=0` (or `=all`), which needs no daemon config."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H035",
+        "node-H021"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_02_03.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260724_011258_f7a2ab-04",
+        "node-H021-20260723_004314_437672-04"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md:660 says 'Always use --runtime=nvidia'; docker-build-deploy.md:73 has a section titled 'Docker Runtime: --runtime=nvidia (Not --gpus all)'.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Registering the nvidia runtime needs root edits to /etc/docker/daemon.json that camp accounts cannot make. CDI --device=nvidia.com/gpu=all is what actually works.",
+      "notes": "Corroborated by three students' MEMORY.md independently of the transcripts. Flagged verify_on_canary: a miner warned the baseline may be drifting from fleet state and that a stale correction is worse than none."
+    },
+    {
+      "theme_id": "T05",
+      "title": "Host PyPI torch hangs forever in D-state",
+      "merged_from": [
+        "C001",
+        "C008"
+      ],
+      "canonical_claim": "On a camp Thor (JetPack R38.2.1 / L4T 38.2.1), a generic PyPI aarch64 torch wheel (torch 2.13.0+cu130) imports fine but every CUDA entry point \u2014 torch.cuda.is_available(), .cuda(), even nvidia-smi on the host \u2014 HANGS FOREVER rather than returning False or raising; the misleading symptom is a series of tool timeouts that look like 'slow first import', and the fix is to stop probing on the host and do all GPU work inside nvcr.io/nvidia/pytorch:25.08-py3.",
+      "alt_phrasings": [
+        "On a camp Thor (JetPack R38.2.1, driver 580.00), PyPI torch 2.13.0+cu130 installed into a host venv imports fine but HANGS INDEFINITELY with no error and no timeout on `torch.cuda.is_available()` or any CUDA call (it lacks Blackwell sm_110 kernels) \u2014 the fix is an NGC container (nvcr.io/nvidia/pytorch:25.08-py3) or `CUDA_VISIBLE_DEVICES=''` for CPU-only dev."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H021"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json",
+        "triage_02_03.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260723_004314_437672-02",
+        "node-H021-20260723_004314_437672-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "Corrects v1's own thor-host-cpu-dev-first.md, shipped in 1.2.0, which prescribes CUDA_VISIBLE_DEVICES= before importing torch as the fix.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "v1's fix is insufficient: `import torch` ITSELF enters uninterruptible D-state even with CUDA_VISIBLE_DEVICES=''. D-state processes survive SIGKILL. Working fix is a subprocess probe with timeout plus function-body-local torch imports.",
+      "notes": "The sharpest argument for transcripts over artifacts: v1 mined a student artifact frozen 2026-07-23; the same student superseded it on 07-24. Mining artifacts froze a claim the cohort had already outgrown."
+    },
+    {
+      "theme_id": "T06",
+      "title": "conda-forge/pixi torch dies at first kernel launch",
+      "merged_from": [
+        "C002",
+        "C015",
+        "C028"
+      ],
+      "canonical_claim": "conda-forge publishes no sm_110 PyTorch for linux-aarch64 (only cuda129 builds; the pytorch and nvidia channels have no aarch64 pytorch at all), so a pixi/conda env on a Thor reports torch.cuda.is_available()=True and then dies at the FIRST kernel launch with 'CUDA error: no kernel image is available for execution on the device' \u2014 a GPU-capability mismatch masquerading as a model/ultralytics bug; there is no conda pin that fixes it, the only path is the CUDA-13 container base.",
+      "alt_phrasings": [
+        "A Pixi/conda-forge PyTorch env on a Thor node dies at the first kernel launch with `no kernel image is available for execution on the device` because conda-forge ships no aarch64 PyTorch build containing sm_110 (Blackwell) cubins; there is no pixi.toml or CLI fix \u2014 the only GPU paths are the NVIDIA container (nvcr.io/nvidia/pytorch:25.08-py3) or CPU via CUDA_VISIBLE_DEVICES=\"\".",
+        "On a Thor node, PyTorch installed into a HOST environment (pixi/conda-forge `linux-aarch64 + cuda129`, or a PyPI venv wheel) reports `torch.cuda.is_available()==True` but dies at the FIRST kernel launch with `no kernel image is available for execution on the device` (PyPI builds instead hang forever on the first CUDA call) \u2014 cause is that no host-installable aarch64 PyTorch build ships sm_110/Blackwell kernels; the only fix is to run inside an NVIDIA container (`nvcr.io/nvidia/pytorch:25.08-py3`), not to edit pixi.toml or pin a different CUDA."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json",
+        "triage_04_05.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-04",
+        "node-H035-20260723_142740_b07b9d-09",
+        "node-H035-20260723_142740_b07b9d-15"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "docker-build-deploy.md covers sm_110 for container tags only, never host-side envs. 'pixi' appears nowhere in the baseline.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Distinct failure class from T05 with a different diagnostic: reports cuda.is_available()==True then fails FAST at the first kernel with 'no kernel image is available', rather than hanging. Students arrive with pixi research repos.",
+      "notes": "Deliberately NOT merged with T05 despite near-total keyword overlap - opposite symptoms (fast failure vs infinite hang) need opposite diagnostics. Merging would misdiagnose both."
+    },
+    {
+      "theme_id": "T07",
+      "title": "snapshot.data is RGB, not BGR",
+      "merged_from": [
+        "C020"
+      ],
+      "canonical_claim": "pywaggle's `Camera` defaults to `format=RGB` and `ImageSample.__init__` applies `cv2.cvtColor(data, COLOR_BGR2RGB)` on construction, so `snapshot.data[...,0]` is RED \u2014 a plugin that reasons about `snapshot.data` as if it were raw cv2 BGR publishes silently swapped R/B channels.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260721_202140_e3f58b-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "reolink-http-snapshot.md:54 states 'Returns BGR numpy array, same format as Camera.snapshot().data'.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Silent failure with no error message at all - the class most likely to reach production. A plugin following the baseline publishes colour-swapped images.",
+      "notes": "Student measured it rather than asserting it: snapshot.data channel means [70.8, 116.5, 43.2] vs raw cv2 BGR [42.9, 115.9, 70.9] - channels 0 and 2 demonstrably swapped. Strongest evidence quality in the corpus."
+    },
+    {
+      "theme_id": "T08",
+      "title": "pywaggle Camera() zero-arg raises a misleading TypeError",
+      "merged_from": [
+        "C016"
+      ],
+      "canonical_claim": "Calling pywaggle's `Camera()` with no argument raises `TypeError: expected string or bytes-like object, got 'int'` (not a missing-camera error) because the default `device=0` is an int that `Camera.__init__` feeds straight into `re.match`; always pass a device STRING (`\"file://example.jpg\"`, an RTSP URL, or a data-shim name).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "students": [
+        "node-H032"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260720_205548_b91283-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "camera-rtsp-patterns.md documents the device-routing chain but not that the zero-arg default crashes with a type error rather than a graceful device-open failure.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Most common first-plugin stumble; the symptom points at `re`, not at the camera.",
+      "notes": "Pairs naturally with T09 and the no-camera-attached invariant on one offline-dev page."
+    },
+    {
+      "theme_id": "T09",
+      "title": "Off-node Plugin() raises from a background thread",
+      "merged_from": [
+        "C017",
+        "C039"
+      ],
+      "canonical_claim": "Wrapping `Plugin()` construction in try/except does NOT make a plugin safe to run off-node: pywaggle's RabbitMQ publisher runs on a background thread, so the `socket.gaierror: [Errno -2] Name or service not known` surfaces as an unhandled traceback from `rabbitmq.py` after the constructor already returned \u2014 gate plugin init on a Sage env var (e.g. WAGGLE_PLUGIN_NAME / WAGGLE_NODE_ID) instead of on exception handling.",
+      "alt_phrasings": [
+        "The common `try: from waggle.plugin import Plugin / except ImportError:` local-test guard does NOT protect against the real on-node failure \u2014 `Plugin()` construction raises later from a pika/RabbitMQ `socket.getaddrinfo` failure inside `rabbitmq.py`, not at import \u2014 so the guard must wrap both the import AND `Plugin().__enter__()` and catch `Exception`, or the plugin crashes on any node where the broker is unreachable."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json",
+        "triage_06_07.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260727_024905_596214-05",
+        "node-H035-20260727_024905_596214-13"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md has a 'Local testing (no node required)' section but does not state that Plugin() raises from a daemon thread and therefore escapes try/except.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "The `try: Plugin() except: local-test mode` idiom is the natural thing to write and it silently does not work - students shipped it twice. Gate on a WAGGLE_* env var instead.",
+      "notes": "Two miners found this independently via different symptoms (gaierror vs ImportError guard)."
+    },
+    {
+      "theme_id": "T10",
+      "title": "Node-local registry x509 trust failure",
+      "merged_from": [
+        "C004",
+        "C048"
+      ],
+      "canonical_claim": "`pluginctl build` can succeed and hand back a 10.31.81.1:5000/local/... ref that `pluginctl run` can never pull: kubelet rejects the node-local registry with x509 'certificate signed by unknown authority' even though /etc/rancher/k3s/registries.yaml names the CA and `openssl verify` of the serving cert against that CA returns 0 \u2014 i.e. containerd has not loaded the registries.yaml, and the diagnosis is that a build-succeeds/run-ImagePullBackOff pair is a registry-trust fault, not a build or image-name fault.",
+      "alt_phrasings": [
+        "A `pluginctl run` that cycles `Plugin is in \"Pending\" state` \u2192 `Plugin is in \"\" state` \u2192 `Error: Failed to get plugin status pods \"<name>\" not found` is NOT a pluginctl or scheduler bug: it is an ImagePullBackOff (here, the node-local k3s registry's TLS cert) after which k8s garbage-collects the pod out from under pluginctl's status poll \u2014 the fix is to stop pulling and import the image straight into k3s containerd, then reference it by the name containerd stored (`localhost/<name>:<tag>`), not the registry path."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H021"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-03",
+        "node-H021-20260725_162553_193a20-04"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "Baseline documents reachability and image-name causes for ImagePullBackOff; x509 appears only in control-plane diagnosis contexts, not the registry pull path.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "pluginctl build succeeds and hands back a ref that pluginctl run can never pull. Includes the confusing surface form: Pending -> '' -> 'pods not found' cycling.",
+      "notes": null
+    },
+    {
+      "theme_id": "T11",
+      "title": "sage-waggle SKILL.md exceeds its size limit",
+      "merged_from": [
+        "C023"
+      ],
+      "canonical_claim": "`skill_view(\"sage-waggle\")` returns ~121.8k characters, which exceeds the tool-result cap and is truncated or spilled to a temp file after the first ~1.5k chars \u2014 so loading the whole skill is not a way to answer a Sage question; the agent must go straight to `search_files` / read the named `references/*.md` file instead, and this reproduced in five separate episodes across four students.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "students": [
+        "node-H01D"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260718_081505_0d26e4-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md is 115,244 B (1.1.0) / 115,885 B (1.2.0) against a stated 100 KB limit.",
+      "suggested_placement": "do-not-promote",
+      "promote": false,
+      "promote_rationale": "PARTIALLY VERIFIED. The packaging half is confirmed and v1 made it worse. The miner's read-path claim (skill_view returns 121.8k truncated) could NOT be reproduced: all 50 skill_view results in state.db pass an explicit file=, none loads the whole body, no truncated flag is ever set. Not promoted as a content page - it is a packaging action, recorded as a release constraint instead.",
+      "notes": "Episodes are inadmissible evidence for a truncation claim because the corpus builder itself truncates tool results (1,155 elisions). Release constraint: v2 adds NO prose to SKILL.md; new material goes to references/ only."
+    },
+    {
+      "theme_id": "T12",
+      "title": "Camp blades ship with no camera and are SGT-scoped",
+      "merged_from": [
+        "C013",
+        "C026",
+        "C036",
+        "C022"
+      ],
+      "canonical_claim": "Camp Thor blades ship with NO camera attached \u2014 no `/dev/video*`, empty `v4l2-ctl --list-devices`, no `/run/waggle/data-config.json`, an empty `\"sensors\": []` in the node manifest, and no port-554 host on either node subnet \u2014 so `Camera()`, `Camera(\"bottom_camera\")` and any RTSP plugin will fail until hardware is physically added and registered; probe those five things before writing camera code.",
+      "alt_phrasings": [
+        "Camp Thor nodes are tagged to project SGT, and `auth.sagecontinuum.org/manifests/<VSN>` and `/api/v-beta/nodes/<VSN>` return EMPTY bodies for them, so 'what sensors does my node have?' must be answered on-node: read the `wes-identity` ConfigMap to map hardware serial to VSN, then read `/etc/waggle/node-manifest-v2.json` (host path, needs sudo) or its `waggle-node-manifest-v2-*` ConfigMap copy, which on a bare Thor devkit legitimately shows `\"sensors\": []`.",
+        "`curl` against `auth.sagecontinuum.org/manifests/<vsn>` without `-L` returns HTTP 301 with an EMPTY body, which reads as 'node not found / node down' \u2014 the endpoint redirects and needs `curl -sL`, so a bare curl is a false-negative generator when probing node existence.",
+        "A node that is missing from the portal's 'all nodes' list is usually not broken but filtered out by project scope \u2014 the fleet catalog carries six distinct `project` values (SAGE, SGT, APIARY, VTO, DAWN, Wildebeest) plus ~11 untagged nodes, and the portal defaults to SAGE-scoped; confirm with `GET /manifests/<vsn>` (HTTP 200 + a phase/project) and a `-30d` data-API query before treating it as an outage."
+      ],
+      "kind": "invariant",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_02_03.json",
+        "triage_06_07.json",
+        "triage_08_09.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260721_015837_deb440-01",
+        "node-H035-20260723_142740_b07b9d-07",
+        "node-H035-20260724_011258_f7a2ab-09"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "auth-api-manifests-and-nodes.md presents the manifest endpoint as the camp default and never says it returns empty for SGT-project nodes.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "All baseline camera guidance assumes an attached Reolink. Confirmed independently on three nodes. Includes the curl -L 301-empty-body false negative and project-scoped portal visibility (a healthy node in another project reads as an outage).",
+      "notes": null
+    },
+    {
+      "theme_id": "T13",
+      "title": "ENTRYPOINT shell form swallows pluginctl args",
+      "merged_from": [
+        "C025"
+      ],
+      "canonical_claim": "A plugin that ignores every CLI argument passed after `--` to `pluginctl run` (argparse keeps its defaults, e.g. camera-source falls back to `bottom_camera`) is almost always a Dockerfile bug, not a pluginctl bug: a shell-form `ENTRYPOINT [\"bash\",\"-c\",\"...\"]` swallows the args k8s appends as the container's Args, so the fix is exec-form `ENTRYPOINT [\"<interp>\",\"app.py\"]` with any env exports moved to `ENV` lines.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "students": [
+        "node-H03F"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260727_003225_269cc7-00"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Plugin keeps argparse defaults although kubectl describe proves the args reached the pod spec - reads as a pluginctl bug, is a Dockerfile bug. Exec-form ENTRYPOINT is the fix.",
+      "notes": "Complements v1's HERMES-0002 pixi ENTRYPOINT finding; same root cause family."
+    },
+    {
+      "theme_id": "T14",
+      "title": "pluginctl build tag derives from directory name",
+      "merged_from": [
+        "C012",
+        "C035"
+      ],
+      "canonical_claim": "`pluginctl build .` derives the image tag from the build directory's name, so a repo directory containing uppercase letters fails with `invalid reference format: repository name must be lowercase` (exit 125) \u2014 the failure is in the auto-generated tag, not the Dockerfile; work around it with `podman build -t localhost/<lowercase>:<ver> .` (or rename the directory).",
+      "alt_phrasings": [
+        "`pluginctl run --name X` against an already-existing pod X fails with Kubernetes' `Forbidden: pod updates may not change fields other than spec.containers[*].image...` plus a huge unreadable pod-spec diff \u2014 this is a stale-pod collision, not an RBAC/image/build problem (the build line right above says 'Successfully built plugin'); the fix is `sudo pluginctl rm X` first, or use a fresh name each iteration."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H021",
+        "node-H032"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_02_03.json",
+        "triage_04_05.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-08",
+        "node-H032-20260721_154559_125a24-01"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "An uppercase letter in the repo directory name fails with 'repository name must be lowercase' naming a tag the user never typed, so it misreads as an auth problem. Also covers the stale-pod --name collision whose giant pod-spec diff is unreadable.",
+      "notes": null
+    },
+    {
+      "theme_id": "T15",
+      "title": "Off-node upload path needs WAGGLE_PLUGIN_UPLOAD_PATH",
+      "merged_from": [
+        "C032"
+      ],
+      "canonical_claim": "Running a plugin's `plugin.upload_file()` on a Thor dev host (outside a WES pod) dies with `PermissionError: [Errno 13] Permission denied: '/run/waggle'` because pywaggle's default uploader root is `/run/waggle/uploads`, a root-owned path WES creates only inside pods \u2014 set `WAGGLE_PLUGIN_UPLOAD_PATH=$HOME/uploads` (no code change) and the plugin writes the real `<ts>-<sha1>/{data,meta}` staging layout Beehive consumes.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "students": [
+        "node-H032"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260721_154559_125a24-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "plugin.upload_file() on a dev host dies with PermissionError on /run/waggle, which is root-owned and absent off-node. This is exactly where the official tutorial wall is.",
+      "notes": null
+    },
+    {
+      "theme_id": "T16",
+      "title": "vLLM on Thor: unified-memory profiling and TRITON_ATTN hang",
+      "merged_from": [
+        "C029",
+        "C045",
+        "C046"
+      ],
+      "canonical_claim": "vLLM refuses to start on a Thor node with an 'Error in memory profiling / Initial free memory' assertion because Thor's UNIFIED memory makes free-memory drift (~230 MiB) between vLLM's before/after profiling snapshots; passing `--kv-cache-memory-bytes 4G` skips that before/after comparison entirely and lets startup complete (verified: Gemma-3-4b loaded in 8.61 GiB with a 4 GiB KV cache).",
+      "alt_phrasings": [
+        "vLLM on a Thor `nvcr.io/nvidia/pytorch` base logs `No module named 'triton_kernels.matmul_ogs'` as a non-fatal ERROR, then selects the `TRITON_ATTN` attention backend anyway and HANGS silently right after the safetensors shards finish loading \u2014 so the failure looks like a slow model load, not a crash; `FLEX_ATTENTION` is the other advertised candidate and forcing it (`VLLM_ATTENTION_BACKEND=FLEX_ATTENTION`) is the one-env-var test to run before spending more cycles on memory/runner flags.",
+        "To install CUDA-13 aarch64 wheels (vllm, triton, xformers) on a Thor node you must add NVIDIA's index `https://pypi.jetson-ai-lab.io/sbsa/cu130` as `--extra-index-url` ALONGSIDE `https://pypi.org/simple`, never as `--index-url` \u2014 the jetson-ai-lab index carries no pure-Python packages (pip, setuptools, numpy, huggingface_hub), so a strict `--index-url` fails on common deps; conversely, pure-Python-on-top-of-torch stacks (transformers, accelerate, pillow, sentencepiece) need NO special index at all because they ride the base image's CUDA torch."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H01E"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01E-20260719_014249_d4954d-02",
+        "node-H01E-20260719_014249_d4954d-03"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "new skill",
+      "promote": true,
+      "promote_rationale": "Two reproducible vLLM failure classes plus the jetson-ai-lab extra-index-url rule. Whole cluster comes from an agent-created skill (sage-thor-vlm-serving, 11.5 KB) that v1 never mined. Came from the LOW-friction batches - would have been lost to a friction gate.",
+      "notes": "Candidate for a domain pack rather than sage-waggle, per v1's placement ladder."
+    },
+    {
+      "theme_id": "T17",
+      "title": "Serial peripherals: no dialout group, ttyUSB enumeration",
+      "merged_from": [
+        "C034",
+        "C038"
+      ],
+      "canonical_claim": "Camp Thor user accounts are members of `video render develop` but NOT `dialout`, so the node's USB serial device `/dev/ttyUSB0` (crw-rw---- root:dialout, an FT232 UART that is typically the GPS/LoRa/Meshtastic link) is unreadable without sudo \u2014 check `groups` and the device's group before planning any serial-sensor plugin.",
+      "alt_phrasings": [
+        "A USB-serial peripheral documented as `/dev/ttyACM0` (Meshtastic/Arduino-class CDC device) can enumerate on a Thor as `/dev/ttyUSB0` via the `ftdi_sio` driver instead, and it is `root:dialout crw-rw----` so a non-root agent cannot open it \u2014 check `lsusb` + `ls -l /dev/ttyUSB* /dev/ttyACM*` and the loaded serial kernel module BEFORE building or deploying a serial plugin, and remember the WES pod needs the device bind-mounted (`-v /dev/ttyXXX:/dev/ttyXXX`) since the README's bare `python3 -m ...` invocations assume host execution."
+      ],
+      "kind": "invariant",
+      "students": [
+        "node-H01D",
+        "node-H02E"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_02_03.json",
+        "triage_06_07.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H01D-20260725_162927_ea8897-01",
+        "node-H02E-20260720_132912_13e5e9-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Accounts are in video/render/develop but NOT dialout, so /dev/ttyUSB0 is unreadable. A device documented as ttyACM0 can enumerate as ttyUSB0 via ftdi_sio. Blocks GPS/LoRa/Meshtastic work; serial peripherals are an entirely uncovered category.",
+      "notes": null
+    },
+    {
+      "theme_id": "T18",
+      "title": "@once is not a supported cron pattern",
+      "merged_from": [
+        "C007"
+      ],
+      "canonical_claim": "A science rule of `cronjob('<plugin>', '@once')` makes SES report the job as Running forever while the on-node wes-plugin-scheduler rejects the rule every ~10s with `pattern @once is not supported`, so no pod is ever created (ses namespace empty, `pluginctl ps` empty, no data) \u2014 fix is to replace `@once` with a real 5-field cron expression in the job spec.",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "students": [
+        "node-H03F"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_02_03.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260726_201000_c89bbc-00"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "SES reports Running forever while the on-node scheduler rejects the rule every ~10s and never creates a pod. A third 'Running but silent' bucket beyond the two the baseline has. Ground-truth-confirmed from scheduler logs.",
+      "notes": null
+    },
+    {
+      "theme_id": "T19",
+      "title": "ECR: sage.yaml source fields and S3 quota",
+      "merged_from": [
+        "C033",
+        "C041",
+        "C049"
+      ],
+      "canonical_claim": "A `sage.yaml` whose `source:` block contains only `architectures:` cannot be registered on the ECR portal \u2014 the portal clones from `source.url` + `source.branch`, and a top-level `homepage:` pointing at the repo does not substitute; every app in the public ECR catalog and the official plugin-hello-world manifest carry `source.url` and `source.branch` (plus defaulted `directory: \".\"` and `dockerfile: \"Dockerfile\"`).",
+      "alt_phrasings": [
+        "Two distinct ECR failures get conflated at camp and need different responses: (a) the portal's Create-App form rejects a repo whose `sage.yaml` lacks `source.url` and `source.branch` (`homepage` is display-only and does not satisfy it), and (b) `Upload to S3 failed ... (QuotaExceeded) when calling the UploadPart operation` is a Sage-side S3 quota on the shared build-artifact bucket \u2014 the build itself succeeded, nothing in the plugin repo can fix it, and the only student-side path is the local-build + pluginctl side-load route.",
+        "Publishing a plugin version to ECR can fail with a boto/S3 `QuotaExceeded` on `PutObject` for `sage/ecr/<user>/<app>/<user>_<app>_<version>.tgz` \u2014 this is a registry-side per-user storage quota, not a build failure, not an auth failure and not the buildkit `/proc/acpi` bug, so no Dockerfile or token change fixes it; the unblock is to free old versions under that path (or escalate) and the bypass is the pluginctl side-load path, which never touches S3."
+      ],
+      "kind": "failure_class",
+      "students": [
+        "node-H035",
+        "node-H032"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_02_03.json",
+        "triage_08_09.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260721_202140_e3f58b-01",
+        "node-H032-20260721_191607_dad9e9-00",
+        "node-H032-20260721_191607_dad9e9-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Two ECR failures the baseline's otherwise thorough catalogue misses: Create-App rejects a repo whose sage.yaml lacks source.url/source.branch (homepage is display-only), and publish can fail with a registry-side S3 QuotaExceeded that is not a build or auth error.",
+      "notes": "Medium confidence: the source.url causal link was inferred from the catalog, not confirmed by a successful re-registration."
+    },
+    {
+      "theme_id": "T20",
+      "title": "Deploy verification: trust the pod image, not the claim",
+      "merged_from": [
+        "C040"
+      ],
+      "canonical_claim": "When verifying a deploy, treat the version the USER says they deployed as unverified: check the SES pod's actual `image:` and independently GET the ECR catalog entry for the claimed tag \u2014 here the pod pulled `:0.1.0` while the user asked about `:0.1.2`, and `GET /apps/<ns>/<app>/0.1.2` returned HTTP 404 (never registered) against HTTP 200 for 0.1.0, so a 'newer version' that was never in the catalog would silently keep running the old image.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "students": [
+        "node-H03F"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_08_09.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H03F-20260726_201000_c89bbc-02"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Check the SES pod's actual image: and independently GET the ECR catalog entry. Caught a pod quietly running :0.1.0 while the user believed :0.1.2 - and :0.1.2 404s in ECR.",
+      "notes": null
+    },
+    {
+      "theme_id": "T21",
+      "title": "Fleet-wide web tool outage",
+      "merged_from": [
+        "C011",
+        "C024"
+      ],
+      "canonical_claim": "On camp Thor profiles the built-in web tools are all dead \u2014 `web_search` fails with \"ddgs package is not installed\", `web_extract` refuses (\"DuckDuckGo is a search-only backend\"), and `browser_navigate` fails with \"Chrome not found\" \u2014 and `pip install ddgs` does NOT revive `web_search`; the working path is the `ddgs` CLI from the terminal (`ddgs text -q \"...\" --max_results N`, underscore not hyphen, and `-q` is required because the query is not positional).",
+      "alt_phrasings": [
+        "On camp Thor profiles both web tools are dead \u2014 `web_search` fails with 'ddgs package is not installed', `web_extract` fails because DuckDuckGo is search-only, and `browser_navigate` fails with 'Chrome not found' \u2014 so the working way to read a public web page is `execute_code` with urllib/requests; agents that retry the web tools burn multiple turns."
+      ],
+      "kind": "procedure",
+      "students": [
+        "node-H01D"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_02_03.json",
+        "triage_06_07.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H01D-20260720_195748_067fd1-00",
+        "node-H01D-20260724_140109_2d7d81-02"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "Contradicts 'fetch the live URL' guidance in three baseline index files.",
+      "suggested_placement": "do-not-promote",
+      "promote": false,
+      "promote_rationale": "Transient provisioning state, not platform knowledge. Shaped 26 of 331 episodes and one blocked agent filled ECR metadata with unrelated stock photos rather than reporting the tool as unavailable - a real agent-integrity failure mode worth reporting in the paper. But a profile page describing a missing pip package is stale the moment the fleet is reprovisioned.",
+      "notes": "Kept as a cohort/operational finding for the write-up, excluded from uptake."
+    },
+    {
+      "theme_id": "T22",
+      "title": "NVIDIA-hosted provider aborts on vision tool results",
+      "merged_from": [
+        "C050"
+      ],
+      "canonical_claim": "A Hermes session using the NVIDIA-hosted provider (`https://integrate.api.nvidia.com/v1`, model `qwen/qwen3.5-397b-a17b`) hard-aborts with a non-retryable `HTTP 400: data did not match any variant of untagged enum ChatCompletionRequestToolMessageContent` as soon as a VISION tool result is fed back into the conversation \u2014 this is a provider-side tool-message schema mismatch, not a bug in the student's plugin or image, and the only recovery is to switch model/provider (the retry loop cannot help and says so).",
+      "alt_phrasings": [],
+      "kind": "failure_class",
+      "students": [
+        "node-H02F"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H02F-20260721_184622_d33d04-00"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "do-not-promote",
+      "promote": false,
+      "promote_rationale": "Agent provider-layer bug, outside the Sage domain and outside what a profile page can fix. Worth an upstream report, not a skill.",
+      "notes": "Invisible to keyword mining - notable as a category the method reached."
+    },
+    {
+      "theme_id": "T23",
+      "title": "Camera audio capability must be probed",
+      "merged_from": [
+        "C027",
+        "C031"
+      ],
+      "canonical_claim": "Do not infer camera audio capability from the vendor/model \u2014 probe it: on the camp camera set, the Reolink RTSP main stream (presumed video-only) carried an AAC-LC 16 kHz mono audio stream alongside HEVC video, while the Hanwha `profile1/media.smp` (presumed audio-capable) exposed only MJPEG video plus an unknown `codec_type=data` stream; the one-shot check is `ffprobe -v error -rtsp_transport tcp -show_streams '<rtsp url>'`.",
+      "alt_phrasings": [
+        "The camp fleet camera URL rtsp://10.107.0.1/camera/<name> is a redirector on the wg-sage network, not the camera: ffprobe reports an RTSP 302 to the camera's real address with credentials embedded, so any pod or firewall analysis must target the REDIRECT TARGET's host/port, and code that logs `camera_source.split(\"@\")[-1]` shows the proxy URL while the connection is actually going somewhere else; separately, OPENCV_FFMPEG_CAPTURE_OPTIONS is read at cv2.VideoCapture() open time, so setting it inside the frame-read loop has no effect."
+      ],
+      "kind": "procedure",
+      "students": [
+        "node-H035",
+        "node-H032"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_00_01.json",
+        "triage_08_09.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260727_212256_d2e016-03",
+        "node-H032-20260723_145518_ce24dc-07"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": false,
+      "promote_rationale": "Real and useful, but the camp camera set is site-specific hardware that will differ next year. Hold for instructor review rather than shipping fleet-wide guidance.",
+      "notes": "Includes the rtsp://10.107.0.1 redirector finding, which is camp-network-specific."
+    },
+    {
+      "theme_id": "T24",
+      "title": "birdnet 0.2.16 array API",
+      "merged_from": [
+        "C018"
+      ],
+      "canonical_claim": "In birdnet 0.2.16 the array-inference entry points are `model.predict_arrays((ndarray, sample_rate))` / `model.encode_arrays(...)` on the model object (session forms: `model.predict_session().run_arrays()`, `model.encode_session().run_arrays()`); encode returns 1024-dim embeddings with NO species labels, so a classification plugin that copies the encode_session/run_arrays snippet gets embeddings, not detections. Model constants are classmethods: get_sample_rate()=48000, get_segment_size_samples()=144000, get_sig_fmin/fmax=0/15000, get_embeddings_dim()=1024.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "students": [
+        "node-H032"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_04_05.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260723_145518_ce24dc-02"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "archive",
+      "promote": false,
+      "promote_rationale": "Library-version-specific API detail verified by reading installed source. Will be wrong at the next birdnet release; belongs in a project pack, not the shared baseline.",
+      "notes": null
+    },
+    {
+      "theme_id": "T25",
+      "title": "git-lfs absent on camp nodes",
+      "merged_from": [
+        "C030"
+      ],
+      "canonical_claim": "git-lfs is not installed on camp Thor nodes, so an LFS-tracked file in a cloned research repo checks out as ~130 bytes of pointer text rather than the real blob \u2014 `file` reports 'ASCII text' and the head is 'version https://git-lfs.github.com/spec/v1' \u2014 and a Dockerfile that COPYs such a path bakes the pointer into the image; preflight any handed-off repo by checking .gitattributes for filter=lfs and byte-checking each model/video file before building.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260723_142740_b07b9d-00"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": false,
+      "promote_rationale": "True and occasionally costly (LFS files bake into images as 130-byte pointers), but single-episode evidence and arguably general Git knowledge. Hold.",
+      "notes": null
+    },
+    {
+      "theme_id": "T26",
+      "title": "25.08-py3 ships no cv2 (dead Dockerfile line)",
+      "merged_from": [
+        "C037"
+      ],
+      "canonical_claim": "`nvcr.io/nvidia/pytorch:25.08-py3` ships with NO cv2 at all, so the widely-copied `rm -rf /usr/local/lib/python3.*/dist-packages/cv2*` line in Sage Dockerfiles deletes nothing and is dead code; a runtime `No module named 'cv2'` from an ECR-built plugin therefore points at the broken ECR builder, not at the OpenCV-purge step.",
+      "alt_phrasings": [],
+      "kind": "correction",
+      "students": [
+        "node-H035"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_06_07.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H035-20260727_212256_d2e016-01"
+      ],
+      "confidence": "medium",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": false,
+      "promote_rationale": "Plausible and cheap to fix, but rests on one student's observation of a widely-copied Dockerfile purge line. Needs a container check before shipping a correction.",
+      "notes": "Exactly the 'stale correction is worse than none' risk a miner warned about."
+    },
+    {
+      "theme_id": "T27",
+      "title": "No node-to-node primitive in Sage",
+      "merged_from": [
+        "C047"
+      ],
+      "canonical_claim": "Sage exposes NO node-to-node primitive: plugin pods can only reach Beehive (never each other, and never a peer node \u2014 no gRPC/socket/shared filesystem across nodes), there is no live pod migration (cancel + resubmit is the only real surface), no job dependency graph, no preemption API, and no network-plane control; a camp portal token grants job submit/cancel on named VSNs and read of MCP/auth APIs, and nothing more \u2014 so any multi-node topology, chaos-injection or federation layer is client-side bookkeeping, not a Sage capability.",
+      "alt_phrasings": [],
+      "kind": "invariant",
+      "students": [
+        "node-H01D"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_10_11.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H01D-20260724_171939_66adc2-01"
+      ],
+      "confidence": "medium",
+      "generality": "platform",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": false,
+      "promote_rationale": "Architecturally important capability boundary, but stated as a negative that is hard to verify from one episode. Flag for instructor confirmation.",
+      "notes": null
+    },
+    {
+      "theme_id": "T28",
+      "title": "TFLite/YAMNet-on-Thor toolchain",
+      "merged_from": [
+        "C006"
+      ],
+      "canonical_claim": "Running YAMNet (or any TFLite model) on a Thor has four non-obvious gates, all verified end-to-end on aarch64: tfhub.dev is dead and the only working kagglehub slug is google/yamnet/tensorFlow2/yamnet (tensorflow1/*, */classification, */yamnet-1 all 404); that download is a SavedModel, not a .tflite, so you convert it yourself; TF 2.21 removed tensorflow.lite.Interpreter, so the interpreter must come from ai_edge_litert.interpreter (already present because birdnet 0.2.16 depends on ai-edge-litert); and the converted model bakes a fixed [1] input shape, so you must call resize_tensor_input per waveform length or set_tensor raises a dimension mismatch.",
+      "alt_phrasings": [],
+      "kind": "procedure",
+      "students": [
+        "node-H032"
+      ],
+      "independence": 1,
+      "shards": [
+        "triage_00_01.json"
+      ],
+      "cross_shard": false,
+      "episodes": [
+        "node-H032-20260723_145518_ce24dc-06"
+      ],
+      "confidence": "high",
+      "generality": "toolchain",
+      "is_correction_of_baseline": false,
+      "baseline_conflict": null,
+      "suggested_placement": "sage-waggle reference",
+      "promote": false,
+      "promote_rationale": "Four verified gates (dead tfhub, kagglehub slug, TF 2.21 dropping tensorflow.lite, fixed input shape). Genuinely novel - baseline audio coverage is BirdNET-only. Held only because it is a long procedure needing its own page and a live re-run to confirm.",
+      "notes": "Strongest not-promoted candidate; recommend for the next pass."
+    }
+  ],
+  "not_promoted": [
+    {
+      "theme_id": "T11",
+      "title": "sage-waggle SKILL.md exceeds its size limit",
+      "reason": "PARTIALLY VERIFIED. The packaging half is confirmed and v1 made it worse. The miner's read-path claim (skill_view returns 121.8k truncated) could NOT be reproduced: all 50 skill_view results in state.db pass an explicit file=, none loads the whole body, no truncated flag is ever set. Not promoted as a content page - it is a packaging action, recorded as a release constraint instead."
+    },
+    {
+      "theme_id": "T21",
+      "title": "Fleet-wide web tool outage",
+      "reason": "Transient provisioning state, not platform knowledge. Shaped 26 of 331 episodes and one blocked agent filled ECR metadata with unrelated stock photos rather than reporting the tool as unavailable - a real agent-integrity failure mode worth reporting in the paper. But a profile page describing a missing pip package is stale the moment the fleet is reprovisioned."
+    },
+    {
+      "theme_id": "T22",
+      "title": "NVIDIA-hosted provider aborts on vision tool results",
+      "reason": "Agent provider-layer bug, outside the Sage domain and outside what a profile page can fix. Worth an upstream report, not a skill."
+    },
+    {
+      "theme_id": "T23",
+      "title": "Camera audio capability must be probed",
+      "reason": "Real and useful, but the camp camera set is site-specific hardware that will differ next year. Hold for instructor review rather than shipping fleet-wide guidance."
+    },
+    {
+      "theme_id": "T24",
+      "title": "birdnet 0.2.16 array API",
+      "reason": "Library-version-specific API detail verified by reading installed source. Will be wrong at the next birdnet release; belongs in a project pack, not the shared baseline."
+    },
+    {
+      "theme_id": "T25",
+      "title": "git-lfs absent on camp nodes",
+      "reason": "True and occasionally costly (LFS files bake into images as 130-byte pointers), but single-episode evidence and arguably general Git knowledge. Hold."
+    },
+    {
+      "theme_id": "T26",
+      "title": "25.08-py3 ships no cv2 (dead Dockerfile line)",
+      "reason": "Plausible and cheap to fix, but rests on one student's observation of a widely-copied Dockerfile purge line. Needs a container check before shipping a correction."
+    },
+    {
+      "theme_id": "T27",
+      "title": "No node-to-node primitive in Sage",
+      "reason": "Architecturally important capability boundary, but stated as a negative that is hard to verify from one episode. Flag for instructor confirmation."
+    },
+    {
+      "theme_id": "T28",
+      "title": "TFLite/YAMNet-on-Thor toolchain",
+      "reason": "Four verified gates (dead tfhub, kagglehub slug, TF 2.21 dropping tensorflow.lite, fixed input shape). Genuinely novel - baseline audio coverage is BirdNET-only. Held only because it is a long procedure needing its own page and a live re-run to confirm."
+    }
+  ],
+  "unassigned_clusters": [],
+  "stats": {
+    "clusters_in": 51,
+    "themes_out": 28,
+    "promoted": 19,
+    "corrections": 12,
+    "cross_shard": 14
+  }
+}

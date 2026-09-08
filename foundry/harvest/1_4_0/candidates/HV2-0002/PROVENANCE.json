@@ -1,0 +1,99 @@
+{
+  "id": "HV2-0002",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T02",
+      "title": "sudo works only for the NOPASSWD allowlist",
+      "merged_from": [
+        "C003",
+        "C042"
+      ],
+      "canonical_claim": "Camp Thor student accounts have NOPASSWD sudo for an explicit binary allowlist only (kubectl, docker, docker-compose, runplugin, pluginctl) and the Hermes terminal has no TTY, so every other sudo command fails with 'a terminal is required to read the password' \u2014 this makes the documented side-load step `sudo k3s ctr images import` impossible (/usr/local/bin/ctr is a symlink to k3s, so it inherits the block); the working substitute is to apply a privileged pod with `sudo kubectl` that mounts the containerd socket and runs the import from inside.",
+      "alt_phrasings": [
+        "The Hermes terminal tool on a camp Thor cannot run `sudo` \u2014 there is no tty and no askpass helper, so every `sudo pluginctl` / `sudo kubectl` call fails with `sudo: a terminal is required to read the password`; the agent must recognise this immediately and hand the student the exact commands to run in their own shell rather than retrying, and it should prefer sudo-free read paths (e.g. reading the manifest ConfigMap instead of `sudo cat /etc/waggle/node-manifest-v2.json`)."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H021",
+        "node-H032"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_00_01.json",
+        "triage_08_09.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H021-20260725_162553_193a20-03",
+        "node-H032-20260721_191607_dad9e9-01"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md instructs `sudo k3s ctr images import` in six places (655,656,657,677,680,681), calling it CRITICAL and required for local testing. `k3s` is not on the sudoers allowlist.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "The baseline's canonical side-load procedure cannot execute on camp accounts. A bag-of-words A/B scores this topic as thoroughly covered - the keywords appear six times.",
+      "notes": "MINER DISAGREEMENT, adjudicated against the corpus: one shard claimed a NOPASSWD allowlist, another claimed sudo never works. 92 episodes across 8 students contain a successful sudo call; 9 episodes across 5 students hit the TTY error, and every command near those failures is a non-allowlisted binary (k3s, apt-get, nvidia-ctk, systemctl, usermod, cat). The shipped claim is the conjunction. The 'sudo never works' phrasing is over-general and would teach the next agent to abandon a capability that works 92 times."
+    }
+  ],
+  "students": [
+    "node-H021",
+    "node-H032"
+  ],
+  "episodes": [
+    "node-H021-20260725_162553_193a20-03",
+    "node-H032-20260721_191607_dad9e9-01"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T02-sudo-allowlist",
+      "candidate": "HV2-0002",
+      "split": "targeted",
+      "query": "sudo k3s ctr images import fails with sudo: a terminal is required to read the password. How do I import my image into k3s?",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/ecr-arm64-thor-deployment.md",
+          "references/pluginctl-camp-guide.md",
+          "references/pluginctl-sideload-and-node-build.md"
+        ],
+        "top_scores": [
+          28.87,
+          28.15,
+          27.09
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "allowlist"
+        ],
+        "missing_any_of": [
+          "NOPASSWD",
+          "terminal is required"
+        ]
+      },
+      "treatment": {
+        "top_k": [
+          "references/sudo-allowlist-and-image-import.md",
+          "references/ecr-arm64-thor-deployment.md",
+          "references/pluginctl-camp-guide.md"
+        ],
+        "top_scores": [
+          37.7,
+          28.67,
+          27.65
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}

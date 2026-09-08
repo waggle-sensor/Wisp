@@ -1,0 +1,33 @@
+name: sage
+version: 1.4.0
+description: "Sage event agent — hackathons, camps, and workshops; edge computing, Waggle plugins, Thor + Ollama; Graphify-required skills/docs discovery + HF/NVIDIA skills"
+hermes_requires: ">=0.12.0"
+author: "Sage Grande/ Waggle"
+license: "MIT"
+env_requires:
+  - name: NVIDIA_API_KEY
+    description: "NVIDIA Build API key (nvapi-...) — only if using Nvidia build inference api"
+    required: false
+  - name: NRP_LLM_API_KEY
+    description: "NRP LLM token (Bearer) — only if using NRP Managed LLMs"
+    required: false
+  - name: SAGE_PORTAL_TOKEN
+    description: "Sage portal Bearer token — only for MCP job-submission tools"
+    required: false
+  - name: GITHUB_MCP_PAT
+    description: "GitHub Personal Access Token (Bearer) — only if enabling GitHub MCP at https://api.githubcopilot.com/mcp/"
+    required: false
+  - name: HF_TOKEN
+    description: "Hugging Face access token (Bearer) — only if enabling Hugging Face MCP at https://huggingface.co/mcp"
+    required: false
+distribution_owned:
+  - SOUL.md
+  - AGENTS.md
+  - config.yaml
+  - mcp.json
+  - skills/
+  - docs/
+  - distribution.yaml
+  - .graphifyignore
+  - .gitignore
+  - graphify-baseline.tar.gz

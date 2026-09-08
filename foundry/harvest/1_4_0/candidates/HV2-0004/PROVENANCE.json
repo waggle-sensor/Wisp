@@ -1,0 +1,96 @@
+{
+  "id": "HV2-0004",
+  "pass": "foundry-v2",
+  "method": "state.db transcript -> episode segmentation -> LLM triage vs baseline coverage map -> cross-student corroboration -> semantic consolidation -> retrieval@k A/B",
+  "baseline": "summer-camp-2026 hermes-profile 1.2.0",
+  "themes": [
+    {
+      "theme_id": "T04",
+      "title": "Podman/CDI is the working GPU passthrough, not --runtime=nvidia",
+      "merged_from": [
+        "C009",
+        "C044"
+      ],
+      "canonical_claim": "On camp Thor blades the working docker/podman GPU flag is CDI `--device=nvidia.com/gpu=all`, not `--gpus all` and not `--runtime=nvidia` \u2014 `--runtime=nvidia` needs nvidia-container-runtime registered in /etc/docker/daemon.json (root-only, which camp accounts lack), so the baseline's `--runtime=nvidia (Not --gpus all)` guidance is stale for these nodes.",
+      "alt_phrasings": [
+        "On camp Thor nodes the NVIDIA container runtime is present as a binary but is NOT registered with the container engine, so `--runtime=nvidia` fails with `default OCI runtime nvidia not found` and `--gpus all` reports `NVIDIA Driver was not detected` with `cuda False`; registering it needs passwordless sudo that camp accounts lack, and the working syntax is the CDI form `--device nvidia.com/gpu=0` (or `=all`), which needs no daemon config."
+      ],
+      "kind": "correction",
+      "students": [
+        "node-H035",
+        "node-H021"
+      ],
+      "independence": 2,
+      "shards": [
+        "triage_02_03.json",
+        "triage_10_11.json"
+      ],
+      "cross_shard": true,
+      "episodes": [
+        "node-H035-20260724_011258_f7a2ab-04",
+        "node-H021-20260723_004314_437672-04"
+      ],
+      "confidence": "high",
+      "generality": "platform",
+      "is_correction_of_baseline": true,
+      "baseline_conflict": "SKILL.md:660 says 'Always use --runtime=nvidia'; docker-build-deploy.md:73 has a section titled 'Docker Runtime: --runtime=nvidia (Not --gpus all)'.",
+      "suggested_placement": "sage-waggle reference",
+      "promote": true,
+      "promote_rationale": "Registering the nvidia runtime needs root edits to /etc/docker/daemon.json that camp accounts cannot make. CDI --device=nvidia.com/gpu=all is what actually works.",
+      "notes": "Corroborated by three students' MEMORY.md independently of the transcripts. Flagged verify_on_canary: a miner warned the baseline may be drifting from fleet state and that a stale correction is worse than none."
+    }
+  ],
+  "students": [
+    "node-H035",
+    "node-H021"
+  ],
+  "episodes": [
+    "node-H035-20260724_011258_f7a2ab-04",
+    "node-H021-20260723_004314_437672-04"
+  ],
+  "ab_tasks": [
+    {
+      "id": "V2-T04-cdi-gpu-flag",
+      "candidate": "HV2-0004",
+      "split": "targeted",
+      "query": "docker run --runtime=nvidia fails on my node with default OCI runtime nvidia not found. How do I pass the GPU to a container?",
+      "verdict": "IMPROVED",
+      "control": {
+        "top_k": [
+          "references/docker-build-deploy.md",
+          "SKILL.md",
+          "references/thor-host-cpu-dev-first.md"
+        ],
+        "top_scores": [
+          30.4,
+          25.24,
+          23.24
+        ],
+        "retrieval_hit": false,
+        "actionable": false,
+        "pass": false,
+        "missing_required": [
+          "nvidia.com/gpu"
+        ],
+        "missing_any_of": []
+      },
+      "treatment": {
+        "top_k": [
+          "references/podman-cdi-gpu-passthrough.md",
+          "references/docker-build-deploy.md",
+          "SKILL.md"
+        ],
+        "top_scores": [
+          33.75,
+          29.76,
+          24.56
+        ],
+        "retrieval_hit": true,
+        "actionable": true,
+        "pass": true,
+        "missing_required": [],
+        "missing_any_of": []
+      }
+    }
+  ]
+}
